@@ -7,13 +7,11 @@ import org.cloudbus.cloudsim.vms.Vm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public class MinimumExecutionTimeBroker extends DatacenterBrokerSimple {
+public class RandomBroker extends DatacenterBrokerSimple {
 
-    double minExecTime=Integer.MAX_VALUE;
-    int vm=0;
-
-    public MinimumExecutionTimeBroker(final CloudSim simulation) {
+    public RandomBroker(final CloudSim simulation) {
         super(simulation);
     }
 
@@ -21,8 +19,9 @@ public class MinimumExecutionTimeBroker extends DatacenterBrokerSimple {
 
         int noOfVms = vmList.size();
         int noOfCloudlets = cloudletList.size();
-
-        System.out.println("minExecTime: " + minExecTime);
+        Random random = new Random();
+        double executionTime[][] = new double[noOfCloudlets][noOfVms];
+        double time =0.0;
 
         ArrayList<Cloudlet> clist = new ArrayList<Cloudlet>();
         ArrayList<Vm> vlist = new ArrayList<Vm>();
@@ -37,11 +36,7 @@ public class MinimumExecutionTimeBroker extends DatacenterBrokerSimple {
             Vm vm = vmList.get(i);
             vlist.add(vm);
         }
-
-        double executionTime[][] = new double[noOfCloudlets][noOfVms];
-
-        double time =0.0;
-
+/*
         for(int i=0;i<noOfCloudlets;i++){
             for(int j=0;j<noOfVms;j++){
                 time=getExecutionTime(clist.get(i),vlist.get(j));
@@ -51,18 +46,13 @@ public class MinimumExecutionTimeBroker extends DatacenterBrokerSimple {
             }
         }
 
+ */
+        // Binding Cloudlets to random VMs
         for (int i = 0; i <clist.size();i++){
             int cl = i;
-            minExecTime=Integer.MAX_VALUE;
-            System.out.println("Cloudlet waiting time: "+clist.get(cl).getWaitingTime());
-            for (int j = 0; j < vlist.size(); j++) {
-                if (executionTime[i][j] < minExecTime) {
-                    minExecTime = executionTime[i][j];
-                    vm = j;
-                }
-            }
+            int vm = random.nextInt(vlist.size());
             bindCloudletToVm(clist.get(cl), vlist.get(vm));
-            System.out.println(clist.get(cl)+" is bound to "+vlist.get(vm)+" at MET: "+minExecTime);
+            System.out.println(clist.get(cl)+" is bound to "+vlist.get(vm));
         }
     }
 
@@ -70,7 +60,5 @@ public class MinimumExecutionTimeBroker extends DatacenterBrokerSimple {
     private double getExecutionTime(Cloudlet cloudlet, Vm vm){
         return cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
     }
-
-
 
 }

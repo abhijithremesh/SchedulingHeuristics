@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MinimumCompletionTime {
+public class ImprovedMaxMin {
 
     private static final int HOSTS = 1;
     private static final int HOST_PES = 2;
@@ -41,15 +41,15 @@ public class MinimumCompletionTime {
     private List<Vm> vmList;
 
     public static void main(String[] args) {
-        new MinimumCompletionTime();
+        new ImprovedMaxMin();
     }
 
-    private MinimumCompletionTime(){
+    private ImprovedMaxMin(){
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        MinimumCompletionTimeBroker broker0 = new MinimumCompletionTimeBroker(simulation);
+        ImprovedMaxMinBroker broker0 = new ImprovedMaxMinBroker(simulation);
 
         vmList = createVms(broker0);
         cloudletList = createCloudlets(broker0);
@@ -60,22 +60,6 @@ public class MinimumCompletionTime {
         broker0.scheduleTasksToVms(vmList,cloudletList);
 
         simulation.start();
-
-        System.out.println("===========Submitted Cloudlets================");
-        for(Cloudlet c : broker0.getCloudletSubmittedList()){
-            getDetails(c);
-        }
-
-        System.out.println("===========Created Cloudlets================");
-        for(Cloudlet c : broker0.getCloudletCreatedList()){
-            getDetails(c);
-        }
-
-        System.out.println("===========Finished Cloudlets================");
-        for(Cloudlet c : broker0.getCloudletFinishedList()){
-            getDetails(c);
-        }
-
 
         for(Cloudlet c : broker0.getCloudletSubmittedList()){
             System.out.println("Cloudlet "+c.getId()+" of length "+c.getLength() +" is mapped to VM "+c.getVm().getId());
@@ -115,10 +99,10 @@ public class MinimumCompletionTime {
         return host;
     }
 
-    private List<Vm> createVms(MinimumCompletionTimeBroker broker0) {
+    private List<Vm> createVms(ImprovedMaxMinBroker broker0) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            Random random = new Random();
+            java.util.Random random = new java.util.Random();
             int randomMips = random.nextInt(500);
             final Vm vm = new VmSimple(randomMips, VM_PES);
             vm.setRam(512).setBw(1000).setSize(10000);
@@ -129,12 +113,12 @@ public class MinimumCompletionTime {
         return list;
     }
 
-    private List<Cloudlet> createCloudlets(MinimumCompletionTimeBroker broker0) {
+    private List<Cloudlet> createCloudlets(ImprovedMaxMinBroker broker0) {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
         for (int i = 0; i < CLOUDLETS; i++) {
-            Random random = new Random();
+            java.util.Random random = new Random();
             int randomLength = random.nextInt(500);
             final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH+randomLength, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);
@@ -144,21 +128,8 @@ public class MinimumCompletionTime {
         return list;
     }
 
-    private void getDetails(Cloudlet cloudlet){
-        double responseTime = cloudlet.getFinishTime()-cloudlet.getExecStartTime();
-        System.out.println("***************** Cloudlet "+cloudlet.getId()+" ***************************");
-        System.out.println("Cloudlet PEs = "+cloudlet.getNumberOfPes());
-        System.out.println("Cloudlet Arrival time = "+cloudlet.getArrivalTime(datacenter0));
-        System.out.println("Cloudlet length = "+cloudlet.getLength());
-        System.out.println("VM = "+cloudlet.getVm());
-        System.out.println("VM MIPS = "+cloudlet.getVm().getMips());
-        System.out.println("VM PES = "+cloudlet.getVm().getNumberOfPes());
-        System.out.println("WaitingTime = "+cloudlet.getWaitingTime());
-        System.out.println("ExecStartTime = "+cloudlet.getExecStartTime());
-        System.out.println("FinishTime = "+cloudlet.getFinishTime());
-        System.out.println("Priority = "+cloudlet.getPriority());
-        System.out.println("ResponseTime = "+responseTime);
 
-    }
+
+
 
 }

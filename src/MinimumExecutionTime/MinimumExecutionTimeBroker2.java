@@ -8,12 +8,12 @@ import org.cloudbus.cloudsim.vms.Vm;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MinimumExecutionTimeBroker extends DatacenterBrokerSimple {
+public class MinimumExecutionTimeBroker2 extends DatacenterBrokerSimple {
 
     double minExecTime=Integer.MAX_VALUE;
     int vm=0;
 
-    public MinimumExecutionTimeBroker(final CloudSim simulation) {
+    public MinimumExecutionTimeBroker2(final CloudSim simulation) {
         super(simulation);
     }
 
@@ -70,7 +70,6 @@ public class MinimumExecutionTimeBroker extends DatacenterBrokerSimple {
     private double getExecutionTime(Cloudlet cloudlet, Vm vm){
         return cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
     }
-
 
 
 }

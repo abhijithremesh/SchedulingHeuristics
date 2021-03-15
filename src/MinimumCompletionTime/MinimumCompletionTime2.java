@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MinimumCompletionTime {
+public class MinimumCompletionTime2 {
 
     private static final int HOSTS = 1;
     private static final int HOST_PES = 2;
@@ -41,15 +41,15 @@ public class MinimumCompletionTime {
     private List<Vm> vmList;
 
     public static void main(String[] args) {
-        new MinimumCompletionTime();
+        new MinimumCompletionTime2();
     }
 
-    private MinimumCompletionTime(){
+    private MinimumCompletionTime2(){
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        MinimumCompletionTimeBroker broker0 = new MinimumCompletionTimeBroker(simulation);
+        MinimumCompletionTimeBroker2 broker0 = new MinimumCompletionTimeBroker2(simulation);
 
         vmList = createVms(broker0);
         cloudletList = createCloudlets(broker0);
@@ -57,9 +57,10 @@ public class MinimumCompletionTime {
         broker0.submitCloudletList(cloudletList);
         broker0.submitVmList(vmList);
 
+        simulation.start();
+
         broker0.scheduleTasksToVms(vmList,cloudletList);
 
-        simulation.start();
 
         System.out.println("===========Submitted Cloudlets================");
         for(Cloudlet c : broker0.getCloudletSubmittedList()){
@@ -75,6 +76,8 @@ public class MinimumCompletionTime {
         for(Cloudlet c : broker0.getCloudletFinishedList()){
             getDetails(c);
         }
+
+
 
 
         for(Cloudlet c : broker0.getCloudletSubmittedList()){
@@ -115,7 +118,7 @@ public class MinimumCompletionTime {
         return host;
     }
 
-    private List<Vm> createVms(MinimumCompletionTimeBroker broker0) {
+    private List<Vm> createVms(MinimumCompletionTimeBroker2 broker0) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
             Random random = new Random();
@@ -129,7 +132,7 @@ public class MinimumCompletionTime {
         return list;
     }
 
-    private List<Cloudlet> createCloudlets(MinimumCompletionTimeBroker broker0) {
+    private List<Cloudlet> createCloudlets(MinimumCompletionTimeBroker2 broker0) {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
@@ -161,4 +164,6 @@ public class MinimumCompletionTime {
 
     }
 
+
 }
+

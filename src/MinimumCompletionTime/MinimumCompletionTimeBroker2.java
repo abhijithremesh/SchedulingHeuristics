@@ -5,16 +5,15 @@ import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.vms.Vm;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MinimumCompletionTimeBroker extends DatacenterBrokerSimple {
+public class MinimumCompletionTimeBroker2 extends DatacenterBrokerSimple {
 
     double minCompTime=Integer.MAX_VALUE;
     int vm=0;
 
-    public MinimumCompletionTimeBroker(final CloudSim simulation) {
+    public MinimumCompletionTimeBroker2(final CloudSim simulation) {
         super(simulation);
     }
 
@@ -64,9 +63,14 @@ public class MinimumCompletionTimeBroker extends DatacenterBrokerSimple {
             bindCloudletToVm(clist.get(cl), vlist.get(vm));
             System.out.println(clist.get(cl)+" is bound to "+vlist.get(vm)+" at MET: "+minCompTime);
         }
+
+        /*
+        for (int i=0;i < clist.size();i++){
+            getDetails(clist.get(i));
+        }
+
+         */
     }
-
-
 
     private double getCompletionTime(Cloudlet cloudlet, Vm vm){
 
@@ -74,6 +78,19 @@ public class MinimumCompletionTimeBroker extends DatacenterBrokerSimple {
         double execTime = cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
         double completionTime = execTime + waitingTime;
         return completionTime;
+
+    }
+
+    private void getDetails(Cloudlet cloudlet){
+        double responseTime = cloudlet.getFinishTime()-cloudlet.getExecStartTime();
+        System.out.println("***************************************************");
+        System.out.println("PEs of Cloudlet "+cloudlet.getId()+" = "+cloudlet.getNumberOfPes());
+        System.out.println("VM of Cloudlet "+cloudlet.getId()+" = "+cloudlet.getVm());
+        System.out.println("Waiting Time of Cloudlet "+cloudlet.getId()+" = "+cloudlet.getWaitingTime());
+        System.out.println("Exec Start Time of Cloudlet "+cloudlet.getId()+" = "+cloudlet.getExecStartTime());
+        System.out.println("Finish Time of Cloudlet "+cloudlet.getId()+" = "+cloudlet.getFinishTime());
+        System.out.println("Priority of Cloudlet "+cloudlet.getId()+" = "+cloudlet.getPriority());
+        System.out.println("Response Time of Cloudlet "+cloudlet.getId()+" = "+responseTime);
 
     }
 
