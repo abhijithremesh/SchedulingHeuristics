@@ -5,3 +5,6 @@
 * Assign the task to the resource that gives this completion time.
 * Update the completion times in task-VM matrix.
 * Iterate till all the tasks are scheduled.
+
+
+![alt text](http://url/to/img.png)
