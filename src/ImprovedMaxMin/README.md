@@ -19,6 +19,8 @@
 * Update the completion times and execution times in task-VM matrix.
 * Iterate till all the tasks are scheduled.
 
+As discussed in "Improved Max-Min Algorithm in Cloud Computing"
+
 * Completion Time
   * Cij = Eij + Rj
     * Cij = completion time of task i on VM j 
