@@ -7,4 +7,4 @@
 * Iterate till all the tasks are scheduled.
 
 
-![alt text](http://url/to/img.png)
+![alt text](https://github.com/abhijithremesh/SchedulingHeuristics/blob/main/images/MIN-MIN%20example.PNG)
