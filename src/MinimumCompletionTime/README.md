@@ -13,4 +13,10 @@
 * Minimum Completion Time 2
   * Similar to MIN-MIN algorithm
   * Algorithm implemented based on the paper "Performance comparison of heuristic algorithms for task scheduling in IaaS cloud computing environment"
-  * seems incorrect as it is closely related to MIN-MIN strategy.  
+  * seems incorrect as it is closely related to MIN-MIN strategy. 
+
+* Completion Time
+  * Cij = Eij + Rj
+    * Cij = completion time of task i on VM j
+    * Eij = execution time of task i on VM j
+    * Rj = ready time of VM j    
