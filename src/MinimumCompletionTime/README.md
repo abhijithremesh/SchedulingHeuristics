@@ -1,4 +1,4 @@
-## SchedulingHeuristics
+## Steps
 
 * Minimum Completion Time 1
   *   Generating the Task-VM completion time matrix of all tasks-VM combination.
