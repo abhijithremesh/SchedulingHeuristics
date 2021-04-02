@@ -1,8 +1,8 @@
 ## Steps
 
-* For each task, determine its minimum completion time over all resources(VMs) which results in task-VM matrix.
-* Over all the tasks, Find the minimum completion time
-* Assign the task to the resource that gives this completion time.
+* For each task, determine the difference between its minimum and second minimum completion time over all resources(sufferage).
+* Over all the tasks, find the maximum sufferage.
+* Assign the task to the resource that has resulted in obtaining minimum completion time.
 * Update the completion times in task-VM matrix.
 * Iterate till all the tasks are scheduled.
 
