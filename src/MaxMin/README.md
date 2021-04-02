@@ -1,5 +1,7 @@
 ## Steps
 
+### Max-Min Broker 2
+
 * Computing the task-VM completion time matrix of all tasks-VM combination.
 * For each task, determine its minimum completion time over all VMs.
 * Over all the tasks, Find the maximum completion time
