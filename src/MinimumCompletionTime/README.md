@@ -17,6 +17,6 @@
 
 * Completion Time
   * Cij = Eij + Rj
-    * Cij = completion time of task i on VM j
-    * Eij = execution time of task i on VM j
-    * Rj = ready time of VM j    
+    * Cij = completion time of task i on VM j 
+    * Eij = execution time of task i on VM j ( cloudlet length / (VM MIPS * VM PES)
+    * Rj = ready time of VM j (waiting time)
