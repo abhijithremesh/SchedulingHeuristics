@@ -6,7 +6,7 @@
   *   Bind that task to the corresponding VM.
   *   Iterate for all the remaining tasks.
 
-* Minimum Execution Time 1
+* Minimum Execution Time 2
   *   Simiar to Minimum Execution Time 1
   *   But, the scheduling happens after simulation (guess, not the correct way of doing it)
 
