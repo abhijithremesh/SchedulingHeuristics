@@ -7,5 +7,5 @@
   *   Iterate for all the remaining tasks.
 
 * Minimum Completion Time 2
- * Similar to Minimum Completion Time 1
- * scheduling done after begin of simulation (guess, not the correct way)  
+  * Similar to Minimum Completion Time 1
+  * scheduling done after begin of simulation (guess, not the correct way)  
