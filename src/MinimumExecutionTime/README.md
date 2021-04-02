@@ -12,5 +12,5 @@
 
 * Execution Time
   * Eij
-        * Eij = execution time of task i on VM j (cloudlet length / (VM MIPS * VM PES))
+       * Eij = execution time of task i on VM j (cloudlet length / (VM MIPS * VM PES))
 
