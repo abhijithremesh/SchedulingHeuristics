@@ -7,5 +7,12 @@
 * Update the completion times in task-VM matrix.
 * Iterate till all the tasks are scheduled.
 
+* Completion Time
+  * Cij = Eij + Rj
+    * Cij = completion time of task i on VM j 
+    * Eij = execution time of task i on VM j (cloudlet length / (VM MIPS * VM PES))
+    * Rj = ready time of VM j (waiting time)
+
+-------------------------------------------------------------------------------------------
 
 ![alt text](https://github.com/abhijithremesh/SchedulingHeuristics/blob/main/images/MAX-MIN%20example.PNG)
