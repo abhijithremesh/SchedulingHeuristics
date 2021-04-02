@@ -10,7 +10,7 @@
   * Similar to Minimum Completion Time 1
   * scheduling done after begin of simulation (guess, not the correct way)  
 
-### Minimum Completion Time 2
+### Minimum Completion Time 3
   * Similar to MIN-MIN algorithm
   * Algorithm implemented based on the paper "Performance comparison of heuristic algorithms for task scheduling in IaaS cloud computing environment"
   * seems incorrect as it is closely related to MIN-MIN strategy. 
