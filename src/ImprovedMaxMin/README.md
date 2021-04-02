@@ -6,7 +6,16 @@
 * Computing the task-VM completion time matrix and execution time matrix of all tasks-VM combination.
 * Finding task with maximum execution time value from execution time matrix
 * Assigning that task to the VM with minimum completion time.
-* Removing that task from the matrix
+* Removing that task from the matrices
+* Update the completion times and execution times in task-VM matrix.
+* Iterate till all the tasks are scheduled.
+
+###  Max-Min
+
+* Computing the task-VM completion time matrix and execution time matrix of all tasks-VM combination.
+* Finding task with maximum completion time value from execution time matrix
+* Assigning that task to the VM with minimum execution time.
+* Removing that task from the matrices
 * Update the completion times and execution times in task-VM matrix.
 * Iterate till all the tasks are scheduled.
 
