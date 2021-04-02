@@ -51,8 +51,7 @@ public class MaxMinBroker extends DatacenterBrokerSimple {
             }
         }
 
-
-
+        System.out.println("Completion Time is " +completionTime[4][1]);
 
         int maxCloudlet = 0;
         int minVm=0;

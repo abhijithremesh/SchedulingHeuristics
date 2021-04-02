@@ -17,6 +17,7 @@ public class MaxMinBroker2 extends DatacenterBrokerSimple {
 
     ArrayList<cloudletVmMin> cloudletVmMinList = new ArrayList<cloudletVmMin>();
 
+    //Class which stores the cloudlet,VM and their respective completion time
     public class cloudletVmMin{
        private int cloudlet;
        private int vm;
@@ -32,13 +33,13 @@ public class MaxMinBroker2 extends DatacenterBrokerSimple {
 
     public void scheduleTasksToVms(List<Vm> vmList, List<Cloudlet> cloudletList ){
 
+        // Getting the amount of cloudlets and VMs
         int noOfVms = vmList.size();
         int noOfCloudlets = cloudletList.size();
-
-
         System.out.println("noOfVms: "+noOfVms);
         System.out.println("noOfCloudlets: "+noOfCloudlets);
 
+        // Storing the cloudlets and VMs
         ArrayList<Cloudlet> clist = new ArrayList<Cloudlet>();
         ArrayList<Vm> vlist = new ArrayList<Vm>();
 
@@ -52,13 +53,14 @@ public class MaxMinBroker2 extends DatacenterBrokerSimple {
             vlist.add(vm);
         }
 
+        // Completion time matrix and execution time matrix for cloudlets-VM
         double completionTime[][] = new double[noOfCloudlets][noOfVms];
         double executionTime[][] = new double[noOfCloudlets][noOfVms];
 
-
+        // Init some variables
         double time =0.0;
 
-
+        // Computing the completion time matrix for cloudlet-VM
         for(int i=0;i<noOfCloudlets;i++){
             for(int j=0;j<noOfVms;j++){
                 time=getCompletionTime(clist.get(i),vlist.get(j));
@@ -74,13 +76,17 @@ public class MaxMinBroker2 extends DatacenterBrokerSimple {
 
             System.out.println(Arrays.deepToString(completionTime));
 
+            // Getting the minimum cloudlet-VM combinations for each cloudlet
             for (int i = 0; i < clist.size(); i++) {
                 getMinCompletionTimePerCloudlet(completionTime, i);
             }
 
+            // Getting the maximum cloudlet-VM combo from the above combinations
             int[] Indices = getMaxCompletionTimeAllCloudlet(cloudletVmMinList);
             int maxCloudlet = Indices[0];
             int minVm = Indices[1];
+
+            // Computing the respective completion time for the selected cloudlet-VM combo.
             double maximumCompletionTime = completionTime[maxCloudlet][minVm];
 
             System.out.println("maxCloudlet: " + maxCloudlet);
@@ -91,8 +97,10 @@ public class MaxMinBroker2 extends DatacenterBrokerSimple {
             System.out.println("Maximum Cloudlet: " + maximumCloudlet);
             System.out.println("Minimum VM: " + minimumVm);
 
+            // Binding the respetcive cloudlet to the respective VM
             bindCloudletToVm(maximumCloudlet, minimumVm);
 
+            // Updating the completion time values for the selected VM and other remaining cloudlets
             for (int i = 0; i < clist.size(); i++) {
                 if (completionTime[i][minVm] != -1) {
                     completionTime[i][minVm] = completionTime[i][minVm] + maximumCompletionTime;
@@ -100,7 +108,7 @@ public class MaxMinBroker2 extends DatacenterBrokerSimple {
                 }
             }
 
-
+            // Replacing the completion times of the selected cloudlet across all the VMs with -1
             for (int i = 0; i < vlist.size(); i++) {
                 completionTime[maxCloudlet][i] = -1.0;
             }
@@ -113,26 +121,30 @@ public class MaxMinBroker2 extends DatacenterBrokerSimple {
         }
 
 
+
+
+
+
+
     }
 
+    // get completion time of a specific cloudlet and a specific vm
     private double getCompletionTime(Cloudlet cloudlet, Vm vm){
         double waitingTime = cloudlet.getWaitingTime();
         double execTime = cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
-
         double completionTime = execTime + waitingTime;
-
         return completionTime;
     }
 
+    // get execution time of a specific cloudlet and a specific vm
     private double getExecutionTime(Cloudlet cloudlet, Vm vm){
         return cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
     }
 
+    // get the minimum completion time per cloudlet
     private void getMinCompletionTimePerCloudlet(double[][] numbers,int c) {
         double minValue = 0;
         int vm=0;
-
-
             for (int i = 0; i < numbers[c].length; i++) {
                 if(numbers[c][i]==-1){
                     continue;
@@ -151,7 +163,6 @@ public class MaxMinBroker2 extends DatacenterBrokerSimple {
             }
         System.out.println("Minimum Completion Time for Cloudlet "+c+" : " + minValue+" on VM "+vm);
         cloudletVmMinList.add(new cloudletVmMin(c,vm,minValue));
-
     }
 
     private int[] getMaxCompletionTimeAllCloudlet(ArrayList<cloudletVmMin> List) {

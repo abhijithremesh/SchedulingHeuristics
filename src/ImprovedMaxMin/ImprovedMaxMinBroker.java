@@ -32,13 +32,13 @@ public class ImprovedMaxMinBroker extends DatacenterBrokerSimple {
 
     public void scheduleTasksToVms(List<Vm> vmList, List<Cloudlet> cloudletList ) {
 
+        // Getting the amount of cloudlets and VMs
         int noOfVms = vmList.size();
         int noOfCloudlets = cloudletList.size();
-
-
         System.out.println("noOfVms: " + noOfVms);
         System.out.println("noOfCloudlets: " + noOfCloudlets);
 
+        // Storing the cloudlets and VMs
         ArrayList<Cloudlet> clist = new ArrayList<Cloudlet>();
         ArrayList<Vm> vlist = new ArrayList<Vm>();
 
@@ -52,11 +52,16 @@ public class ImprovedMaxMinBroker extends DatacenterBrokerSimple {
             vlist.add(vm);
         }
 
+        // Completion time matrix and execution time matrix for cloudlets-VM
         double completionTime[][] = new double[noOfCloudlets][noOfVms];
         double executionTime[][] = new double[noOfCloudlets][noOfVms];
 
+        // Init some variables
         double time =0.0;
+        int maxCloudlet = 0;
+        int vm = 0;
 
+        // Computing the completion time matrix for cloudlet-VM
         for(int i=0;i<noOfCloudlets;i++){
             for(int j=0;j<noOfVms;j++){
                 time=getCompletionTime(clist.get(i),vlist.get(j));
@@ -66,47 +71,68 @@ public class ImprovedMaxMinBroker extends DatacenterBrokerSimple {
             }
         }
 
+        // Computing the execution time matrix for cloudlet-VM
+        for(int i=0;i<noOfCloudlets;i++){
+            for(int j=0;j<noOfVms;j++){
+                time=getExecutionTime(clist.get(i),vlist.get(j));
+                time = Math.round(time*100.0)/100.0;
+                executionTime[i][j] = time;
+                System.out.println("Execution Time Cloudlet"+i+"-VM"+j+" : "+executionTime[i][j]);
+            }
+        }
+
+
         System.out.println("*********************************");
 
         for(int c=0; c< clist.size(); c++) {
 
-            System.out.println(Arrays.deepToString(completionTime));
+            System.out.println("*********************************");
+            System.out.println(Arrays.deepToString(executionTime));
 
-            for (int i = 0; i < clist.size(); i++) {
-                getMinCompletionTimePerCloudlet(completionTime, i);
-            }
+            // Getting the maximum execution time value from the execution time matrix
+            double MaximumExecutionTime = getMaxValue(executionTime);
+            System.out.println("Maximum Execution Time: " + MaximumExecutionTime);
 
-            int[] Indices = getMaxCompletionTimeAllCloudlet(cloudletVmMinimumList);
-            int maxCloudlet = Indices[0];
-            int minVm = Indices[1];
-            double maximumCompletionTime = completionTime[maxCloudlet][minVm];
+            // Getting the respective indices (cloudlet,VM) of the maximum execution time value
+            int[] Indices = getIndices(executionTime, MaximumExecutionTime);
 
-            System.out.println("maxCloudlet: " + maxCloudlet);
-            System.out.println("minVm: " + minVm);
+            // Getting the cloudlet-VM  with maximum execution time from the execution time matrix
+            maxCloudlet = Indices[0];
+            vm = Indices[1];
+            System.out.println("Max Cloudlet : " + maxCloudlet);
+            System.out.println("VM : " + vm);
 
-            Cloudlet maximumCloudlet = clist.get(maxCloudlet);
-            Vm minimumVm = vlist.get(minVm);
-            System.out.println("Maximum Cloudlet: " + maximumCloudlet);
-            System.out.println("Minimum VM: " + minimumVm);
+            // Initializing MinExecTime value as the highest possible integer value
+            double minCompTime = Integer.MAX_VALUE;
 
-            bindCloudletToVm(maximumCloudlet, minimumVm);
-
-            for (int i = 0; i < clist.size(); i++) {
-                if (completionTime[i][minVm] != -1) {
-                    completionTime[i][minVm] = completionTime[i][minVm] + maximumCompletionTime;
-                    completionTime[i][minVm] = Math.round(completionTime[i][minVm] * 100.0) / 100.0;
+            // Finding the VM which gives minimum execution time for this selected cloudlet
+            for (int j = 0; j < vlist.size(); j++) {
+                if (completionTime[maxCloudlet][j] < minCompTime) {
+                    minCompTime = completionTime[maxCloudlet][j];
+                    vm = j;
                 }
             }
 
+            // The corresponding completion time for the selected cloudlet and VM
+            double finalExecutionTime = completionTime[maxCloudlet][vm];
 
-            for (int i = 0; i < vlist.size(); i++) {
-                completionTime[maxCloudlet][i] = -1.0;
+            // Binding the cloudlet to the respective VM
+            bindCloudletToVm(clist.get(maxCloudlet), vlist.get(vm));
+            System.out.println(clist.get(maxCloudlet) + " is bound to " + vlist.get(vm) + " at MET: " + minCompTime);
+
+            // Updating the completion time values for the selected VM and other remaining cloudlets
+            for (int i = 0; i < clist.size(); i++) {
+                if (executionTime[i][vm] != -1) {
+                    executionTime[i][vm] = executionTime[i][vm] + finalExecutionTime;
+                    executionTime[i][vm] = Math.round(executionTime[i][vm] * 100.0) / 100.0;
+                }
             }
 
+            // Replacing the completion times of the selected cloudlet across all the VMs with -1
+            for (int i = 0; i < vlist.size(); i++) {
+                executionTime[maxCloudlet][i] = -1.0;
+            }
 
-            cloudletVmMinimumList.clear();
-
-            System.out.println("*********************************");
 
         }
 
@@ -125,45 +151,36 @@ public class ImprovedMaxMinBroker extends DatacenterBrokerSimple {
         return cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
     }
 
-    private void getMinCompletionTimePerCloudlet(double[][] numbers,int c) {
-        double minValue = 0;
-        int vm=0;
+    // Get maximum completion time from the maximum completion time matrix
+    private double getMaxValue(double[][] numbers) {
+        double maxValue = 0;
 
-
-        for (int i = 0; i < numbers[c].length; i++) {
-            if(numbers[c][i]==-1){
-                continue;
+        for (int j = 0; j < numbers.length; j++) {
+            for (int i = 0; i < numbers[j].length; i++) {
+                if(numbers[j][i]==-1){
+                    continue;
+                }
+                else{
+                    maxValue = numbers[j][i];
+                    break;
+                }
             }
-            else{
-                minValue = numbers[c][i];
-                break;
+        }
+
+        for (int j = 0; j < numbers.length; j++) {
+            for (int i = 0; i < numbers[j].length; i++) {
+                if (numbers[j][i] > maxValue && numbers[j][i] > 0.0) {
+                    maxValue = numbers[j][i];
+                }
             }
         }
 
-        for (int i = 0; i < numbers[c].length; i++) {
-            if (numbers[c][i] < minValue && numbers[c][i] > 0.0) {
-                minValue = numbers[c][i];
-                vm = i;
-            }
-        }
-        System.out.println("Minimum Completion Time for Cloudlet "+c+" : " + minValue+" on VM "+vm);
-        cloudletVmMinimumList.add(new cloudletVmMin(c,vm,minValue));
-
+        return maxValue ;
     }
 
-    private int[] getMaxCompletionTimeAllCloudlet(ArrayList<cloudletVmMin> List) {
-        int[] Indices = new int[2];
-        double maximumCompletionTimeAllCloudlets = List.get(0).completionTime;
-        for (int i=0;i<List.size();i++){
-            if (List.get(i).completionTime > maximumCompletionTimeAllCloudlets ){
-                maximumCompletionTimeAllCloudlets = List.get(i).completionTime;
-                Indices[0]=List.get(i).cloudlet;
-                Indices[1]=List.get(i).vm;
-            }
-        }
-        System.out.println("maximumCompletionTimeAllCloudlets: "+maximumCompletionTimeAllCloudlets);
-        return Indices;
-    }
+
+
+
 
     private int[] getIndices(double[][] numbers,double value) {
         int[] Indices = new int[2];

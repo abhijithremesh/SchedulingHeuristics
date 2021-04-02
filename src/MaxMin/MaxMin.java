@@ -50,7 +50,7 @@ public class MaxMin {
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        MaxMinBroker broker0 = new MaxMinBroker(simulation);
+        MaxMinBroker3 broker0 = new MaxMinBroker3(simulation);
 
         vmList = createVms(broker0);
         cloudletList = createCloudlets(broker0);
@@ -100,7 +100,7 @@ public class MaxMin {
         return host;
     }
 
-    private List<Vm> createVms(MaxMinBroker broker0) {
+    private List<Vm> createVms(MaxMinBroker3 broker0) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
             Random random = new Random();
@@ -114,7 +114,7 @@ public class MaxMin {
         return list;
     }
 
-    private List<Cloudlet> createCloudlets(MaxMinBroker broker0) {
+    private List<Cloudlet> createCloudlets(MaxMinBroker3 broker0) {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
