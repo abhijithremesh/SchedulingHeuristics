@@ -6,6 +6,6 @@
   *   Bind that task to the corresponding VM.
   *   Iterate for all the remaining tasks.
   *   Execution Time
-     * Eij
-       * Eij = execution time of task i on VM j (cloudlet length / (VM MIPS * VM PES))
+      * Eij
+        * Eij = execution time of task i on VM j (cloudlet length / (VM MIPS * VM PES))
 
