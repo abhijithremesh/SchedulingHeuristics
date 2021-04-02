@@ -1,5 +1,7 @@
 ## Steps
 
+###Min-Min Broker 2
+
 * For each task, determine its minimum completion time over all resources(VMs) which results in task-VM matrix.
 * Over all the tasks, Find the minimum completion time
 * Assign the task to the resource that gives this completion time.
