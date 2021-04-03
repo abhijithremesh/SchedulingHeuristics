@@ -11,3 +11,12 @@
   * Submitted the cloudlet list and VM list to the broker
   * Broker sorts the cloudletlist in ascending order with respect to its length
   * Sorted cloudletlist is bound to VM as per the First Come First Serve policy. 
+
+* Shortest Job First Broker 3 ([Cloud Computing CPU Allocation and Scheduling Algorithms
+Using CloudSim Simulator](https://www.researchgate.net/profile/Hicham-Gibet-Tani/publication/309111132_Cloud_computing_CPU_allocation_and_scheduling_algorithms_using_cloudsim_simulator/links/59d015774585150177ee2565/Cloud-computing-CPU-allocation-and-scheduling-algorithms-using-cloudsim-simulator.pdf))
+
+  * The concept of this algorithm is same as that of FCFS
+  * The algorithm at first chooses the task with shortest execution time, which takes the lead in the list.
+  * This ordering is said to reduce the average waiting time extremely. 
+
+
