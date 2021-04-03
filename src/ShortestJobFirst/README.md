@@ -6,3 +6,8 @@
   *   Before submitting the cloudlets to the broker
   *   The cloudlets are sorted based on their length in ascending order such that smallest task is given highest priority.
   *   The sorted cloudlet list is submitted to the broker.
+
+* Shortest Job First Broker
+  * Submitted the cloudlet list and VM list to the broker
+  * Broker sorts the cloudletlist in ascending order with respect to its length
+  * Sorted cloudletlist is bound to VM as per the First Come First Serve policy. 
