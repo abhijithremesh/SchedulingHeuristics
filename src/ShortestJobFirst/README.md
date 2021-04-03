@@ -1,7 +1,7 @@
 
 ## Steps
 
-* Random 
-  *   For each task in the task list, find a random VM from the VM list.
-  *   Bind that task to the corresponding VM.
-  *   Iterate for all the remaining tasks.
+* Shortest Job First
+  *   Before submitting the cloudlets to the broker
+  *   The cloudlets are sorted based on their length in ascending order such that smallest task is given highest priority.
+  *   The sorted cloudlet list is submitted to the broker.
