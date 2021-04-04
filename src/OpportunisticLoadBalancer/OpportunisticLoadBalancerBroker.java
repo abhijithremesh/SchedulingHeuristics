@@ -28,6 +28,7 @@ public class OpportunisticLoadBalancerBroker extends DatacenterBrokerSimple {
 
         ArrayList<Cloudlet> clist = new ArrayList<Cloudlet>();
         ArrayList<Vm> vlist = new ArrayList<Vm>();
+       // List<Vm> vmWaitingList = new List<Vm>();
 
 
         for (int i = 0; i < noOfCloudlets; i++) {
@@ -38,8 +39,30 @@ public class OpportunisticLoadBalancerBroker extends DatacenterBrokerSimple {
         for (int i = 0; i < noOfVms; i++) {
             Vm vm = vmList.get(i);
             vlist.add(vm);
+
         }
+
+
+        for (int i =0; i<clist.size(); i++){
+
+            // Get the first cloudlet
+            Cloudlet cl = clist.get(i);
+            System.out.println("Current cloudlet: "+cl);
+
+            // Get the next waiting VM
+            List<Vm> vmWaitingList  = vlist.get(0).getBroker().getVmWaitingList();
+            Vm vm = vmWaitingList.get(0);
+            System.out.println("Current VM: "+vm);
+
+            // Binding the cloudlet to the next waiting VM
+            bindCloudletToVm(cl, vm);
+
+            System.out.println("Cloudlet "+cl.getId()+" is bound to "+cl.getVm());
+
+        }
+
 /*
+
         for(int i=0;i<noOfCloudlets;i++){
             for(int j=0;j<noOfVms;j++){
                 time=getExecutionTime(clist.get(i),vlist.get(j));
@@ -49,7 +72,11 @@ public class OpportunisticLoadBalancerBroker extends DatacenterBrokerSimple {
             }
         }
 
- */
+*/
+
+
+
+        /**
         // Binding Cloudlets to the next available VMs
         for (int i = 0; i <clist.size();i++){
             //int cl = i;
@@ -64,12 +91,17 @@ public class OpportunisticLoadBalancerBroker extends DatacenterBrokerSimple {
             //bindCloudletToVm(clist.get(cl), vlist.get(index));
             //System.out.println(clist.get(cl)+" is bound to "+vlist.get(index));
         }
+         **/
 
-
+/*
 
     private double getExecutionTime(Cloudlet cloudlet, Vm vm){
         return cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
     }
 
+
+*/
+
+    }
 
 }

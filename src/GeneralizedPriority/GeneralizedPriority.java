@@ -11,7 +11,6 @@ import org.cloudbus.cloudsim.hosts.HostSimple;
 import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
-import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
@@ -20,13 +19,14 @@ import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public class OpportunisticLoadBalancer {
+public class GeneralizedPriority {
 
     private static final int HOSTS = 1;
-    private static final int HOST_PES = 4;
+    private static final int HOST_PES = 2;
 
-    private static final int VMS = 4;
+    private static final int VMS = 2;
     private static final int VM_PES = 1;
 
     private static final int CLOUDLETS = 10;
@@ -40,30 +40,56 @@ public class OpportunisticLoadBalancer {
     private List<Cloudlet> cloudletList;
     private List<Vm> vmList;
 
+
+
     public static void main(String[] args) {
-        new OpportunisticLoadBalancer();
+        new GeneralizedPriority();
     }
 
-    private OpportunisticLoadBalancer() {
+    private GeneralizedPriority() {
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        OpportunisticLoadBalancerBroker broker0 = new OpportunisticLoadBalancerBroker(simulation);
+        GeneralizedPriorityBroker broker0 = new GeneralizedPriorityBroker(simulation);
 
         vmList = createVms(broker0);
         cloudletList = createCloudlets(broker0);
 
-        broker0.submitCloudletList(cloudletList);
+        System.out.println("******* Before sorting VM MIPS ***********");
+
+        for (Vm v : vmList) {
+            System.out.println(" VM MIPS: "+v.getMips());
+        }
+
+        // Sorting VMs in descending order with respect to VM MIPS
+        vmList = broker0.scheduleVms(vmList);
+
+        System.out.println("******* After sorting VM MIPS ***********");
+
+        for (Vm v : vmList) {
+            System.out.println(" VM MIPS: "+v.getMips());
+        }
+
         broker0.submitVmList(vmList);
 
-        broker0.scheduleTasksToVms(vmList, cloudletList);
+        System.out.println("******* Before sorting Cloudlet length ***********");
+
+        for (Cloudlet c : cloudletList) {
+            System.out.println(" Cloudlet length: "+c.getLength());
+        }
+
+        // Sorting Cloudlets in descending order with respect to cloudlet length
+        cloudletList = broker0.scheduleCloudlets(cloudletList);
+
+        System.out.println("******* After sorting Cloudlet length ***********");
+
+        for (Cloudlet c : cloudletList) {
+            System.out.println(" Cloudlet length: " + c.getLength());
+        }
+        broker0.submitCloudletList(cloudletList);
 
         simulation.start();
-
-        for (Cloudlet c : broker0.getCloudletSubmittedList()) {
-            System.out.println("Cloudlet " + c.getId() + " of length " + c.getLength() + " is mapped to VM " + c.getVm().getId());
-        }
 
         List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
 
@@ -98,10 +124,10 @@ public class OpportunisticLoadBalancer {
         return host;
     }
 
-    private List<Vm> createVms(OpportunisticLoadBalancerBroker broker0) {
+    private List<Vm> createVms(GeneralizedPriorityBroker broker0) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            java.util.Random random = new java.util.Random();
+            Random random = new Random();
             int randomMips = random.nextInt(500);
             final Vm vm = new VmSimple(randomMips, VM_PES);
             vm.setRam(512).setBw(1000).setSize(10000);
@@ -112,7 +138,7 @@ public class OpportunisticLoadBalancer {
         return list;
     }
 
-    private List<Cloudlet> createCloudlets(OpportunisticLoadBalancerBroker broker0) {
+    private List<Cloudlet> createCloudlets(GeneralizedPriorityBroker broker0) {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
@@ -126,7 +152,5 @@ public class OpportunisticLoadBalancer {
         }
         return list;
     }
-
-
 
 }
