@@ -1,6 +1,6 @@
 ## Steps
 
-* LongestCloudletFastestProcessingElement
+* LongestCloudletFastestProcessingElement (LCFP)
 
   *	Sort the cloudlets in descending order of length.
   *	Sort the PEs across all the hosts in descending order of processing power. 
