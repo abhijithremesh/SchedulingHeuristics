@@ -1,6 +1,7 @@
 ## Steps
 
 * GeneralizedPriority
+
   * Before submitting the VMs to the broker
   * VMs are sorted in descending order based on their VM MIPS ( VMs with higher MIPS take lead)
   * Sorted VMs submiited to the broker
