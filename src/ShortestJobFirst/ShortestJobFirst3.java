@@ -11,6 +11,7 @@ import org.cloudbus.cloudsim.hosts.HostSimple;
 import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
+import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ShortestJobFirst2 {
+public class ShortestJobFirst3 {
 
     private static final int HOSTS = 1;
     private static final int HOST_PES = 2;
@@ -40,15 +41,15 @@ public class ShortestJobFirst2 {
     private List<Vm> vmList;
 
     public static void main(String[] args) {
-        new ShortestJobFirst2();
+        new ShortestJobFirst3();
     }
 
-    private ShortestJobFirst2(){
+    private ShortestJobFirst3(){
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        ShortestJobFirstBroker2 broker0 = new ShortestJobFirstBroker2(simulation);
+        ShortestJobFirstBroker3 broker0 = new ShortestJobFirstBroker3(simulation);
 
         vmList = createVms(broker0);
         cloudletList = createCloudlets(broker0);
@@ -58,8 +59,6 @@ public class ShortestJobFirst2 {
 
         broker0.scheduleTasksToVms(vmList,cloudletList);
 
-        //broker0.OrderShortestJobFirst(cloudletList);
-
 
         simulation.start();
 
@@ -67,7 +66,6 @@ public class ShortestJobFirst2 {
 
         new CloudletsTableBuilder(finishedCloudlets)
             .build();
-
 
 
     }
@@ -94,10 +92,12 @@ public class ShortestJobFirst2 {
         final long storage = 1000000; //in Megabytes
         //Uses ResourceProvisionerSimple by default for RAM and BW provisioning
         //VmSchedulerSpaceShared for VM scheduling.
-        return new HostSimple(ram, bw, storage, peList);
+        Host host = new HostSimple(ram, bw, storage, peList);
+        host.setVmScheduler(new VmSchedulerSpaceShared());
+        return host;
     }
 
-    private List<Vm> createVms(ShortestJobFirstBroker2 broker0) {
+    private List<Vm> createVms(ShortestJobFirstBroker3 broker0) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
             final Vm vm = new VmSimple(1000, VM_PES);
@@ -109,7 +109,7 @@ public class ShortestJobFirst2 {
         return list;
     }
 
-    private List<Cloudlet> createCloudlets(ShortestJobFirstBroker2 broker0) {
+    private List<Cloudlet> createCloudlets(ShortestJobFirstBroker3 broker0) {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
