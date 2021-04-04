@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ShortestJobFirstBroker3 extends DatacenterBrokerSimple {
+public class ShortestJobFirstBroker4 extends DatacenterBrokerSimple {
 
-    public ShortestJobFirstBroker3(final CloudSim simulation) {
+    public ShortestJobFirstBroker4(final CloudSim simulation) {
         super(simulation);
     }
 
@@ -22,7 +22,7 @@ public class ShortestJobFirstBroker3 extends DatacenterBrokerSimple {
     // Init random to randomly choose a VM as the execution time for cloudlet in any VM appears to be same
     Random random = new Random();
 
-    //CloudletSpec class which stores the cloudlet,it's execution time on any VM and it's respective length
+    // CloudletSpec class which stores the cloudlet,it's execution time on any VM and it's respective length
     public class cloudletSpec{
 
         private Cloudlet cloudlet;
@@ -38,7 +38,7 @@ public class ShortestJobFirstBroker3 extends DatacenterBrokerSimple {
     }
 
     // function to sort the cloudlets in ascending order as a function of execution time.
-    public void scheduleTasksToVms(List<Vm> vmList, List<Cloudlet> cloudletList ) {
+    public ArrayList scheduleTasksToVms(List<Vm> vmList, List<Cloudlet> cloudletList ) {
 
         // Getting the amount of cloudlets and VMs
         int noOfVms = vmList.size();
@@ -64,12 +64,12 @@ public class ShortestJobFirstBroker3 extends DatacenterBrokerSimple {
         // Computing the execution time matrix for cloudlet-VM
         for(int i=0; i<noOfCloudlets; i++){
 
-                int v = random.nextInt(1);
-                time=getExecutionTime(clist.get(i),vlist.get(v));
-                time = Math.round(time*100.0)/100.0;
-                executionTime[i][v] = time;
-                //System.out.println("Execution Time Cloudlet"+i+"-VM"+j+" : " +executionTime[i][j]);
-                cloudletSpecList.add(new cloudletSpec(clist.get(i),executionTime[i][v],clist.get(i).getLength()));
+            int v = random.nextInt(vlist.size());
+            time=getExecutionTime(clist.get(i),vlist.get(v));
+            time = Math.round(time*100.0)/100.0;
+            executionTime[i][v] = time;
+            //System.out.println("Execution Time Cloudlet"+i+"-VM"+j+" : " +executionTime[i][j]);
+            cloudletSpecList.add(new cloudletSpec(clist.get(i),executionTime[i][v],clist.get(i).getLength()));
 
         }
 
@@ -82,7 +82,7 @@ public class ShortestJobFirstBroker3 extends DatacenterBrokerSimple {
         System.out.println("*************************************************************************");
 
         // Sorting Cloudlets in ascending order based on their execution time
-        cloudletSpecList.sort((cloudletSpec c1,cloudletSpec c2) -> {
+        cloudletSpecList.sort((cloudletSpec c1, cloudletSpec c2) -> {
             if (c1.executionTime > c2.executionTime)
                 return 1;
             if (c1.executionTime < c2.executionTime)
@@ -105,16 +105,7 @@ public class ShortestJobFirstBroker3 extends DatacenterBrokerSimple {
             System.out.println(" Cloudlet "+c.getId()+" with length "+c.getLength());
         }
 
-        System.out.println("************** Binding Cloudlets to VMs ******************************");
-
-        // Binding the sorted cloudlets to VMs as per the FCFS policy
-        for(int i=0; i < sortedCloudletList.size(); i++){
-            Cloudlet cl = sortedCloudletList.get(i);
-            Vm vm = vmList.get((i % vmList.size()));
-            bindCloudletToVm(cl,vm);
-            System.out.println("Cloudlet "+cl.getId()+" of length "+cl.getLength()+" is bound with VM "+vm.getId());
-        }
-
+        return sortedCloudletList;
 
     }
 
