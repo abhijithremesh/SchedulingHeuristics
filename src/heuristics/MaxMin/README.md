@@ -1,4 +1,3 @@
-## Steps
 
 ### Max-Min Broker 2
 
