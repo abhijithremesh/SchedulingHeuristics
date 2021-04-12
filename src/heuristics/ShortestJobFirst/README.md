@@ -28,3 +28,7 @@ Using CloudSim Simulator](https://www.researchgate.net/profile/Hicham-Gibet-Tani
   * Cloudlet is sorted in ascending order with respect to its execution time.
   * The sorted cloudlet list is submitted to the broker.
 
+* All the above implementations uses:
+  * Host uses VmSchedulerSpaceShared
+  * VM uses CloudletSchedulerSpaceShared.
+
