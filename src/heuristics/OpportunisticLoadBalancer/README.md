@@ -7,3 +7,5 @@
   * While assigning the cloudlet to the VM, it's execution time on that VM not considered.
   * If multiple VMs becomes ready at the same time while assigning, then one machine is arbitrary chosen.
   * Iterate for all the remaining tasks.
+  * Host uses VmScheduletSpaceShared.
+  * VM uses CloudletSchedulerSpaceShared.
