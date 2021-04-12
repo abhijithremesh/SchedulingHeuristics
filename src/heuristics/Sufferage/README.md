@@ -5,6 +5,8 @@
 * Assign the task to the resource that has resulted in obtaining minimum completion time.
 * Update the completion times in task-VM matrix.
 * Iterate till all the tasks are scheduled.
+* Host uses VmSchedulerSpaceShared.
+* VM uses CloudletSchedulerSpaceShared.
 
 
 ![alt text](https://github.com/abhijithremesh/SchedulingHeuristics/blob/main/images/Sufferage%20example.PNG)
