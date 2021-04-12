@@ -9,6 +9,8 @@
 * Removing that task from the matrices
 * Update the completion times and execution times in task-VM matrix.
 * Iterate till all the tasks are scheduled.
+* Host uses VmSchedulerSpaceShared.
+* VM uses CloudletSchedulerSpaceShared.
 
 ###  Max-Min
 
@@ -18,6 +20,8 @@
 * Removing that task from the matrices
 * Update the completion times and execution times in task-VM matrix.
 * Iterate till all the tasks are scheduled.
+* Host uses VmSchedulerSpaceShared.
+* VM uses CloudletSchedulerSpaceShared.
 
 As discussed in the research paper "Improved Max-Min Algorithm in Cloud Computing"
 
