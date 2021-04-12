@@ -7,4 +7,6 @@
   * Sorted VMs submiited to the broker
   * Before submitting the Cloudlets to the broker.
   * Cloudlets are sorted in descending order based on their cloudlet length ( Cloudlets with higher length take lead)
-  * Sorted Cloudlets submitted to the broker
+  * Sorted Cloudlets submitted to the broker.
+  * Host uses VmSchedulerSpaceShared.
+  * VM uses CloudletSchedulerSpaceShared.
