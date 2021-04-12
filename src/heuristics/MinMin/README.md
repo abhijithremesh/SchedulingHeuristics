@@ -7,6 +7,8 @@
 * Assign the task to the resource that gives this completion time.
 * Update the completion times in task-VM matrix.
 * Iterate till all the tasks are scheduled.
+* Host uses VmSchedulerSpaceShared.
+* VM uses CloudletSchedulerSpaceShared.
 * Completion Time
   * Cij = Eij + Rj
     * Cij = completion time of task i on VM j 
