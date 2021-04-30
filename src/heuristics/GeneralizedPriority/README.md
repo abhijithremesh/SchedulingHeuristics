@@ -1,6 +1,6 @@
 ## Steps
 
-* GeneralizedPriority
+* GeneralizedPriority (Before Submission: Cloudlets and VMs sorted before broker submission)
 
   * Before submitting the VMs to the broker
   * VMs are sorted in descending order based on their VM MIPS ( VMs with higher MIPS take lead)
