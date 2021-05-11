@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class GeneralizedPriority {
+public class GeneralizedPriority2 {
 
     private static final int HOSTS = 1;
     private static final int HOST_PES = 2;
@@ -40,54 +40,37 @@ public class GeneralizedPriority {
     private List<Cloudlet> cloudletList;
     private List<Vm> vmList;
 
-
-
     public static void main(String[] args) {
-        new GeneralizedPriority();
+        new GeneralizedPriority2();
     }
 
-    private GeneralizedPriority() {
+    private GeneralizedPriority2() {
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        GeneralizedPriorityBroker broker0 = new GeneralizedPriorityBroker(simulation);
+        GeneralizedPriorityBroker2 broker0 = new GeneralizedPriorityBroker2(simulation);
 
         vmList = createVms(broker0);
         cloudletList = createCloudlets(broker0);
 
-        System.out.println("******* Before sorting VM MIPS ***********");
+        System.out.println("******* VMs before sorting ***********");
 
         for (Vm v : vmList) {
-            System.out.println(" VM MIPS: "+v.getMips());
+            System.out.println("VM "+v.getId()+" has VM MIPS: "+v.getMips());
         }
 
-        // Sorting VMs in descending order with respect to VM MIPS
-        vmList = broker0.scheduleVms(vmList);
-
-        System.out.println("******* After sorting VM MIPS ***********");
-
-        for (Vm v : vmList) {
-            System.out.println(" VM MIPS: "+v.getMips());
-        }
-
-        broker0.submitVmList(vmList);
-
-        System.out.println("******* Before sorting Cloudlet length ***********");
+        System.out.println("******* Cloudlets before sorting ***********");
 
         for (Cloudlet c : cloudletList) {
-            System.out.println(" Cloudlet length: "+c.getLength());
+            System.out.println("Cloudlet "+c.getId()+" has length: "+c.getLength());
         }
 
-        // Sorting Cloudlets in descending order with respect to cloudlet length
-        cloudletList = broker0.scheduleCloudlets(cloudletList);
+        //broker0.submitVmList(vmList);
 
-        System.out.println("******* After sorting Cloudlet length ***********");
+        //broker0.submitCloudletList(cloudletList);
 
-        for (Cloudlet c : cloudletList) {
-            System.out.println(" Cloudlet length: " + c.getLength());
-        }
-        broker0.submitCloudletList(cloudletList);
+        broker0.schedule(cloudletList,vmList);
 
         simulation.start();
 
@@ -124,10 +107,10 @@ public class GeneralizedPriority {
         return host;
     }
 
-    private List<Vm> createVms(GeneralizedPriorityBroker broker0) {
+    private List<Vm> createVms(GeneralizedPriorityBroker2 broker0) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            Random random = new Random();
+            java.util.Random random = new Random();
             int randomMips = random.nextInt(500);
             final Vm vm = new VmSimple(randomMips, VM_PES);
             vm.setRam(512).setBw(1000).setSize(10000);
@@ -138,12 +121,12 @@ public class GeneralizedPriority {
         return list;
     }
 
-    private List<Cloudlet> createCloudlets(GeneralizedPriorityBroker broker0) {
+    private List<Cloudlet> createCloudlets(GeneralizedPriorityBroker2 broker0) {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
         for (int i = 0; i < CLOUDLETS; i++) {
-            java.util.Random random = new java.util.Random();
+            Random random = new Random();
             int randomLength = random.nextInt(500);
             final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH+randomLength, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);

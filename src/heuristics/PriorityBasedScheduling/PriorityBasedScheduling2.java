@@ -21,15 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SCFP {
+public class PriorityBasedScheduling2 {
 
     private static final int HOSTS = 1;
-    private static final int HOST_PES = 4;
+    private static final int HOST_PES = 1;
 
-    private static final int VMS = 4;
+    private static final int VMS = 1;
     private static final int VM_PES = 1;
 
-    private static final int CLOUDLETS = 20;
+    private static final int CLOUDLETS = 10;
     private static final int CLOUDLET_PES = 1;
 
     private static final int CLOUDLET_LENGTH = 1000;
@@ -41,70 +41,20 @@ public class SCFP {
     private List<Vm> vmList;
 
     public static void main(String[] args) {
-        new SCFP();
+        new PriorityBasedScheduling2();
     }
 
-    private SCFP() {
+    private PriorityBasedScheduling2(){
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        SCFPBroker broker0 = new SCFPBroker(simulation);
+        PriorityBasedSchedulingBroker2 broker0 = new PriorityBasedSchedulingBroker2(simulation);
 
         vmList = createVms(broker0);
         cloudletList = createCloudlets(broker0);
 
-        /*
-        System.out.println("******* Before sorting VM MIPS ***********");
-
-        for (Vm v : vmList) {
-            System.out.println(" VM MIPS: "+v.getMips());
-        }
-        */
-
-
-        // Sorting VMs in descending order with respect to VM MIPS
-        vmList = broker0.scheduleVms(vmList);
-
-        /*
-        System.out.println("******* After sorting VM MIPS ***********");
-
-        for (Vm v : vmList) {
-            System.out.println(" VM MIPS: "+v.getMips());
-        }
-        */
-
-
-        // Submitting VMList to the broker
-        broker0.submitVmList(vmList);
-
-        /*
-        System.out.println("******* Before sorting Cloudlet length ***********");
-
-        for (Cloudlet c : cloudletList) {
-            System.out.println(" Cloudlet length: "+c.getLength());
-        }
-        */
-
-
-        // Sorting Cloudlets in descending order with respect to cloudlet length
-        cloudletList = broker0.scheduleCloudlets(cloudletList);
-
-        /*
-        System.out.println("******* After sorting Cloudlet length ***********");
-
-        for (Cloudlet c : cloudletList) {
-            System.out.println(" Cloudlet length: " + c.getLength());
-        }
-        */
-
-
-        // Submitting CloudletList to the broker
-        broker0.submitCloudletList(cloudletList);
-
-        // mapping the longest cloudlets to VMs with maximum MIPS
-        broker0.mapCloudletsToVM(cloudletList,vmList);
-
+        broker0.schedule(cloudletList,vmList);
 
         simulation.start();
 
@@ -142,10 +92,10 @@ public class SCFP {
         return host;
     }
 
-    private List<Vm> createVms(SCFPBroker broker0) {
+    private List<Vm> createVms(PriorityBasedSchedulingBroker2 broker0) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            java.util.Random random = new java.util.Random();
+            Random random = new Random();
             int randomMips = random.nextInt(500);
             final Vm vm = new VmSimple(randomMips, VM_PES);
             vm.setRam(512).setBw(1000).setSize(10000);
@@ -156,12 +106,12 @@ public class SCFP {
         return list;
     }
 
-    private List<Cloudlet> createCloudlets(SCFPBroker broker0) {
+    private List<Cloudlet> createCloudlets(PriorityBasedSchedulingBroker2 broker0) {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
         for (int i = 0; i < CLOUDLETS; i++) {
-            java.util.Random random = new Random();
+            Random random = new Random();
             int randomLength = random.nextInt(500);
             final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH+randomLength, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);
@@ -170,6 +120,5 @@ public class SCFP {
         }
         return list;
     }
-
 
 }

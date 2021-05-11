@@ -12,7 +12,6 @@ import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
-import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
@@ -22,15 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class PriorityBasedScheduling {
+public class SCFP1 {
 
     private static final int HOSTS = 1;
-    private static final int HOST_PES = 1;
+    private static final int HOST_PES = 4;
 
-    private static final int VMS = 1;
+    private static final int VMS = 4;
     private static final int VM_PES = 1;
 
-    private static final int CLOUDLETS = 10;
+    private static final int CLOUDLETS = 20;
     private static final int CLOUDLET_PES = 1;
 
     private static final int CLOUDLET_LENGTH = 1000;
@@ -42,61 +41,77 @@ public class PriorityBasedScheduling {
     private List<Vm> vmList;
 
     public static void main(String[] args) {
-        new PriorityBasedScheduling();
+        new SCFP1();
     }
 
-    private PriorityBasedScheduling(){
+    private SCFP1() {
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        PriorityBasedSchedulingBroker broker0 = new PriorityBasedSchedulingBroker(simulation);
+        SCFPBroker1 broker0 = new SCFPBroker1(simulation);
 
         vmList = createVms(broker0);
         cloudletList = createCloudlets(broker0);
 
-        // Submitting the VMlist to the broker
+        /*
+        System.out.println("******* Before sorting VM MIPS ***********");
+
+        for (Vm v : vmList) {
+            System.out.println(" VM MIPS: "+v.getMips());
+        }
+        */
+
+
+        // Sorting VMs in descending order with respect to VM MIPS
+        vmList = broker0.scheduleVms(vmList);
+
+        /*
+        System.out.println("******* After sorting VM MIPS ***********");
+
+        for (Vm v : vmList) {
+            System.out.println(" VM MIPS: "+v.getMips());
+        }
+        */
+
+
+        // Submitting VMList to the broker
         broker0.submitVmList(vmList);
 
-        Random random = new Random();
+        /*
+        System.out.println("******* Before sorting Cloudlet length ***********");
 
-        // Assigning Random Priority to cloudlets
-        for (Cloudlet c : cloudletList)
-        {
-            int randomPriority = random.nextInt(cloudletList.size());
-            c.setPriority(randomPriority);
-        }
-
-        System.out.println("******* Before sorting based on Priority ***********");
-
-        // Printing Cloudlets before sorting based on priority
         for (Cloudlet c : cloudletList) {
-            System.out.println(" Priority of Cloudlet: "+c.getPriority());
+            System.out.println(" Cloudlet length: "+c.getLength());
         }
+        */
 
-        // Function which handles the scheduling of cloudlets based on priority
+
+        // Sorting Cloudlets in descending order with respect to cloudlet length
         cloudletList = broker0.scheduleCloudlets(cloudletList);
 
-        System.out.println("******* After sorting based on Priority ***********");
+        /*
+        System.out.println("******* After sorting Cloudlet length ***********");
 
-        // Printing Cloudlets after sorting based on priority
         for (Cloudlet c : cloudletList) {
-            System.out.println(" Priority of Cloudlet: "+c.getPriority());
+            System.out.println(" Cloudlet length: " + c.getLength());
         }
+        */
 
-        // Submitting the Cloudletlist to the broker
+
+        // Submitting CloudletList to the broker
         broker0.submitCloudletList(cloudletList);
+
+        // mapping the longest cloudlets to VMs with maximum MIPS
+        broker0.mapCloudletsToVM(cloudletList,vmList);
 
 
         simulation.start();
-
 
         List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
 
         new CloudletsTableBuilder(finishedCloudlets)
             .build();
-
-
 
     }
 
@@ -123,14 +138,14 @@ public class PriorityBasedScheduling {
         //Uses ResourceProvisionerSimple by default for RAM and BW provisioning
         //VmSchedulerSpaceShared for VM scheduling.
         Host host = new HostSimple(ram, bw, storage, peList);
-        host.setVmScheduler(new VmSchedulerTimeShared());
+        host.setVmScheduler(new VmSchedulerSpaceShared());
         return host;
     }
 
-    private List<Vm> createVms(PriorityBasedSchedulingBroker broker0) {
+    private List<Vm> createVms(SCFPBroker1 broker0) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            Random random = new Random();
+            java.util.Random random = new java.util.Random();
             int randomMips = random.nextInt(500);
             final Vm vm = new VmSimple(randomMips, VM_PES);
             vm.setRam(512).setBw(1000).setSize(10000);
@@ -141,12 +156,12 @@ public class PriorityBasedScheduling {
         return list;
     }
 
-    private List<Cloudlet> createCloudlets(PriorityBasedSchedulingBroker broker0) {
+    private List<Cloudlet> createCloudlets(SCFPBroker1 broker0) {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
         for (int i = 0; i < CLOUDLETS; i++) {
-            Random random = new Random();
+            java.util.Random random = new Random();
             int randomLength = random.nextInt(500);
             final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH+randomLength, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);

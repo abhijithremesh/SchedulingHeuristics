@@ -8,9 +8,9 @@ import org.cloudbus.cloudsim.vms.Vm;
 import java.util.Collections;
 import java.util.List;
 
-public class PriorityBasedSchedulingBroker extends DatacenterBrokerSimple {
+public class PriorityBasedSchedulingBroker1 extends DatacenterBrokerSimple {
 
-    public PriorityBasedSchedulingBroker(final CloudSim simulation) {
+    public PriorityBasedSchedulingBroker1(final CloudSim simulation) {
         super(simulation);
     }
 

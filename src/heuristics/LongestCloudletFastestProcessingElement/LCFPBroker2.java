@@ -7,15 +7,26 @@ import org.cloudbus.cloudsim.vms.Vm;
 
 import java.util.List;
 
-public class SCFPBroker extends DatacenterBrokerSimple {
+public class LCFPBroker2 extends DatacenterBrokerSimple {
 
-    public SCFPBroker(final CloudSim simulation) {
+    public LCFPBroker2(final CloudSim simulation) {
         super(simulation);
     }
 
-    // Function to sort the VMs in descending order based on the VM MIPS
-    public List<Vm> scheduleVms(List<Vm> vmList ) {
+    public void schedule(List<Cloudlet> cloudletList, List<Vm> vmList ) {
 
+        // Sorting the list of cloudlets in descending order of their length.
+        for (int a = 0; a < cloudletList.size(); a++) {
+            for (int b = a + 1; b < cloudletList.size(); b++) {
+                if (cloudletList.get(b).getLength() > cloudletList.get(a).getLength()) {
+                    Cloudlet temp = cloudletList.get(a);
+                    cloudletList.set(a, cloudletList.get(b));
+                    cloudletList.set(b, temp);
+                }
+            }
+        }
+
+        // Sorting the list of Vms in descending order of their MIPS.
         for (int a = 0; a < vmList.size(); a++) {
             for (int b = a + 1; b < vmList.size(); b++) {
                 if (vmList.get(b).getMips() > vmList.get(a).getMips()) {
@@ -25,27 +36,6 @@ public class SCFPBroker extends DatacenterBrokerSimple {
                 }
             }
         }
-
-        return vmList;
-
-    }
-
-    // Function to sort the Cloudlets in descending order based on the Cloudlet length
-    public List<Cloudlet> scheduleCloudlets(List<Cloudlet> cloudletList ) {
-
-        for (int a = 0; a < cloudletList.size(); a++) {
-            for (int b = a + 1; b < cloudletList.size(); b++) {
-                if (cloudletList.get(b).getLength() < cloudletList.get(a).getLength()) {
-                    Cloudlet temp = cloudletList.get(a);
-                    cloudletList.set(a, cloudletList.get(b));
-                    cloudletList.set(b, temp);
-                }
-            }
-        }
-        return cloudletList;
-    }
-
-    public void mapCloudletsToVM(List<Cloudlet> cloudletList,List<Vm> vmList) {
 
         System.out.println("******* Inside Broker Cloudlet ***********");
 
@@ -59,14 +49,16 @@ public class SCFPBroker extends DatacenterBrokerSimple {
             System.out.println(" VM MIPS: "+v.getMips());
         }
 
-
+        // Binding the cloudlets from the sorted cloudlet list to the VMs from the sorted vm list.
         for (int i = 0; i < cloudletList.size(); i++) {
             Cloudlet cl = cloudletList.get(i);
             Vm vm = vmList.get((i % vmList.size()));
+            System.out.println("Binding Cloudlet "+cl.getId()+" of length "+cl.getLength()+" to VM "+vm.getId()+" with VM MIPS "+vm.getMips());
             bindCloudletToVm(cl,vm);
-            System.out.println("Cloudlet"+cl.getId()+" of "+cl.getLength()+" is bound with VM"+vm.getId()+" of MIPS "+vm.getMips());
         }
-
     }
+
+
+
 
 }

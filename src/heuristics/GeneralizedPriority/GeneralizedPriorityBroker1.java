@@ -7,9 +7,9 @@ import org.cloudbus.cloudsim.vms.Vm;
 
 import java.util.List;
 
-public class GeneralizedPriorityBroker extends DatacenterBrokerSimple {
+public class GeneralizedPriorityBroker1 extends DatacenterBrokerSimple {
 
-    public GeneralizedPriorityBroker(final CloudSim simulation) {
+    public GeneralizedPriorityBroker1(final CloudSim simulation) {
         super(simulation);
     }
 
