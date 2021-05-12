@@ -18,17 +18,20 @@ import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
-public class Benchmarks {
+public class SWIMBenchmark {
 
     private static final int HOSTS = 1;
-    private static final int HOST_PES = 5;
+    private static final int HOST_PES = 10;
 
-    private static final int VMS = 4;
+    private static final int VMS = 10;
     private static final int VM_PES = 1;
 
     private static final int CLOUDLETS = 3;
@@ -42,10 +45,10 @@ public class Benchmarks {
     private Datacenter datacenter0;
 
     public static void main(String[] args) throws IOException {
-        new Benchmarks();
+        new SWIMBenchmark();
     }
 
-    public Benchmarks() throws IOException {
+    public SWIMBenchmark() throws IOException {
         /*Enables just some level of log messages.
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
@@ -57,99 +60,27 @@ public class Benchmarks {
         broker0 = new DatacenterBrokerSimple(simulation);
 
         vmList = createVms();
-        cloudletList = createCloudlets();
 
-        // configuring cloudlets wrt GoCJ Jobs
-        //cloudletList = cloudletsGoCJ(cloudletList);
+        ArrayList<List> SWIMWorload = getSWIMWorkload();
+        cloudletList = createSWIMCloudlets(SWIMWorload);
 
+        for (Cloudlet c: cloudletList) {
+            System.out.println("Cloudlet ID: "+c.getId()+", Length: "+c.getLength()+", SubmitTime: "+c.getSubmissionDelay());
+        }
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
-        /*
-        for(int i =0;i<cloudletList.size();i++){
-            broker0.bindCloudletToVm(cloudletList.get(i),vmList.get(i));
+        for (Cloudlet c: cloudletList) {
+            System.out.println("Cloudlet ID: "+c.getId()+", Length: "+c.getLength()+", SubmitTime: "+c.getSubmissionDelay());
         }
-
-        for(int i =0;i<cloudletList.size();i++){
-            Cloudlet c = cloudletList.get(i);
-            System.out.println("ID: "+c.getId()+" Time: "+c.getSubmissionDelay()+" Length: "+c.getLength());
-        }
-
-         */
-
-
-
-        // SWIM
-        /*
-
-        class SWIM{
-
-            String new_unique_job_id;
-            Double submit_time_seconds;
-            Double inter_job_submit_gap_seconds;
-            Long map_input_bytes;
-            Long shuffle_bytes;
-            Long reduce_output_bytes;
-
-            SWIM(String i,Double j, Double k,Long l,Long m,Long n ) {
-                this.new_unique_job_id = i;
-                this.submit_time_seconds = j;
-                this.inter_job_submit_gap_seconds = k;
-                this.map_input_bytes = l;
-                this.shuffle_bytes = m;
-                this.reduce_output_bytes = n;
-            }
-        }
-
-        Map<Integer, SWIM> dataTable;
-        dataTable = new HashMap<Integer,SWIM>();
-        int per = 0;
-        FileReader in = new FileReader("Z:/Cloudsim/cloudsim-plus/cloudsim-plus-examples/src/main/java/org/cloudsimplus/examples/FB-2009_samples_24_times_1hr_0.tsv");
-        BufferedReader br = new BufferedReader(in);
-        long size = 0;
-        String chk;
-        while ((chk = br.readLine()) != null) {
-            System.out.println("chk "+chk);
-            size = Long.parseLong(chk);
-
-            //dataTable.put(per,size);
-            //System.out.println(per + "    " + dataTable.get(per));   // This line can be used to print the dataTable
-            per += 2;
-        }
-        br.close();
-
-         */
-
-        ArrayList<String[]> Data = new ArrayList<>(); //initializing a new ArrayList out of String[]'s
-        BufferedReader TSVReader = new BufferedReader(new FileReader("Z:/Cloudsim/cloudsim-plus/cloudsim-plus-examples/src/main/java/org/cloudsimplus/examples/FB-2009_samples_24_times_1hr_0.tsv"));
-        String line = null;
-        while ((line = TSVReader.readLine()) != null) {
-            String[] lineItems = line.split("\t"); //splitting the line and adding its items in String[]
-            Data.add(lineItems); //adding the splitted line array to the ArrayList
-        }
-
-        ArrayList<List> entry = new ArrayList<List>();
-        String sp = "";
-        for (String[] s: Data) {
-            sp = Arrays.toString(s);
-            sp = sp.substring(1, sp.length() - 1);
-            entry.add(Arrays.asList(sp.split(",")));
-        }
-
-        entry.forEach(e -> System.out.println(e.get(0)));
-
-        System.out.println(entry.size());
-
-        /*
-
-        System.out.println(e.get(0))
+        
         simulation.start();
 
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
 
- */
+
     }
 
     private Datacenter createDatacenter() {
@@ -200,7 +131,9 @@ public class Benchmarks {
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
 
-        for (int i = 0; i < CLOUDLETS; i++) {
+
+
+        for (int i = 0; i <CLOUDLETS; i++) {
             //Random random = new Random();
             //int randomLength = random.nextInt(500);
             final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH, CLOUDLET_PES, utilizationModel);
@@ -211,30 +144,40 @@ public class Benchmarks {
         return list;
     }
 
-    private List<Cloudlet> cloudletsGoCJ(List<Cloudlet> cloudletList) throws IOException {
-
-        GoCJ g = new GoCJ();
-        final long[] cloudlets = g.createGoCJ(cloudletList.size());
-        long[] cloudletsTime = new long[cloudletList.size()];
-        int low = 0;
-        int high = 2;
-        for(int i =0;i<cloudletList.size();i++){
-
-            java.util.Random r = new Random();
-            cloudletsTime[i] = r.nextInt(high-low)+low;
-            low=low+5;
-            high = high+5;
-
-            Cloudlet c = cloudletList.get(i);
-            c.setLength(cloudlets[i]);
-            c.setSubmissionDelay(cloudletsTime[i]);
-
-            System.out.println("ID: "+c.getId()+" Time: "+c.getSubmissionDelay()+" Length: "+c.getLength());
-
+    private ArrayList<List> getSWIMWorkload() throws IOException {
+        ArrayList<String[]> Data = new ArrayList<>(); //initializing a new ArrayList out of String[]'s
+        BufferedReader TSVReader = new BufferedReader(new FileReader("Z:/Cloudsim/cloudsim-plus/cloudsim-plus-examples/src/main/java/org/cloudsimplus/examples/FB-2009_samples_24_times_1hr_0.tsv"));
+        String line = null;
+        while ((line = TSVReader.readLine()) != null) {
+            String[] lineItems = line.split("\t"); //splitting the line and adding its items in String[]
+            Data.add(lineItems); //adding the splitted line array to the ArrayList
         }
 
-        return cloudletList;
+        ArrayList<List> entry = new ArrayList<List>();
+        String sp = "";
+        for (String[] s: Data) {
+            sp = Arrays.toString(s);
+            sp = sp.substring(1, sp.length() - 1);
+            entry.add(Arrays.asList(sp.split(",")));
+        }
 
+        return entry;
+    }
+
+    private List<Cloudlet> createSWIMCloudlets(ArrayList<List> entry) {
+        final List<Cloudlet> list = new ArrayList<>(entry.size());
+        final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
+        for (int i=0; i < entry.size();i++ ){
+            long cloudletLength =  Long.parseLong(entry.get(i).get(3).toString().substring(1))+
+                Long.parseLong(entry.get(i).get(4).toString().substring(1))+
+                Long.parseLong(entry.get(i).get(5).toString().substring(1))     ;
+            final Cloudlet cloudlet = new CloudletSimple(cloudletLength+1, CLOUDLET_PES, utilizationModel);
+            cloudlet.setSizes(1024);
+            cloudlet.setSubmissionDelay(Double.parseDouble(entry.get(i).get(1).toString().substring(1)));
+            list.add(cloudlet);
+
+        }
+        return list;
     }
 
 

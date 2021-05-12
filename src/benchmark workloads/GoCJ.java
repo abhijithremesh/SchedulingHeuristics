@@ -36,7 +36,9 @@ public class GoCJ  {
         long size = 0;
         String chk;
         while ((chk = br.readLine()) != null) {
+            System.out.println("chk"+chk);
             size = Long.parseLong(chk);
+            System.out.println("size"+size);
             dataTable.put(per,size);
             //System.out.println(per + "    " + dataTable.get(per));   // This line can be used to print the dataTable
             per += 2;

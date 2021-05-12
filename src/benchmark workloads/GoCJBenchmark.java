@@ -20,10 +20,12 @@ import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
-public class Benchmarks {
+public class GoCJBenchmark {
 
     private static final int HOSTS = 1;
     private static final int HOST_PES = 5;
@@ -42,10 +44,10 @@ public class Benchmarks {
     private Datacenter datacenter0;
 
     public static void main(String[] args) throws IOException {
-        new Benchmarks();
+        new GoCJBenchmark();
     }
 
-    public Benchmarks() throws IOException {
+    public GoCJBenchmark() throws IOException {
         /*Enables just some level of log messages.
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
@@ -59,14 +61,14 @@ public class Benchmarks {
         vmList = createVms();
         cloudletList = createCloudlets();
 
-        // configuring cloudlets wrt GoCJ Jobs
-        //cloudletList = cloudletsGoCJ(cloudletList);
+        //Configuring cloudlets wrt GoCJ Jobs
+        cloudletList = cloudletsGoCJ(cloudletList);
 
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
-        /*
+
         for(int i =0;i<cloudletList.size();i++){
             broker0.bindCloudletToVm(cloudletList.get(i),vmList.get(i));
         }
@@ -76,80 +78,13 @@ public class Benchmarks {
             System.out.println("ID: "+c.getId()+" Time: "+c.getSubmissionDelay()+" Length: "+c.getLength());
         }
 
-         */
 
-
-
-        // SWIM
-        /*
-
-        class SWIM{
-
-            String new_unique_job_id;
-            Double submit_time_seconds;
-            Double inter_job_submit_gap_seconds;
-            Long map_input_bytes;
-            Long shuffle_bytes;
-            Long reduce_output_bytes;
-
-            SWIM(String i,Double j, Double k,Long l,Long m,Long n ) {
-                this.new_unique_job_id = i;
-                this.submit_time_seconds = j;
-                this.inter_job_submit_gap_seconds = k;
-                this.map_input_bytes = l;
-                this.shuffle_bytes = m;
-                this.reduce_output_bytes = n;
-            }
-        }
-
-        Map<Integer, SWIM> dataTable;
-        dataTable = new HashMap<Integer,SWIM>();
-        int per = 0;
-        FileReader in = new FileReader("Z:/Cloudsim/cloudsim-plus/cloudsim-plus-examples/src/main/java/org/cloudsimplus/examples/FB-2009_samples_24_times_1hr_0.tsv");
-        BufferedReader br = new BufferedReader(in);
-        long size = 0;
-        String chk;
-        while ((chk = br.readLine()) != null) {
-            System.out.println("chk "+chk);
-            size = Long.parseLong(chk);
-
-            //dataTable.put(per,size);
-            //System.out.println(per + "    " + dataTable.get(per));   // This line can be used to print the dataTable
-            per += 2;
-        }
-        br.close();
-
-         */
-
-        ArrayList<String[]> Data = new ArrayList<>(); //initializing a new ArrayList out of String[]'s
-        BufferedReader TSVReader = new BufferedReader(new FileReader("Z:/Cloudsim/cloudsim-plus/cloudsim-plus-examples/src/main/java/org/cloudsimplus/examples/FB-2009_samples_24_times_1hr_0.tsv"));
-        String line = null;
-        while ((line = TSVReader.readLine()) != null) {
-            String[] lineItems = line.split("\t"); //splitting the line and adding its items in String[]
-            Data.add(lineItems); //adding the splitted line array to the ArrayList
-        }
-
-        ArrayList<List> entry = new ArrayList<List>();
-        String sp = "";
-        for (String[] s: Data) {
-            sp = Arrays.toString(s);
-            sp = sp.substring(1, sp.length() - 1);
-            entry.add(Arrays.asList(sp.split(",")));
-        }
-
-        entry.forEach(e -> System.out.println(e.get(0)));
-
-        System.out.println(entry.size());
-
-        /*
-
-        System.out.println(e.get(0))
         simulation.start();
 
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
 
- */
+
     }
 
     private Datacenter createDatacenter() {

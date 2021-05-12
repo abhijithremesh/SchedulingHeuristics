@@ -28,12 +28,12 @@ import java.util.stream.IntStream;
 public class PerformanceMetrics {
 
     private static final int HOSTS = 1;
-    private static final int HOST_PES = 5;
+    private static final int HOST_PES = 2;
 
-    private static final int VMS = 4;
+    private static final int VMS = 2;
     private static final int VM_PES = 1;
 
-    private static final int CLOUDLETS = 3;
+    private static final int CLOUDLETS = 20;
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 1000;
 
@@ -61,44 +61,22 @@ public class PerformanceMetrics {
         vmList = createVms();
         cloudletList = createCloudlets();
 
-        //cloudletList = cloudletsGoCJ(cloudletList);
-
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
-        for(int i =0;i<cloudletList.size();i++){
-            broker0.bindCloudletToVm(cloudletList.get(i),vmList.get(i));
-        }
-
-        for(int i =0;i<cloudletList.size();i++){
-            Cloudlet c = cloudletList.get(i);
-            System.out.println("ID: "+c.getId()+" Time: "+c.getSubmissionDelay()+" Length: "+c.getLength());
-        }
-
-        // SWIM
-
-
-
-
-
-
-
-
-
-
         /*
 
-        Makespan (execution time of all cloudlets)
-        TWT (Total Waiting Time)
-        TFT (Total Finish Time)
-        Throughput (number of executed jobs)
-        Total cost (the processing time and the amount of data transferred)
+        Makespan: (execution time of all cloudlets)
+        TWT: (Total Waiting Time)
+        TFT: (Total Finish Time)
+        Throughput: (number of executed jobs)
+        Total cost: (the processing time and the amount of data transferred)
         Completion time
-        Resource Utilization (the ratio between the total busy time of Virtual Machine and the total finish execution time of the parallel application)
-        Turnaround Time (time interval from the time of submission of a process to the time of the completion of the process)
-                        (Difference b/w Completion Time and Arrival Time is called Turnaround Time)
+        Resource Utilization: (the ratio between the total busy time of Virtual Machine and the total finish execution time of the parallel application)
+        Turnaround Time: (time interval from the time of submission of a process to the time of the completion of the process)
+                       : (Difference b/w Completion Time and Arrival Time is called Turnaround Time)
         Waiting Time
-        Degree of Imbalance = (Tmax + Tmin)/Tavg maximum, minimum and average total execution time (in seconds) of all VMs
+        Degree of Imbalance: (Tmax + Tmin)/Tavg maximum, minimum and average total execution time (in seconds) of all VMs
 
          */
 
@@ -106,15 +84,6 @@ public class PerformanceMetrics {
 
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
-
-        /*
-
-        simulation.start();
-
-        final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
-        new CloudletsTableBuilder(finishedCloudlets).build();
-
-
 
         // Total Waiting Time
         double twt = getTotalWaitingTime(finishedCloudlets);
@@ -133,7 +102,7 @@ public class PerformanceMetrics {
         System.out.println("Turn Around Time: "+tat);
 
 
-         */
+
 
         /*
         for (Cloudlet c:finishedCloudlets ) {
@@ -149,7 +118,6 @@ public class PerformanceMetrics {
         }
         */
 
-        /*
 
         // Resource Utilization = Busy / Available
        double totalVmExecutionTime = 0;
@@ -168,7 +136,6 @@ public class PerformanceMetrics {
         double througput = finishedCloudlets.size()/getMakespan(finishedCloudlets);
         System.out.println("througput: "+througput);
 
-        */
 
     }
 
@@ -221,9 +188,9 @@ public class PerformanceMetrics {
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
 
         for (int i = 0; i < CLOUDLETS; i++) {
-            //Random random = new Random();
-            //int randomLength = random.nextInt(500);
-            final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH, CLOUDLET_PES, utilizationModel);
+            Random random = new Random();
+            int randomLength = random.nextInt(500);
+            final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH+randomLength, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);
             list.add(cloudlet);
         }
@@ -274,6 +241,7 @@ public class PerformanceMetrics {
         return (Collections.max(vmExecTimeList)+Collections.min(vmExecTimeList))/vmExecTimeList.stream().mapToDouble(d -> d).average().orElse(0.0);
     }
 
+    /*
     private List<Cloudlet> cloudletsGoCJ(List<Cloudlet> cloudletList) throws IOException {
 
         GoCJ g = new GoCJ();
@@ -299,6 +267,8 @@ public class PerformanceMetrics {
         return cloudletList;
 
     }
+
+     */
 
 
 
