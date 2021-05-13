@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class GeneticAlgorithm1 {
+public class GeneticAlgorithm2 {
 
     private static final int HOSTS = 1;
     private static final int HOST_PES = 4;
@@ -30,7 +30,7 @@ public class GeneticAlgorithm1 {
     private static final int VMS = 4;
     private static final int VM_PES = 1;
 
-    private static final int CLOUDLETS = 20;
+    private static final int CLOUDLETS = 50;
     private static final int CLOUDLET_PES = 1;
 
     private static final int CLOUDLET_LENGTH = 1000;
@@ -42,10 +42,10 @@ public class GeneticAlgorithm1 {
     private List<Vm> vmList;
 
     public static void main(String[] args) {
-        new GeneticAlgorithm1();
+        new GeneticAlgorithm2();
     }
 
-    private GeneticAlgorithm1() {
+    private GeneticAlgorithm2() {
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
@@ -85,7 +85,7 @@ public class GeneticAlgorithm1 {
         double length;
         double filesize;
         int indexofFittestChromosome = 0;
-        int generation=20;
+        int generation=10;
         Random rand = new Random();
 
         System.out.println("Running the algorithm for 10 generations");
@@ -119,7 +119,7 @@ public class GeneticAlgorithm1 {
             }
 
             System.out.println("Index of Fittest Chromosome of Generation "+count+": "+ indexofFittestChromosome);
-            System.out.println("Fittest Chromosome of Generation is ");
+            System.out.println("Fittest Chromosome of Generation ");
 
             // Getting the most fittest chromosome from the chromosome list wrt the index
             for (int i = 0; i < chromosomeList.get(indexofFittestChromosome).size(); i++) {
@@ -142,17 +142,17 @@ public class GeneticAlgorithm1 {
                 int index;
                 for (int i = 0; i < fitnessListHalf; i++) {
                     index = fitnessList.indexOf(Collections.max(fitnessList));
+                    System.out.println("Removing Index: "+index);
                     fitnessList.remove(index);
                     chromosomeList.remove(index);
                 }
-                System.out.println("ChromosomeList size after discarding: "+ chromosomeList.size());
+                System.out.println("ChromosomeList after discarding: "+ chromosomeList.size());
 
                 // Creating offsprings (half/quarter) and a container to store the offsprings
                 // Offsprings created through SinglePoint, Uniform or Random cross over operation
                 ArrayList<ArrayList> offspringList = new ArrayList<ArrayList>();
                 for(int i = 0;i<fitnessListHalf;i++) {
-                    offspringList.add(SinglePointCrossover(chromosomeList.get(rand.nextInt(chromosomeList.size())),
-                                        chromosomeList.get(rand.nextInt(chromosomeList.size())),num_vm));
+                    offspringList.add(SinglePointCrossover(chromosomeList.get(rand.nextInt(chromosomeList.size())),chromosomeList.get(rand.nextInt(chromosomeList.size())),num_vm));
                     //offspringList.add(SinglePointCrossover(chromosomeList.get(indexofFittestChromosome),chromosomeList.get(rand.nextInt(chromosomeList.size()))));
                 }
 
@@ -168,6 +168,7 @@ public class GeneticAlgorithm1 {
                 				}
                  */
 
+
                 // Appending the created offsprings to the chromosome list
                 chromosomeList.addAll(offspringList);
                 System.out.println("ChromosomeList size @ Gen end: "+ chromosomeList.size());
@@ -179,7 +180,6 @@ public class GeneticAlgorithm1 {
             System.out.println("********************************************************************************************************************************************************");
 
             System.out.println("Makespans of all Generations: "+generationMakespan);
-
         }
 
         Cloudlet c;
@@ -193,6 +193,7 @@ public class GeneticAlgorithm1 {
         for(int i=0;i<cloudletList.size();i++) {
             c = cloudletList.get(i);
             vm = solution.get(i);
+            //c.setVm(vmList.get(vm));
             broker0.bindCloudletToVm(c,vmList.get(vm));
         }
 
@@ -204,7 +205,6 @@ public class GeneticAlgorithm1 {
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets)
             .build();
-
 
     }
 
@@ -296,8 +296,7 @@ public class GeneticAlgorithm1 {
         return ans;
     }
 
-    private static ArrayList<Integer> createChromosome(int length,int range)
-    {
+    private static ArrayList<Integer> createChromosome(int length,int range) {
         ArrayList<Integer> chromosome = new ArrayList<Integer>();
         ArrayList<Integer> part = new ArrayList<Integer>();
         Random rand = new Random();
@@ -330,7 +329,7 @@ public class GeneticAlgorithm1 {
         double max;
         int item=0;
 
-        // Getting the fitness values of a chromosome wrt the VMs in the chromosome
+
         for(int i=0;i<chromosome.size();i++) {
             vmId = chromosome.get(i);
             fitness = (cloudletList.get(i).getLength()/1000.00)+(300.00/125000000);
@@ -349,9 +348,9 @@ public class GeneticAlgorithm1 {
 
         // Displaying the chromosome and it's respective VM specific fitness values
         for(int i=0;i<vmCount;i++) {
-            System.out.print("vm"+i+": "+vm[i]+", ");
+            System.out.print(vm[i]+" ");
             if(i==vmCount-1) {
-                System.out.print("---> ");
+                System.out.print("--->");
             }
         }
         for(int i=0;i<chromosome.size();i++) {
@@ -360,7 +359,7 @@ public class GeneticAlgorithm1 {
                 System.out.println("");
             }
         }
-
+        
 
         item++;
         System.out.print("");
@@ -382,34 +381,6 @@ public class GeneticAlgorithm1 {
         }
         return chromosome;
     }
-/*
-    private static ArrayList<Integer>MultiPointCrossover(ArrayList<Integer> chromosomeOne,ArrayList<Integer> chromosomeTwo,int k) {
-
-        ArrayList<Integer> chromosome = new ArrayList<Integer>();
-        int size = chromosomeOne.size();
-        int value=k;
-        int flag=0;
-
-        for(int i=0;i<size;i++) {
-            if(i<=value && flag==0) {
-                chromosome.add(chromosomeOne.get(i));
-                if(i==value) {
-                    value = value + k;
-                    flag = 1;
-                }
-            }
-            if(i<=value && flag==1) {
-                chromosome.add(chromosomeTwo.get(i));
-                if(i==value) {
-                    value = value + k;
-                    flag = 0;
-                }
-            }
-        }
-        return chromosome;
-    }
-
- */
 
     private static ArrayList<Integer>uniformCrossover(ArrayList<Integer> chromosomeOne,ArrayList<Integer> chromosomeTwo) {
 
@@ -443,8 +414,18 @@ public class GeneticAlgorithm1 {
         return chromosome;
     }
 
+    private double getCompletionTime(Cloudlet cloudlet, Vm vm){
+        double waitingTime = cloudlet.getWaitingTime();
+        double execTime = cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
+
+        double completionTime = execTime + waitingTime;
+
+        return completionTime;
+    }
+
+    private double getExecTime(Cloudlet cloudlet, Vm vm){
+        return cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
+    }
 
 
 }
-
-
