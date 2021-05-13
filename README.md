@@ -1,4 +1,4 @@
-# Cloud Computing Hybrid Job Scheduling: Heuristics + Meta-Heuristics
+# Cloud Computing Hybrid Job Scheduling
 
 * Implementations of prominent scheduling heuristics in CloudSimPlus.
 * Benchmark_Workloads: GoCJ, SWIM
