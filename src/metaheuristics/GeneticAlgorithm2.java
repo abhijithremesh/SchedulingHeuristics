@@ -1,5 +1,6 @@
 package org.cloudsimplus.examples;
 
+
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
@@ -30,7 +31,7 @@ public class GeneticAlgorithm2 {
     private static final int VMS = 4;
     private static final int VM_PES = 1;
 
-    private static final int CLOUDLETS = 50;
+    private static final int CLOUDLETS = 20;
     private static final int CLOUDLET_PES = 1;
 
     private static final int CLOUDLET_LENGTH = 1000;
@@ -85,7 +86,7 @@ public class GeneticAlgorithm2 {
         double length;
         double filesize;
         int indexofFittestChromosome = 0;
-        int generation=10;
+        int generation=20;
         Random rand = new Random();
 
         System.out.println("Running the algorithm for 10 generations");
@@ -98,11 +99,12 @@ public class GeneticAlgorithm2 {
             // Calculating fitness of each chromosome and adding the fitness value to the fitness list
             for(int i=0;i<num_cloudlet;i++) {
                 chromosome = chromosomeList.get(i);
-                fitness = calculateFitness(chromosome,num_vm,cloudletList,300,1,1000,1000);
+                //fitness = calculateFitness(chromosome,num_vm,cloudletList,300,1,1000,1000);
+                fitness = calculateFitness2(chromosome,cloudletList,vmList);
                 fitnessList.add(fitness);
             }
 
-            System.out.println("Maximum Fitness (VM) from each chromosome");
+            //System.out.println("Maximum Fitness (VM) from each chromosome");
             System.out.println("FitnessList: "+ fitnessList);
             System.out.println("FitnessList Size: "+ fitnessList.size());
             System.out.println("Fittest Chromosome (Minimum) of Generation "+count+" is having makespan of "+ Collections.min(fitnessList));
@@ -142,7 +144,7 @@ public class GeneticAlgorithm2 {
                 int index;
                 for (int i = 0; i < fitnessListHalf; i++) {
                     index = fitnessList.indexOf(Collections.max(fitnessList));
-                    System.out.println("Removing Index: "+index);
+                    //System.out.println("Removing Index: "+index);
                     fitnessList.remove(index);
                     chromosomeList.remove(index);
                 }
@@ -179,8 +181,10 @@ public class GeneticAlgorithm2 {
 
             System.out.println("********************************************************************************************************************************************************");
 
-            System.out.println("Makespans of all Generations: "+generationMakespan);
+
         }
+
+        System.out.println("Makespans of all Generations: "+generationMakespan);
 
         Cloudlet c;
         int vm;
@@ -193,8 +197,9 @@ public class GeneticAlgorithm2 {
         for(int i=0;i<cloudletList.size();i++) {
             c = cloudletList.get(i);
             vm = solution.get(i);
-            //c.setVm(vmList.get(vm));
+            //System.out.println("Cloudlet "+c+" binds to vm "+vm);
             broker0.bindCloudletToVm(c,vmList.get(vm));
+            //System.out.println("Cloudlet "+c+" binds to vm "+vmList.get(vm));
         }
 
         broker0.submitVmList(vmList);
@@ -236,7 +241,9 @@ public class GeneticAlgorithm2 {
     private List<Vm> createVms() {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            final Vm vm = new VmSimple(1000, VM_PES);
+            Random random = new Random();
+            int randomMIPS = random.nextInt(1000);
+            final Vm vm = new VmSimple(randomMIPS, VM_PES);
             vm.setRam(512).setBw(100).setSize(10000);
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
             //vm.setCloudletScheduler(new CloudletSchedulerTimeShared());
@@ -359,11 +366,79 @@ public class GeneticAlgorithm2 {
                 System.out.println("");
             }
         }
-        
+
 
         item++;
         System.out.print("");
         return max;
+    }
+
+    private static double getCompletionTime(Cloudlet cloudlet, Vm vm){
+        double waitingTime = cloudlet.getWaitingTime();
+        double execTime = cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
+
+        double completionTime = execTime + waitingTime;
+
+        return completionTime;
+    }
+
+    private static double getExecTime(Cloudlet cloudlet, Vm vm){
+        return cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
+    }
+
+    private static double calculateFitness2(ArrayList<Integer> chromosome,List<Cloudlet> cloudletList ,List<Vm> vmList) {
+
+        double fitness=0;
+        //double[] vm  = new double[vmCount];
+        int vmId;
+        //double max;
+
+        double compTime = 0.0;
+        double execTime = 0.0;
+
+        for(int i=0;i<chromosome.size();i++) {
+
+            vmId = chromosome.get(i);
+            Cloudlet c = cloudletList.get(i);
+            Vm v = vmList.get(vmId);
+            compTime = getCompletionTime(c,v);
+            execTime = getExecTime(c,v);
+            System.out.println("Cloudlet: "+c.getId()+" ,Length: "+c.getLength()+" ,VM: "+v.getId()+" ,VM_PES: "+v.getNumberOfPes()+" ,VM_MIPS: "+v.getMips() +" ,CompTime: "+compTime+" ,ExecTime: "+execTime);
+            fitness = fitness + compTime;
+
+
+            //fitness = fitness + execTime;
+
+            fitness = (double) Math.round(fitness * 100) / 100;
+
+            //fitness = (cloudletList.get(i).getLength()/1000.00)+(300.00/125000000);
+            //fitness = (double) Math.round(fitness * 100) / 100;
+            //vm[vmId] = vm[vmId] + fitness;
+            //vm[vmId] = (double) Math.round( vm[vmId] * 100) / 100;
+        }
+
+        /*
+        // Getting the maximum fitness value (VM) from a chromosome
+        max = 0;
+        for (int i = 0; i < vmCount; i++) {
+            if (vm[i] > max) {
+                max = vm[i];
+            }
+        }
+         */
+
+        // Displaying the chromosome and it's respective VM specific fitness values
+        System.out.print("Fitness: "+fitness+" ----->  ");
+        for(int i=0;i<chromosome.size();i++) {
+            System.out.print(chromosome.get(i)+" ");
+            if(i==chromosome.size()-1) {
+                System.out.println("");
+            }
+        }
+
+
+        System.out.print("");
+        return fitness;
     }
 
     private static ArrayList<Integer>SinglePointCrossover(ArrayList<Integer> chromosomeOne,ArrayList<Integer> chromosomeTwo,int vmcount) {
@@ -414,18 +489,9 @@ public class GeneticAlgorithm2 {
         return chromosome;
     }
 
-    private double getCompletionTime(Cloudlet cloudlet, Vm vm){
-        double waitingTime = cloudlet.getWaitingTime();
-        double execTime = cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
 
-        double completionTime = execTime + waitingTime;
 
-        return completionTime;
-    }
 
-    private double getExecTime(Cloudlet cloudlet, Vm vm){
-        return cloudlet.getLength() / (vm.getMips()*vm.getNumberOfPes());
-    }
 
 
 }

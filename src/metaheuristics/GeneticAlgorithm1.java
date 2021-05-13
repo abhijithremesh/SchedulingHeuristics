@@ -178,9 +178,11 @@ public class GeneticAlgorithm1 {
 
             System.out.println("********************************************************************************************************************************************************");
 
-            System.out.println("Makespans of all Generations: "+generationMakespan);
+
 
         }
+
+        System.out.println("Makespans of all Generations: "+generationMakespan);
 
         Cloudlet c;
         int vm;
@@ -328,7 +330,7 @@ public class GeneticAlgorithm1 {
         double[] vm  = new double[vmCount];
         int vmId;
         double max;
-        int item=0;
+        //int item=0;
 
         // Getting the fitness values of a chromosome wrt the VMs in the chromosome
         for(int i=0;i<chromosome.size();i++) {
@@ -361,8 +363,7 @@ public class GeneticAlgorithm1 {
             }
         }
 
-
-        item++;
+        //item++;
         System.out.print("");
         return max;
     }
