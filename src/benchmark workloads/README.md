@@ -14,7 +14,7 @@
     * shuffle_bytes
     * reduce_output_bytes
 * submit_time_seconds to be used as the submission delay for cloudlets ?
-* Size of cloudlet = map_input_bytes + shuffle_bytes + reduce_output_bytes
+* Size of cloudlet = map_input_bytes + shuffle_bytes + reduce_output_bytes ?
 * Link: https://github.com/SWIMProjectUCB/SWIM/wiki/Workloads-repository
 
 
