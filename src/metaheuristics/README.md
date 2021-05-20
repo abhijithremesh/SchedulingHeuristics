@@ -21,3 +21,9 @@
       * The candidates for cross over process: any two random chromosomes or a random chromosome with best chromosome or best chromosome with second best chromosome
    * Adding the offsprings to the chromosomeList.    
    
+
+* The GeneticAlgorithm(1-5) corresponds to Type 1 implementations where
+    * GeneticAlgorithm1 --> fitness value (makespan) of chromosome calculated with respect to each VM taking into account the upload/download time(filesize/bandwidth)
+    * GeneticAlgorithm2 --> fitness value (makespan) of chromosome calculated without considering the upload/download time.
+    * GeneticAlgorithm3 --> fitness value (makespan) of chromosome calculated with respect to each VM without considering the upload/download time.
+    * GeneticAlgorithm4-5 --> dummy implementations open to new inclusions.
