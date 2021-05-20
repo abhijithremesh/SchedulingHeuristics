@@ -17,7 +17,7 @@
    * Creating new z offsprings via
       * Single point cross over at a random index of chromosome 
       * Uniform cross over --> even pos (take gene from chromosome A) and odd pos (take gene from chromosome B)
-      * Random cross over ---> Random generated 0 or 1, if 0 then from chromosome A, if B then from chromosome B)
+      * Random cross over ---> Random generated 0 or 1, if 0 then from chromosome A, if 1 then from chromosome B)
       * The candidates for cross over process: any two random chromosomes or a random chromosome with best chromosome or best chromosome with second best chromosome
    * Adding the offsprings to the chromosomeList.    
    
