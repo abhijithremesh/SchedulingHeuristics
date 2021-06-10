@@ -28,7 +28,7 @@
     * GeneticAlgorithm3 --> fitness value (makespan) of chromosome calculated with respect to each VM without considering the upload/download time.
     * GeneticAlgorithm4-5 --> dummy implementations open to new inclusions.
 
-# Type 2
+
 
 
 
