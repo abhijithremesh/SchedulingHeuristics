@@ -7,6 +7,9 @@
 * In each generation
   * For each chromosome in the population, its corresponding fitness value (makespan/total finish time) is computed.
   * The best fitness value of the generation is also noted and being tracked.
+  * The elite chromosomes of the population is identified and moved to the offspring population and the elite count is set as 2.
+  * The weak chromosomes of the population is identified and removed from the population and the weak count is set as 3.
+  * The same number (weak count) of offsprings are generated from the rest of the population by undergoing selection of parents, performing cross over and mutation.
   * The best parents of the population is selected as per the fitness value (maximum or minimum), based on the following selection criteria.
     * Elite ( passed directly to the next generation)(count=2)
     * Random
@@ -23,15 +26,16 @@
     * Tournament & Tournament
     * Random & Random
     * Nth Fittest & Nth Fittest
-  * If the randomly generated cross over probability > cross over rate (0.5), any of the below cross over operations are performed to produce offspring
+  * Any of the below cross over operations are performed to produce offspring
     * Random cross over
     * Uniform cross over
     * Single point cross over
     * Two point cross over 
-  * If the randomly generated mutation probability > mutation rate (0.2), the offspring generated is mutated as per the following strategies
+  * the offspring generated is mutated as per the following strategies
     * Mutation through Swapping
     * Mutation through Reversing the offspring
-  * The offspring created is to be used in the next generation.
+  * All the offsprings generated which includes elite offspring and mutated offsprings are added back to the population.
+  * This new population is fed to the next generation and the process continues until a specific number of generations.
 
 
 
