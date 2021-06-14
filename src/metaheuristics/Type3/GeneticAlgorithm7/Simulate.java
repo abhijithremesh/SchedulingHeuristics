@@ -35,16 +35,13 @@ public class Simulate {
     private static final int CLOUDLET_LENGTH = 1000;
 
     private CloudSim simulation;
-    private CloudSim simulation2;
 
     private DatacenterBroker broker;
-    private DatacenterBroker broker2;
 
     private List<Vm> vmList;
     private List<Cloudlet> cloudletList;
 
     private Datacenter datacenter;
-    private Datacenter datacenter2;
 
     public static void main(String[] args) {
         new Simulate();
@@ -58,11 +55,11 @@ public class Simulate {
 
         ArrayList<ArrayList> chromosomeList = ga.createInitialPopulation(CLOUDLETS, VMS);
         //ArrayList<ArrayList> offspringsList = new ArrayList<ArrayList>();
-        ArrayList<Double> generationFitnessMaximum = new ArrayList<Double>();
+        ArrayList<Double> generationFitness = new ArrayList<Double>();
 
         System.out.println(chromosomeList);
 
-        for (int generations = 0; generations < 20; generations++) {
+        for (int generations = 0; generations < 15; generations++) {
 
             System.out.println("Generation: "+generations);
 
@@ -83,8 +80,9 @@ public class Simulate {
                 broker.submitVmList(vmList);
                 broker.submitCloudletList(cloudletList);
 
-                //System.out.println("vmList: "+vmList);
+                //getSystemSpec();
                 //System.out.println("cloudletList: "+cloudletList);
+                //System.out.println("vmList: "+vmList);
 
                 for (int j = 0; j < chromosome.size(); j++) {
 
@@ -107,8 +105,9 @@ public class Simulate {
             System.out.println("chromosomeList size: "+chromosomeList.size());
             System.out.println("fitnessList size: "+fitnessList.size());
 
-            generationFitnessMaximum.add(generationFitness(fitnessList,"max"));
+            generationFitness.add(generationFitness(fitnessList,"min"));
             //ArrayList<Double> generationFitnessMinimum = generationFitness(fitnessList,"min");
+            System.out.println("Generation Fitness: "+generationFitness);
 
             /*   Selection Schemes    */
 
@@ -146,17 +145,21 @@ public class Simulate {
             Parent Selection
              */
 
-            // If using Elite method for passing elite individuals to the next generation.
+
             ArrayList<ArrayList> offspringsList = new ArrayList<ArrayList>();
-            //ArrayList<ArrayList> eliteChromosomesMaximum = fittestEliteChromosome(fitnessList, chromosomeList,2,"max");
-            //offspringsList.addAll(eliteChromosomesMaximum);
+
+            // If using Elite method for passing elite individuals to the next generation.
+            ArrayList<ArrayList> eliteChromosomes = fittestEliteChromosome(fitnessList, chromosomeList,3,"min");
+            offspringsList.addAll(eliteChromosomes);
             //System.out.println("offspringsList: "+offspringsList);
-            //System.out.println("Chromosome List: "+chromosomeList);
-            //System.out.println("Fitness List: "+fitnessList);
 
-            int numOffsprings = 1;
+            removeWeakChromosomes(fitnessList,chromosomeList,"max",3);
 
-            for (int i = 0; i < numOffsprings; i++){
+            int chosen = 3;
+
+            System.out.println("Creating "+chosen+" offsprings......");
+
+            for (int i = 0; i < chosen; i++){
 
                 Random r = new Random();
                 ArrayList<Integer> parentChromosome1 = new ArrayList<Integer>();
@@ -166,86 +169,78 @@ public class Simulate {
                 int rank = 0;
                 int upperLimit = (int)(chromosomeList.size()*(30.0f/100.0f));
                 int lowerLimit = 2;
+                if (upperLimit <= lowerLimit){
+                    lowerLimit--;
+                }
 
                 //System.out.println(parentSelectionCriteria);
 
                 switch (parentSelectionCriteria) {
-                    case 1:
+                    case 9:
                         System.out.println("Random & Most Fittest");
                         parentChromosome1 = randomChromosome(chromosomeList);
-                        parentChromosome2 = fittestChromosome(fitnessList,chromosomeList,"max");
+                        parentChromosome2 = fittestChromosome(fitnessList,chromosomeList,"min");
                         break;
-                    case 2:
-                        rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
-                        System.out.println(rank+"th Fittest & Most Fittest");
-                        parentChromosome1 = nthFittestChromosome(fitnessList,chromosomeList,"max",rank);
-                        parentChromosome2 = fittestChromosome(fitnessList,chromosomeList,"max");
-                        break;
-                    case 3:
+                    case 1:
                         System.out.println("Tournament & Most Fittest");
-                        parentChromosome1 = fittestTournamentChromosome(fitnessList,chromosomeList,"max",4);
-                        parentChromosome2 = fittestChromosome(fitnessList,chromosomeList,"max");
-                        break;
-                    case 4:
-                        rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
-                        System.out.println("Tournament & "+rank+"th Fittest");
-                        parentChromosome1 = fittestTournamentChromosome(fitnessList,chromosomeList,"max",4);
-                        parentChromosome2 = nthFittestChromosome(fitnessList,chromosomeList,"max",rank);
-                        break;
-                    case 5:
-                        rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
-                        System.out.println("Random & "+rank+"th Fittest");
-                        parentChromosome1 = randomChromosome(chromosomeList);
-                        parentChromosome2 = nthFittestChromosome(fitnessList,chromosomeList,"max",rank);
-                        break;
-                    case 6:
-                        System.out.println("Random & Tournament");
-                        parentChromosome1 = randomChromosome(chromosomeList);
-                        parentChromosome2 = fittestTournamentChromosome(fitnessList,chromosomeList,"max",4);
-                        break;
-                    case 7:
-                        System.out.println("Tournament & Tournament");
-                        parentChromosome1 = fittestTournamentChromosome(fitnessList,chromosomeList,"max",4);
-                        parentChromosome2 = fittestTournamentChromosome(fitnessList,chromosomeList,"max",4);
+                        parentChromosome1 = fittestTournamentChromosome(fitnessList,chromosomeList,"min",4);
+                        parentChromosome2 = fittestChromosome(fitnessList,chromosomeList,"min");
                         break;
                     case 8:
+                        System.out.println("Random & Tournament");
+                        parentChromosome1 = randomChromosome(chromosomeList);
+                        parentChromosome2 = fittestTournamentChromosome(fitnessList,chromosomeList,"min",4);
+                        break;
+                    case 2:
+                        System.out.println("Tournament & Tournament");
+                        parentChromosome1 = fittestTournamentChromosome(fitnessList,chromosomeList,"min",4);
+                        parentChromosome2 = fittestTournamentChromosome(fitnessList,chromosomeList,"min",4);
+                        break;
+                    case 7:
                         System.out.println("Random  & Random");
                         parentChromosome1 = randomChromosome(chromosomeList);
                         parentChromosome2 = randomChromosome(chromosomeList);
                         break;
-                    case 9:
+                    case 3:
+                        System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
+                        rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
+                        System.out.println(rank+"th Fittest & Most Fittest");
+                        parentChromosome1 = nthFittestChromosome(fitnessList,chromosomeList,"min",2);
+                        parentChromosome2 = fittestChromosome(fitnessList,chromosomeList,"min");
+                        break;
+                    case 4:
+                        System.out.println("upperLimit: "+upperLimit+"lowerLimit: "+lowerLimit);
+                        rank = r.nextInt(upperLimit - lowerLimit + 1 ) + lowerLimit;
+                        System.out.println("Tournament & "+rank+"th Fittest");
+                        parentChromosome1 = fittestTournamentChromosome(fitnessList,chromosomeList,"min",4);
+                        parentChromosome2 = nthFittestChromosome(fitnessList,chromosomeList,"min",2);
+                        break;
+                    case 6:
+                        System.out.println("upperLimit: "+upperLimit+"lowerLimit: "+lowerLimit);
+                        rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
+                        System.out.println("Random & "+rank+"th Fittest");
+                        parentChromosome1 = randomChromosome(chromosomeList);
+                        parentChromosome2 = nthFittestChromosome(fitnessList,chromosomeList,"min",rank);
+                        break;
+                    case 5:
+                        System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
                         rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
                         int rank2 = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
                         System.out.println(rank+"th Fittest & "+rank2+"th Fittest");
-                        parentChromosome1 = nthFittestChromosome(fitnessList,chromosomeList,"max",rank);
-                        parentChromosome2 = nthFittestChromosome(fitnessList,chromosomeList,"max",rank2);
+                        parentChromosome1 = nthFittestChromosome(fitnessList,chromosomeList,"min",2);
+                        parentChromosome2 = nthFittestChromosome(fitnessList,chromosomeList,"min",3);
                         break;
                 }
 
                 System.out.println("parentChromosome1: "+parentChromosome1);
                 System.out.println("parentChromosome2: "+parentChromosome2);
 
-                /*
-                ArrayList<Integer> childRandomCrossover = randomCrossover(parentChromosome1,parentChromosome2);
-                ArrayList<Integer> childUniformCrossover = uniformCrossover(parentChromosome1,parentChromosome2);
-                ArrayList<Integer> childSinglePointCrossver = singlePointCrossover(parentChromosome1,parentChromosome2);
-                ArrayList<Integer> childTwoPointCrossover = twoPointCrossover(parentChromosome1,parentChromosome2);
-                System.out.println("childRandomCrossover: "+childRandomCrossover);
-                System.out.println("childUniformCrossover: "+childUniformCrossover);
-                System.out.println("childSinglePointCrossover: "+childSinglePointCrossver);
-                System.out.println("childTwoPointCrossover: "+childTwoPointCrossover);
-                 */
-
-                /*
-                double givenCrossoverRate = 0.5;
-                double givenMutationRate = 0.2;
-                double crossoverProb = Math.round(r.nextDouble() * 100.0)/100.0;
-                double mutationProb = Math.round(r.nextDouble() * 100.0)/100.0;
-
-                System.out.println(crossoverProb);
-                System.out.println(mutationProb);
-                 */
-
+                //double givenCrossoverRate = 0.5;
+                //double givenMutationRate = 0.2;
+                //double crossoverProb = Math.round(r.nextDouble() * 100.0)/100.0;
+                //double mutationProb = Math.round(r.nextDouble() * 100.0)/100.0;
+                //System.out.println(crossoverProb);
+                //System.out.println(mutationProb);
 
                 ArrayList<Integer> childChromosome = new ArrayList<Integer>();
                 int crossoverType = r.nextInt(4);
@@ -285,7 +280,8 @@ public class Simulate {
                         break;
                     case 1:
                         System.out.println("Performing Reverse Mutation...");
-                        mutatedChildChromosome = mutateReverse(childChromosome);
+                        //mutatedChildChromosome = mutateReverse(childChromosome);
+                        mutatedChildChromosome = mutateSwap(childChromosome);
                         break;
                 }
 
@@ -293,21 +289,22 @@ public class Simulate {
 
                 offspringsList.add(mutatedChildChromosome);
 
-                System.out.println("offspringsList: "+offspringsList);
+                //System.out.println("offspringsList: "+offspringsList);
 
                 //chromosomeList.clear();
                 //fitnessList.clear();
-
-                chromosomeList.addAll(offspringsList);
-
-                System.out.println("Generation Fitness: "+generationFitnessMaximum);
 
                 //System.out.println("chromosomeList size: "+chromosomeList.size());
                 //System.out.println("fitnessList size: "+fitnessList.size());
 
                 System.out.println("**************************");
 
+
+
+
             }
+
+            chromosomeList.addAll(offspringsList);
 
         }
 
@@ -357,15 +354,16 @@ public class Simulate {
 
 
     private List<Cloudlet> createCloudlets() {
-        final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
 
+        final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
-
+        int customLength = 0;
         for (int i = 0; i < CLOUDLETS; i++) {
-            Random random = new Random();
-            int randomLength = random.nextInt(500);
-            final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH + randomLength, CLOUDLET_PES, utilizationModel);
+            //Random random = new Random();
+            //int randomLength = random.nextInt(500);
+            customLength += 500;
+            final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH + customLength, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);
             list.add(cloudlet);
         }
@@ -375,6 +373,8 @@ public class Simulate {
 
     private ArrayList<Integer> fittestChromosome(ArrayList<Double> fitnessList, ArrayList<ArrayList> chromosomeList, String flag) {
 
+        //System.out.println("chromosomeList size:"+chromosomeList.size());
+        //System.out.println("fitnessList size: "+fitnessList.size());
         double fittestValue = 0.0;
         if (flag == "max") {
              fittestValue = Collections.max(fitnessList); }
@@ -393,6 +393,7 @@ public class Simulate {
 
     private ArrayList<ArrayList> fittestEliteChromosome(ArrayList<Double> fitnessList, ArrayList<ArrayList> chromosomeList, int eliteCount, String flag) {
 
+        System.out.println("Identifying the "+eliteCount+" elite chromosomes.....");
         ArrayList<ArrayList> eliteChromosome = new ArrayList<ArrayList>();
         ArrayList<Double> eliteFitness = new ArrayList<Double>();
         ArrayList<Double> fitnessListSorted = new ArrayList<>(fitnessList);
@@ -404,6 +405,8 @@ public class Simulate {
                 int i = fitnessList.indexOf(d);
                 eliteChromosome.add(chromosomeList.get(i));
                 eliteFitness.add(d);
+                chromosomeList.remove(chromosomeList.get(i));
+                fitnessList.remove(d);
             }
         }
         else if (flag == "min"){
@@ -412,11 +415,16 @@ public class Simulate {
                 int i = fitnessList.indexOf(d);
                 eliteChromosome.add(chromosomeList.get(i));
                 eliteFitness.add(d);
+                chromosomeList.remove(chromosomeList.get(i));
+                fitnessList.remove(d);
             }
         }
 
-        chromosomeList.removeAll(eliteChromosome);
-        fitnessList.removeAll(eliteFitness);
+        System.out.println("Removing "+eliteCount+" elite chromosomes and it's associated fitness values.....");
+        //chromosomeList.rem;
+        //fitnessList.removeAll(eliteFitness);
+        System.out.println("chromosomeList size: "+chromosomeList.size());
+        System.out.println("fitnessList size: "+fitnessList.size());
 
         return eliteChromosome;
     }
@@ -425,13 +433,15 @@ public class Simulate {
 
     private ArrayList<Integer> fittestTournamentChromosome(ArrayList<Double> fitnessList, ArrayList<ArrayList> chromosomeList, String flag, int tournamentSize) {
 
+        //System.out.println("chromosomeListts size:"+chromosomeList.size());
+        //System.out.println("fitnessListts size: "+fitnessList.size());
         ArrayList<ArrayList> chromosomeListTournament = new ArrayList<ArrayList>();
         ArrayList<Double> fitnessListTournament = new ArrayList<Double>();
 
         for (int i = 0; i < tournamentSize; i++) {
             Random rand = new Random();
             int n = rand.nextInt(chromosomeList.size()-1);
-            System.out.println("Tournament random: "+n);
+            //System.out.println("Tournament random: "+n);
             chromosomeListTournament.add(chromosomeList.get(n));
             fitnessListTournament.add(fitnessList.get(n));
         }
@@ -443,6 +453,7 @@ public class Simulate {
 
     private ArrayList<Integer> randomChromosome (ArrayList<ArrayList> chromosomeList) {
 
+        //System.out.println("chromosomeList:"+chromosomeList);
         Random rdm = new Random();
         int n = rdm.nextInt(chromosomeList.size());
         ArrayList<Integer> randChromosome = chromosomeList.get(n);
@@ -452,10 +463,13 @@ public class Simulate {
 
     private ArrayList<Integer> nthFittestChromosome(ArrayList<Double> fitnessList, ArrayList<ArrayList> chromosomeList, String flag, int rank){
 
-        double fittestValue = 0.0;
+        //System.out.println("chromosomeList size nth:"+chromosomeList.size());
+        //System.out.println("fitnessList size nth: "+fitnessList.size());
 
+        double fittestValue = 0.0;
         ArrayList<Double> fitnessListSorted = new ArrayList<>(fitnessList);
         Collections.sort(fitnessListSorted);
+
 
         if ( flag == "max"){
             fittestValue = fitnessListSorted.get(fitnessListSorted.size() - rank);
@@ -483,6 +497,25 @@ public class Simulate {
         }
 
         return generationFitness;
+
+    }
+
+    private void removeWeakChromosomes (ArrayList<Double> fitnessList, ArrayList<ArrayList> chromosomeList, String flag, int count) {
+
+        for (int i = 0; i < count; i++) {
+            int index;
+            if (flag == "max") {
+                index = fitnessList.indexOf(Collections.max(fitnessList));
+            } else{
+                index = fitnessList.indexOf(Collections.min(fitnessList));
+            }
+            fitnessList.remove(index);
+            chromosomeList.remove(index);
+        }
+
+        System.out.println("Removing "+count+" weak chromosomes and it's associated fitness values....");
+        System.out.println("chromosomeList size: "+chromosomeList.size());
+        System.out.println("fitnessList size: "+fitnessList.size());
 
     }
 
@@ -596,6 +629,21 @@ public class Simulate {
         childChromosomeSwap.set(lowerLim,positionTwo);
 
         return childChromosomeSwap;
+
+    }
+
+    private void getSystemSpec(){
+        for (Host h : datacenter.getHostList()) {
+            System.out.println(" Host Id: "+ h.getId()+" Host PEs: "+h.getNumberOfPes()+" Host PEs List: "+h.getPeList()+" Host PEs MIPS: "+h.getMips());
+        }
+
+        for (Vm v:vmList) {
+            System.out.println("VM Id:"+v.getId()+" VM PEs: "+v.getNumberOfPes()+" VM PEs MIPS: "+v.getMips());
+        }
+
+        for (Cloudlet c:cloudletList) {
+            System.out.println("Cloudlet Id:"+c.getId()+" Cloudlet PEs: "+c.getLength());
+        }
 
     }
 
