@@ -1,22 +1,15 @@
 package org.cloudsimplus.examples.GeneticAlgorithm7;
 
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
-import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
-import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
-import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
-import org.cloudbus.cloudsim.vms.Vm;
-import org.cloudbus.cloudsim.vms.VmSimple;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class GA {
+public class GA0 {
 
-
-    public ArrayList<ArrayList> createInitialPopulation(int num_cloudlet,int num_vm){
+    public ArrayList<ArrayList> createInitialPopulation(int num_cloudlet, int num_vm){
 
         ArrayList<Integer> chromosome = new ArrayList<Integer>();
         ArrayList<ArrayList> chromosomeList = new ArrayList<ArrayList>();
@@ -40,7 +33,6 @@ public class GA {
 
     }
 
-    // Function to generate n non-repeating random numbers
     private static ArrayList<Integer> generateRandom(int n)
     {
         ArrayList<Integer> v = new ArrayList<Integer>(n);
@@ -81,12 +73,13 @@ public class GA {
 
     public double calculateFitness(DatacenterBroker broker){
 
-            List<Cloudlet> finishedCloudlets = broker.getCloudletFinishedList();
-            Cloudlet c = finishedCloudlets.get(finishedCloudlets.size()-1);
-            double tft = c.getFinishTime();
-            tft = Math.round(tft * 100.0) / 100.0;
-            return tft;
+        List<Cloudlet> finishedCloudlets = broker.getCloudletFinishedList();
+        Cloudlet c = finishedCloudlets.get(finishedCloudlets.size()-1);
+        double tft = c.getFinishTime();
+        tft = Math.round(tft * 100.0) / 100.0;
+        return tft;
 
     }
+
 
 }
