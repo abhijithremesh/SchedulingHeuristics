@@ -188,7 +188,7 @@ public class HeuristicTest {
         switch(heuristicIndex){
             case 0:
                 System.out.println("0: Performing First Come First Serve Scheduling Policy");
-                broker0.performFirstComeFirstServeScheduling(vmList, simulation);
+                broker0.performFirstComeFirstServeScheduling(vmList);
                 break;
             case 1:
                 System.out.println("1: Performing Random Scheduling");
@@ -200,27 +200,27 @@ public class HeuristicTest {
                 break;
             case 3:
                 System.out.println("4: Performing Shortest Cloudlet Fastest Processing Scheduling");
-                broker0.performShortestCloudletFastestProcessingScheduling(cloudletList,vmList);
+                broker0.performShortestCloudletFastestProcessingScheduling(vmList);
                 break;
             case 4:
                 System.out.println("5: Performing Minimum Completion Time Scheduling");
-                broker0.performMinimumCompletionTimeScheduling(cloudletList,vmList);
+                broker0.performMinimumCompletionTimeScheduling(vmList);
                 break;
             case 5:
                 System.out.println("6: Performing Minimum Execution Time Scheduling");
-                broker0.performMinimumExecutionTimeScheduling(cloudletList,vmList);
+                broker0.performMinimumExecutionTimeScheduling(vmList);
                 break;
             case 6:
                 System.out.println("7: Performing Min Min Scheduling");
-                broker0.performMinMinScheduling(cloudletList,vmList);
+                broker0.performMinMinScheduling(vmList);
                 break;
             case 7:
                 System.out.println("8: Performing Max Min Scheduling");
-                broker0.performMaxMinScheduling(cloudletList,vmList);
+                broker0.performMaxMinScheduling(vmList);
                 break;
             case 8:
                 System.out.println("9: Performing Sufferage Scheduling");
-                broker0.performSufferageScheduling(cloudletList,vmList);
+                broker0.performSufferageScheduling(vmList);
                 break;
             case 9:
                 System.out.println("10: Performing Shortest Job First Scheduling");

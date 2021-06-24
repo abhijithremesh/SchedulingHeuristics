@@ -57,127 +57,112 @@ public class HeuristicSimulation {
     private Datacenter datacenter0;
     int heuristicIndex;
     int heuristicSwitch;
+
     ArrayList<List<Cloudlet>> heuristicSpecificFinishedCloudletsList = new ArrayList<List<Cloudlet>>();
+    ArrayList<Integer> candidate = new ArrayList<>();
 
     public static void main(String[] args)  {
         new HeuristicSimulation();
     }
 
-    private HeuristicSimulation()  {
+    private HeuristicSimulation() {
         /*Enables just some level of log messages.
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
 
-        /*
-        simulation = new CloudSim();
-        datacenter0 = createDatacenter();
-
-        vmList = createVms();
-        cloudletList = createCloudlets();
-
-        HeuristicBroker broker0 = new HeuristicBroker(simulation);
-
-         */
         Log.setLevel(Level.OFF);
 
         GAMetaHeuristic mh_ga = new GAMetaHeuristic();
 
-        ArrayList <ArrayList> initialPopulation = mh_ga.createInitialPopulation(5,3);
+        ArrayList<Double> generationFitness = new ArrayList<Double>();
 
-        ArrayList<Double> fitnessList = new ArrayList<Double>();
+        ArrayList<ArrayList> candidateList = mh_ga.createInitialPopulation(10, 8);
 
-        //System.out.println(initialPopulation);
+        System.out.println("initialPopulation: " + candidateList);
 
-        ArrayList<Integer> firstCandidate = initialPopulation.get(0);
+        for (int generations = 0; generations < 1; generations++) {
 
-        //System.out.println(firstCandidate);
+            ArrayList<Double> fitnessList = new ArrayList<Double>();
 
-        heuristicIndex = 0;
-        heuristicSwitch = 0 ;
+            //simulation.addOnClockTickListener(this::pauseSimulation);
+            //simulation.addOnEventProcessingListener(this::pauseSimulationAtSpecificTime);
+            //simulation.addOnSimulationStartListener(this::startSchedulingHeuristics);
+            //simulation.addOnSimulationPauseListener(this::changeSchedulingHeuristics);
 
-
-        simulation = new CloudSim();
-
-        datacenter0 = createDatacenter();
-
-        vmList = createVms();
-        cloudletList = createCloudlets();
-
-        brokerh = new HeuristicBroker(simulation);
-
-        brokerh.submitCloudletList(cloudletList);
-        brokerh.submitVmList(vmList);
+            System.out.println("Generation: "+generations);
 
 
-        simulation.addOnClockTickListener(this::pauseSimulation);
-        //simulation.addOnEventProcessingListener(this::pauseSimulationAtSpecificTime);
-        //simulation.addOnSimulationStartListener(this::startSchedulingHeuristics);
-        simulation.addOnSimulationPauseListener(this::changeSchedulingHeuristics);
+            for (int i = 0; i < candidateList.size(); i++) {
 
+                simulation = new CloudSim();
 
+                datacenter0 = createDatacenter();
 
-        selectSchedulingHeuristics(heuristicIndex,brokerh);
+                vmList = createVms();
+                cloudletList = createCloudlets();
 
-        simulation.start();
+                brokerh = new HeuristicBroker(simulation);
 
+                brokerh.submitCloudletList(cloudletList);
+                brokerh.submitVmList(vmList);
 
+                simulation.addOnClockTickListener(this::pauseSimulation);
 
+                simulation.addOnSimulationPauseListener(this::changeSchedulingHeuristics);
 
-        /*
-        List<Cloudlet> heuristicCloudlets = new ArrayList<Cloudlet>();
-        heuristicCloudlets = brokerh.getCloudletFinishedList();
-        System.out.println(heuristicCloudlets);
-        System.out.println("No. of Cloudlets processed: "+heuristicCloudlets.size());
-         */
+                heuristicIndex = 0;
+                heuristicSwitch = 0;
 
-        //double makespan = mh_ga.calculateFitness(brokerh);
+                candidate = candidateList.get(i);
 
-        //fitnessList.add(makespan);
+                System.out.println("Candidate: " + candidate);
 
-        //System.out.println(fitnessList);
+                System.out.println("****************************************************************************************************************************************");
 
-        //final List<Cloudlet> finishedCloudlets = brokerh.getCloudletFinishedList();
-        //    new CloudletsTableBuilder(finishedCloudlets).build();
+                selectSchedulingHeuristics(heuristicIndex, brokerh, candidate);
 
-        /*
+                simulation.start();
 
-        for (int i = 0; i < firstCandidate.size(); i++){
+                postSimulationHeuristicSpecificFinishedloudlets(brokerh);
 
-            selectSchedulingHeuristics(i,broker0);
+                double makespan = mh_ga.calculateFitness(brokerh);
 
-            simulation.start();
+                fitnessList.add(makespan);
 
-            simulation.pause(300);
+                System.out.println("Candidate Fitness: " + fitnessList);
 
-            double makespan = mh_ga.calculateFitness(broker0);
+                System.out.println("################################################# SIMULATION END ##############################################################################");
 
-            fitnessList.add(makespan);
+            }
+
+            System.out.println("Candidate List: " + candidateList);
+            System.out.println("Fitness List: " + fitnessList);
+            System.out.println("Candidate List Size: " + candidateList.size());
+            System.out.println("Fitness List Size: " + fitnessList.size());
+
+            double bestFitness = mh_ga.generationFitness(fitnessList, "min");
+            generationFitness.add(bestFitness);
+
+            System.out.println("Generation Fitness: " + generationFitness);
+
+            // If using Elite method for passing elite individuals to the next generation.
+            ArrayList<ArrayList> eliteChromosomes = mh_ga.fittestEliteChromosome(fitnessList, candidateList,3,"min");
+
+            mh_ga.removeWeakChromosomes(fitnessList, candidateList, "max", 3);
+
+            ArrayList<ArrayList> offspringsList = new ArrayList<ArrayList>();
+
+            mh_ga.generationEvolve(3, "min", candidateList, fitnessList, offspringsList);
+
+            offspringsList.addAll(eliteChromosomes);
+
+            candidateList.addAll(offspringsList);
+
+            System.out.println("Candidate List after Evolution: "+candidateList.size());
+
+            System.out.println("################################################# GENERATION END ##############################################################################");
 
         }
-
-         */
-
-
-
-        //broker0.performFirstComeFirstServeScheduling(cloudletList,vmList);
-        //broker0.performRandomScheduling(cloudletList,vmList);
-        //*broker0.performGeneralizedPriority(cloudletList, vmList);
-        //broker0.performLongestCloudletFastestProcessingScheduling(cloudletList,vmList);
-        //broker0.performShortestCloudletFastestProcessingScheduling(cloudletList,vmList);
-        //*broker0.performMinimumCompletionTimeScheduling(cloudletList,vmList);
-        //*broker0.performMinimumExecutionTimeScheduling(cloudletList,vmList);
-        //*broker0.performOpportunisticLoadBalancingHeuristic(cloudletList,vmList);
-        //broker0.performMinMinScheduling(cloudletList,vmList);
-        //broker0.performMaxMinScheduling(cloudletList,vmList);
-        //broker0.performSufferageScheduling(cloudletList,vmList);
-        //*broker0.performShortestJobFirstScheduling(cloudletList,vmList);
-        //*broker0.performPriorityBasedScheduling(cloudletList,vmList);
-
-        //simulation.start();
-
-        postSimulationHeuristicSpecificFinishedloudlets(brokerh);
-
-
 
     }
 
@@ -256,60 +241,62 @@ public class HeuristicSimulation {
         return list;
     }
 
-    public void selectSchedulingHeuristics(int heuristicIndex, HeuristicBroker broker0){
+    public void selectSchedulingHeuristics(int heuristicIndex, HeuristicBroker brokerh, ArrayList<Integer> candidate){
 
-        switch(heuristicIndex){
+        int heuristic = candidate.get(heuristicIndex);
+
+        switch(heuristic){
             case 0:
                 System.out.println("0: Performing First Come First Serve Scheduling Policy");
-                broker0.performFirstComeFirstServeScheduling(vmList, simulation);
+                brokerh.performFirstComeFirstServeScheduling(vmList);
                 break;
             case 1:
                 System.out.println("1: Performing Random Scheduling");
-                broker0.performRandomScheduling(vmList);
+                brokerh.performRandomScheduling(vmList);
                 break;
             case 2:
                 System.out.println("2: Performing Longest Cloudlet Fastest Processing Scheduling");
-                broker0.performLongestCloudletFastestProcessingScheduling(vmList);
+                brokerh.performLongestCloudletFastestProcessingScheduling(vmList);
                 break;
             case 3:
-                System.out.println("4: Performing Shortest Cloudlet Fastest Processing Scheduling");
-                broker0.performShortestCloudletFastestProcessingScheduling(cloudletList,vmList);
+                System.out.println("3: Performing Shortest Cloudlet Fastest Processing Scheduling");
+                brokerh.performShortestCloudletFastestProcessingScheduling(vmList);
                 break;
             case 4:
-                System.out.println("5: Performing Minimum Completion Time Scheduling");
-                broker0.performMinimumCompletionTimeScheduling(cloudletList,vmList);
+                System.out.println("4: Performing Min Min Scheduling");
+                brokerh.performMinMinScheduling(vmList);
                 break;
             case 5:
-                System.out.println("6: Performing Minimum Execution Time Scheduling");
-                broker0.performMinimumExecutionTimeScheduling(cloudletList,vmList);
+                System.out.println("5: Performing Max Min Scheduling");
+                brokerh.performMaxMinScheduling(vmList);
                 break;
             case 6:
-                System.out.println("7: Performing Min Min Scheduling");
-                broker0.performMinMinScheduling(cloudletList,vmList);
+                System.out.println("6: Performing Sufferage Scheduling");
+                brokerh.performSufferageScheduling(vmList);
                 break;
             case 7:
-                System.out.println("8: Performing Max Min Scheduling");
-                broker0.performMaxMinScheduling(cloudletList,vmList);
+                System.out.println("7: Performing Minimum Completion Time Scheduling");
+                brokerh.performMinimumCompletionTimeScheduling(vmList);
                 break;
             case 8:
-                System.out.println("9: Performing Sufferage Scheduling");
-                broker0.performSufferageScheduling(cloudletList,vmList);
+                System.out.println("8: Performing Minimum Execution Time Scheduling");
+                brokerh.performMinimumExecutionTimeScheduling(vmList);
                 break;
             case 9:
-                System.out.println("10: Performing Shortest Job First Scheduling");
-                broker0.performShortestJobFirstScheduling(cloudletList,vmList);
+                System.out.println("9: Performing Shortest Job First Scheduling");
+                brokerh.performShortestJobFirstScheduling(cloudletList,vmList);
                 break;
             case 10:
-                System.out.println("11: Performing Priority Based Scheduling");
-                broker0.performPriorityBasedScheduling(cloudletList,vmList);
+                System.out.println("10: Performing Priority Based Scheduling");
+                brokerh.performPriorityBasedScheduling(cloudletList,vmList);
                 break;
             case 11:
-                System.out.println("12: Performing Opportunistic Load Balance Scheduling");
-                broker0.performOpportunisticLoadBalancingHeuristic(cloudletList,vmList);;
+                System.out.println("11: Performing Opportunistic Load Balance Scheduling");
+                brokerh.performOpportunisticLoadBalancingHeuristic(cloudletList,vmList);;
                 break;
             case 12:
-                System.out.println("2: Performing Generalized Priority Scheduling");
-                broker0.performGeneralizedPriority(cloudletList, vmList);
+                System.out.println("12: Performing Generalized Priority Scheduling");
+                brokerh.performGeneralizedPriority(cloudletList, vmList);
                 break;
 
 
@@ -342,19 +329,19 @@ public class HeuristicSimulation {
     }
 
     public  void changeSchedulingHeuristics(EventInfo pauseInfo) {
-        System.out.println("# Pausing Simulation at "+ pauseInfo.getTime()+"seconds");
+        System.out.println("# Pausing Simulation at "+ pauseInfo.getTime()+" seconds");
         postSimulationAllFinishedloudlets(brokerh);
         postSimulationHeuristicSpecificFinishedloudlets(brokerh);
-        System.out.println("*******************************************");
-        if (heuristicIndex < 2){
+        System.out.println("************************************************************************************************************************");
+        if (heuristicIndex < candidate.size()-1){
             heuristicIndex ++;
             heuristicSwitch ++;
-            selectSchedulingHeuristics(heuristicIndex,brokerh);
+            selectSchedulingHeuristics(heuristicIndex,brokerh, candidate);
         }
-        else if (heuristicIndex >= 2){
+        else if (heuristicIndex >= candidate.size()-1){
             heuristicIndex = 0;
             heuristicSwitch ++;
-            selectSchedulingHeuristics(heuristicIndex,brokerh);
+            selectSchedulingHeuristics(heuristicIndex,brokerh, candidate);
         }
         System.out.println("Resuming Simulation....");
         simulation.resume();

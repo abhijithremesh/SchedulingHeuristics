@@ -5,18 +5,20 @@ import org.cloudbus.cloudsim.vms.Vm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class MinMinHeuristic {
 
     List<Cloudlet> cloudletList;
     List<Vm> vmList;
-    HeuristicBroker broker0;
+    HeuristicBroker brokerh;
 
-    MinMinHeuristic (HeuristicBroker broker0, List<Cloudlet> cloudletList, List<Vm> vmList){
-        this.cloudletList = cloudletList;
+    MinMinHeuristic (HeuristicBroker brokerh, List<Vm> vmList){
+
+        this.brokerh = brokerh;
+        this.cloudletList = brokerh.getCloudletSubmittedList();
         this.vmList = vmList;
-        this.broker0 = broker0;
 
     }
 
@@ -24,10 +26,20 @@ public class MinMinHeuristic {
 
     public void minMinScheduling(){
 
-        //broker0.submitCloudletList(cloudletList);
-        //broker0.submitVmList(vmList);
+        cloudletList.removeAll(brokerh.getCloudletFinishedList());
 
-        System.out.println(cloudletList.get(0).getId());
+        System.out.println("No. of Cloudlets: "+cloudletList.size());
+        System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
+
+        // Rearranging the remaining cloudlets and deassigning their respective VM.
+        Collections.sort(cloudletList);
+        for (Cloudlet c : cloudletList) {
+            if (c.isBoundToVm() == true){
+                c.setVm(Vm.NULL);}
+        }
+
+        // Remaining cloudlets
+        System.out.println("Cloudlets: "+cloudletList);
 
         // Getting the amount of cloudlets and VMs
         int noOfVms = vmList.size();
@@ -96,7 +108,7 @@ public class MinMinHeuristic {
             //System.out.println("Minimum VM: " + minimumVm);
 
             // Binding the cloudlet to the respective VM
-            broker0.bindCloudletToVm(minimumCloudlet, minimumVm);
+            brokerh.bindCloudletToVm(minimumCloudlet, minimumVm);
 
             //System.out.println(minimumCloudlet+" gets mapped to "+minimumVm+" with completion time, "+MinimumCompletionTime);
 

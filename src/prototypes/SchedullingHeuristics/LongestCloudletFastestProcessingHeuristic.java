@@ -40,7 +40,7 @@ public class LongestCloudletFastestProcessingHeuristic {
         }
 
         // Remaining cloudlets
-        System.out.println(cloudletList);
+        System.out.println("Cloudlets: "+cloudletList);
 
         // Sorting the list of cloudlets in descending order of their length.
         for (int a = 0; a < cloudletList.size(); a++) {
@@ -63,9 +63,6 @@ public class LongestCloudletFastestProcessingHeuristic {
                 }
             }
         }
-
-        //cloudletList.forEach(c-> System.out.println(c.getId()+" "+c.getLength()));
-        //vmList.forEach(c-> System.out.println(c.getId()+" "+c.getMips()));
 
 
         // Binding the cloudlets from the sorted cloudlet list to the VMs from the sorted vm list.

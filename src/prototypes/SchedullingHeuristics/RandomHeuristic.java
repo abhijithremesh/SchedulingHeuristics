@@ -43,8 +43,7 @@ public class RandomHeuristic {
         }
 
         // Remaining cloudlets
-        System.out.println(cloudletList);
-
+        System.out.println("Cloudlets: "+cloudletList);
 
         // Binding Cloudlets to random VMs
         for (int i = 0; i <cloudletList.size(); i++){

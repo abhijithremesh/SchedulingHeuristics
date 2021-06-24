@@ -14,17 +14,17 @@ import java.util.stream.Collectors;
 public class FirstComeFirstServeHeuristic {
 
 
-    private final CloudSim simulation;
+
     List<Cloudlet> cloudletList;
     List<Vm> vmList;
     HeuristicBroker brokerh;
 
 
-    FirstComeFirstServeHeuristic(HeuristicBroker brokerh, List<Vm> vmList, CloudSim simulation){
+    FirstComeFirstServeHeuristic(HeuristicBroker brokerh, List<Vm> vmList){
         this.brokerh = brokerh;
         this.cloudletList = brokerh.getCloudletSubmittedList();
         this.vmList = vmList;
-        this.simulation = simulation;
+
 
     }
 
@@ -46,7 +46,7 @@ public class FirstComeFirstServeHeuristic {
         }
 
         // Remaining cloudlets
-        System.out.println(cloudletList);
+        System.out.println("Cloudlets: "+cloudletList);
 
         for(int i=0;i<cloudletList.size();i++){
             Cloudlet cl = cloudletList.get(i);

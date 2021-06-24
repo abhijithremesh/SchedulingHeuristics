@@ -16,9 +16,9 @@ public class HeuristicBroker extends DatacenterBrokerSimple {
     }
 
 
-    public void performFirstComeFirstServeScheduling(List<Vm> vmList, CloudSim simulation){
+    public void performFirstComeFirstServeScheduling(List<Vm> vmList){
 
-        FirstComeFirstServeHeuristic fcfs = new FirstComeFirstServeHeuristic(this, vmList, simulation);
+        FirstComeFirstServeHeuristic fcfs = new FirstComeFirstServeHeuristic(this, vmList);
         fcfs.firstComeFirstServeScheduling();
 
     }
@@ -37,23 +37,23 @@ public class HeuristicBroker extends DatacenterBrokerSimple {
 
     }
 
-    public void performShortestCloudletFastestProcessingScheduling(List<Cloudlet> cloudletList,List<Vm> vmList){
+    public void performShortestCloudletFastestProcessingScheduling(List<Vm> vmList){
 
-        ShortestCloudletFastestProcessingHeuristic scfp = new ShortestCloudletFastestProcessingHeuristic(this, cloudletList, vmList);
+        ShortestCloudletFastestProcessingHeuristic scfp = new ShortestCloudletFastestProcessingHeuristic(this, vmList);
         scfp.shortestCloudletFastestProcessingScheduling();
 
     }
 
-    public void performMinimumCompletionTimeScheduling(List<Cloudlet>cloudletList, List<Vm>vmlist){
+    public void performMinimumCompletionTimeScheduling(List<Vm>vmlist){
 
-        MinimumCompletionTimeHeuristic mct = new MinimumCompletionTimeHeuristic(this,cloudletList,vmlist);
+        MinimumCompletionTimeHeuristic mct = new MinimumCompletionTimeHeuristic(this,vmlist);
         mct.minimumCompletionTimeScheduling();
 
     }
 
-    public void performMinimumExecutionTimeScheduling(List<Cloudlet>cloudletList, List<Vm>vmlist){
+    public void performMinimumExecutionTimeScheduling(List<Vm>vmlist){
 
-        MinimumExecutionTimeHeuristic met = new MinimumExecutionTimeHeuristic(this,cloudletList,vmlist);
+        MinimumExecutionTimeHeuristic met = new MinimumExecutionTimeHeuristic(this,vmlist);
         met.minimumExecutionTimeScheduling();
 
     }
@@ -65,23 +65,23 @@ public class HeuristicBroker extends DatacenterBrokerSimple {
 
     }
 
-    public void performMinMinScheduling(List<Cloudlet>cloudletList, List<Vm>vmlist){
+    public void performMinMinScheduling(List<Vm>vmlist){
 
-        MinMinHeuristic minmin  = new MinMinHeuristic(this,cloudletList,vmlist);
+        MinMinHeuristic minmin  = new MinMinHeuristic(this,vmlist);
         minmin.minMinScheduling();
 
     }
 
-    public void performMaxMinScheduling(List<Cloudlet>cloudletList, List<Vm>vmlist){
+    public void performMaxMinScheduling(List<Vm>vmlist){
 
-        MaxMinHeuristic maxmin  = new MaxMinHeuristic(this,cloudletList,vmlist);
+        MaxMinHeuristic maxmin  = new MaxMinHeuristic(this,vmlist);
         maxmin.maxMinScheduling();
 
     }
 
-    public void performSufferageScheduling(List<Cloudlet> cloudletList, List<Vm> vmlist){
+    public void performSufferageScheduling(List<Vm> vmlist){
 
-        SufferageHeuristic sufferage = new SufferageHeuristic(this,cloudletList, vmlist);
+        SufferageHeuristic sufferage = new SufferageHeuristic(this, vmlist);
         sufferage.sufferageScheduling();
 
     }

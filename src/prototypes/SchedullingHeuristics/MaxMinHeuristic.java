@@ -6,18 +6,20 @@ import org.cloudsimplus.examples.MaxMinBroker2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class MaxMinHeuristic {
 
     List<Cloudlet> cloudletList;
     List<Vm> vmList;
-    HeuristicBroker broker0;
+    HeuristicBroker brokerh;
 
-    MaxMinHeuristic (HeuristicBroker broker0, List<Cloudlet> cloudletList, List<Vm> vmList){
-        this.cloudletList = cloudletList;
+    MaxMinHeuristic (HeuristicBroker brokerh, List<Vm> vmList){
+        this.brokerh = brokerh;
+        this.cloudletList = brokerh.getCloudletSubmittedList();
         this.vmList = vmList;
-        this.broker0 = broker0;
+
 
     }
 
@@ -39,10 +41,20 @@ public class MaxMinHeuristic {
 
     public void maxMinScheduling(){
 
-        broker0.submitCloudletList(cloudletList);
-        broker0.submitVmList(vmList);
+        cloudletList.removeAll(brokerh.getCloudletFinishedList());
 
-        System.out.println(cloudletList.get(0).getId());
+        System.out.println("No. of Cloudlets: "+cloudletList.size());
+        System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
+
+        // Rearranging the remaining cloudlets and deassigning their respective VM.
+        Collections.sort(cloudletList);
+        for (Cloudlet c : cloudletList) {
+            if (c.isBoundToVm() == true){
+                c.setVm(Vm.NULL);}
+        }
+
+        // Remaining cloudlets
+        System.out.println("Cloudlets: "+cloudletList);
 
         // Getting the amount of cloudlets and VMs
         int noOfVms = vmList.size();
@@ -109,7 +121,7 @@ public class MaxMinHeuristic {
             //System.out.println("Minimum VM: " + minimumVm);
 
             // Binding the respetcive cloudlet to the respective VM
-            broker0.bindCloudletToVm(maximumCloudlet, minimumVm);
+            brokerh.bindCloudletToVm(maximumCloudlet, minimumVm);
 
             // Updating the completion time values for the selected VM and other remaining cloudlets
             for (int i = 0; i < clist.size(); i++) {
