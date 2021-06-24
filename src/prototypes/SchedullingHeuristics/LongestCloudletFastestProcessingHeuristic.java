@@ -4,6 +4,9 @@ import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class LongestCloudletFastestProcessingHeuristic {
@@ -19,23 +22,25 @@ public class LongestCloudletFastestProcessingHeuristic {
 
     }
 
-    public void longestCloudletFastestProcessingScheduling(){
+    public void longestCloudletFastestProcessingScheduling1(){
 
-        final List<Cloudlet> finishedCloudlets = brokerh.getCloudletFinishedList();
-        new CloudletsTableBuilder(finishedCloudlets).build();
+        //final List<Cloudlet> finishedCloudlets = brokerh.getCloudletFinishedList();
+        //new CloudletsTableBuilder(finishedCloudlets).build();
 
-        //System.out.println(cloudletList.size());
         cloudletList.removeAll(brokerh.getCloudletFinishedList());
-        System.out.println(cloudletList.size());
 
-        cloudletList.forEach(c-> System.out.println(c.getId()+" "+c.getLength()));
-        vmList.forEach(c-> System.out.println(c.getId()+" "+c.getMips()));
+        System.out.println("No. of Cloudlets: "+cloudletList.size());
+        System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
 
-        //System.out.println(cloudletList.get(0).getId());
-
+        // Rearranging the remainning cloudlets and deassigning their respective VM.
+        Collections.sort(cloudletList);
         for (Cloudlet c : cloudletList) {
-            c.setVm(Vm.NULL);
+            if (c.isBoundToVm() == true){
+            c.setVm(Vm.NULL);}
         }
+
+        // Remaining cloudlets
+        System.out.println(cloudletList);
 
         // Sorting the list of cloudlets in descending order of their length.
         for (int a = 0; a < cloudletList.size(); a++) {
@@ -59,18 +64,62 @@ public class LongestCloudletFastestProcessingHeuristic {
             }
         }
 
-        cloudletList.forEach(c-> System.out.println(c.getId()+" "+c.getLength()));
-        vmList.forEach(c-> System.out.println(c.getId()+" "+c.getMips()));
+        //cloudletList.forEach(c-> System.out.println(c.getId()+" "+c.getLength()));
+        //vmList.forEach(c-> System.out.println(c.getId()+" "+c.getMips()));
 
-        //brokerh.submitCloudletList(cloudletList);
-        //brokerh.submitVmList(vmList);
 
         // Binding the cloudlets from the sorted cloudlet list to the VMs from the sorted vm list.
         for (int i = 0; i < cloudletList.size(); i++) {
             Cloudlet cl = cloudletList.get(i);
             Vm vm = vmList.get((i % vmList.size()));
-            System.out.println("Binding Cloudlet "+cl.getId()+" of length "+cl.getLength()+" to VM "+vm.getId()+" with VM MIPS "+vm.getMips());
+            //System.out.println("Binding Cloudlet "+cl.getId()+" of length "+cl.getLength()+" to VM "+vm.getId()+" with VM MIPS "+vm.getMips());
             brokerh.bindCloudletToVm(cl,vm);
+        }
+
+
+    }
+
+
+    public void longestCloudletFastestProcessingScheduling2(){
+
+        final List<Cloudlet> finishedCloudlets = brokerh.getCloudletFinishedList();
+        new CloudletsTableBuilder(finishedCloudlets).build();
+
+        cloudletList.removeAll(brokerh.getCloudletFinishedList());
+        System.out.println(cloudletList.size());
+
+        //cloudletList.forEach(c-> System.out.println(c.getId()+" "+c.getLength()));
+        //vmList.forEach(c-> System.out.println(c.getId()+" "+c.getMips()));
+
+        //System.out.println(cloudletList.get(0).getId());
+
+        for (Cloudlet c : cloudletList) {
+            c.setVm(Vm.NULL);
+        }
+
+        Comparator<Cloudlet> cmpCloudlet = new Comparator<Cloudlet>() {
+            public int compare(Cloudlet c1, Cloudlet c2) {
+                return Double.compare(c1.getLength(), c2.getLength());
+            }
+        };
+
+        //System.out.println("*******************************************");
+
+        Comparator<Vm> cmpVm = new Comparator<Vm>() {
+            public int compare(Vm v1, Vm v2) {
+                return Double.compare(v1.getMips(), v2.getMips());
+            }
+        };
+
+        int i = 0;
+
+        while (cloudletList.isEmpty() == false) {
+            Cloudlet c = Collections.max(cloudletList, cmpCloudlet);
+            //brokerh.getVmWaitingList().forEach(p-> System.out.println(p.getId()+" "+p.getMips()));
+            Vm v = Collections.max(brokerh.getVmWaitingList(), cmpVm);
+            //System.out.println(c.getId()+" "+c.getLength()+" "+v.getId()+" "+v.getMips());
+            brokerh.bindCloudletToVm(c,v);
+            cloudletList.remove(c);
         }
 
 

@@ -21,9 +21,7 @@ import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.listeners.EventInfo;
 import org.cloudsimplus.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +45,7 @@ public class HeuristicTest {
 
     private static final int CLOUDLETS = 10 ;
     private static final int CLOUDLET_PES = 1;
-    private static final int CLOUDLET_LENGTH = 1000;
+    private static final int CLOUDLET_LENGTH = 3000;
 
     private CloudSim simulation;
     //private DatacenterBroker broker0;
@@ -78,6 +76,12 @@ public class HeuristicTest {
 
         brokerh.submitVmList(vmList);
         brokerh.submitCloudletList(cloudletList);
+
+        //cloudletList.forEach(c -> System.out.println(c.getId()+" "+c.getLength()));
+        //System.out.println("*******************************************");
+        //vmList.forEach(v -> System.out.println(v.getId()+" "+v.getMips()));
+        //System.out.println("*******************************************");
+
 
 
 
@@ -184,7 +188,7 @@ public class HeuristicTest {
         switch(heuristicIndex){
             case 0:
                 System.out.println("0: Performing First Come First Serve Scheduling Policy");
-                broker0.performFirstComeFirstServeScheduling(vmList);
+                broker0.performFirstComeFirstServeScheduling(vmList, simulation);
                 break;
             case 1:
                 System.out.println("1: Performing Random Scheduling");

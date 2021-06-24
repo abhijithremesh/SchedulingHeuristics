@@ -24,7 +24,7 @@ import org.cloudsimplus.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
+
 
 /**
  * A minimal but organized, structured and re-usable CloudSim Plus example
@@ -45,7 +45,7 @@ public class HeuristicSimulation {
     private static final int VMS = 4;
     private static final int VM_PES = 1;
 
-    private static final int CLOUDLETS = 100 ;
+    private static final int CLOUDLETS = 200 ;
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 1000;
 
@@ -56,12 +56,14 @@ public class HeuristicSimulation {
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
     int heuristicIndex;
+    int heuristicSwitch;
+    ArrayList<List<Cloudlet>> heuristicSpecificFinishedCloudletsList = new ArrayList<List<Cloudlet>>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
         new HeuristicSimulation();
     }
 
-    private HeuristicSimulation() {
+    private HeuristicSimulation()  {
         /*Enables just some level of log messages.
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
@@ -91,6 +93,8 @@ public class HeuristicSimulation {
         //System.out.println(firstCandidate);
 
         heuristicIndex = 0;
+        heuristicSwitch = 0 ;
+
 
         simulation = new CloudSim();
 
@@ -104,31 +108,36 @@ public class HeuristicSimulation {
         brokerh.submitCloudletList(cloudletList);
         brokerh.submitVmList(vmList);
 
+
         simulation.addOnClockTickListener(this::pauseSimulation);
         //simulation.addOnEventProcessingListener(this::pauseSimulationAtSpecificTime);
+        //simulation.addOnSimulationStartListener(this::startSchedulingHeuristics);
         simulation.addOnSimulationPauseListener(this::changeSchedulingHeuristics);
+
+
 
         selectSchedulingHeuristics(heuristicIndex,brokerh);
 
         simulation.start();
 
-        double makespan = mh_ga.calculateFitness(brokerh);
-
-        fitnessList.add(makespan);
-
-        System.out.println(fitnessList);
 
 
 
+        /*
+        List<Cloudlet> heuristicCloudlets = new ArrayList<Cloudlet>();
+        heuristicCloudlets = brokerh.getCloudletFinishedList();
+        System.out.println(heuristicCloudlets);
+        System.out.println("No. of Cloudlets processed: "+heuristicCloudlets.size());
+         */
 
+        //double makespan = mh_ga.calculateFitness(brokerh);
 
+        //fitnessList.add(makespan);
 
+        //System.out.println(fitnessList);
 
         //final List<Cloudlet> finishedCloudlets = brokerh.getCloudletFinishedList();
         //    new CloudletsTableBuilder(finishedCloudlets).build();
-
-
-
 
         /*
 
@@ -166,8 +175,7 @@ public class HeuristicSimulation {
 
         //simulation.start();
 
-        //final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
-        //    new CloudletsTableBuilder(finishedCloudlets).build();
+        postSimulationHeuristicSpecificFinishedloudlets(brokerh);
 
 
 
@@ -253,7 +261,7 @@ public class HeuristicSimulation {
         switch(heuristicIndex){
             case 0:
                 System.out.println("0: Performing First Come First Serve Scheduling Policy");
-                broker0.performFirstComeFirstServeScheduling(vmList);
+                broker0.performFirstComeFirstServeScheduling(vmList, simulation);
                 break;
             case 1:
                 System.out.println("1: Performing Random Scheduling");
@@ -310,12 +318,11 @@ public class HeuristicSimulation {
     }
 
 
-
+    // pauses simulation every 30 seconds...
     public void pauseSimulation(EventInfo eInfo) {
-        //System.out.println(eInfo.getTime());
-        if (Math.floor(simulation.clock()) == 20 * (heuristicIndex + 1)) {
+        if (Math.floor(simulation.clock()) == 20 * (heuristicSwitch + 1)) {
             simulation.pause();
-            System.out.println("passed "+simulation.clock());
+            //System.out.println("# Simulation paused at %.2f second%n"+eInfo.getTime());
         }
     }
 
@@ -327,39 +334,65 @@ public class HeuristicSimulation {
 
     }
 
+    public void startSchedulingHeuristics(EventInfo startInfo) {
+        System.out.printf("%n# Simulation started at %.2f second%n", startInfo.getTime());
+        //selectSchedulingHeuristics(heuristicIndex,brokerh);
+        //heuristicIndex++;
+        simulation.pause();
+    }
+
     public  void changeSchedulingHeuristics(EventInfo pauseInfo) {
-        System.out.printf("%n# Simulation paused at %.2f second%n", pauseInfo.getTime());
+        System.out.println("# Pausing Simulation at "+ pauseInfo.getTime()+"seconds");
+        postSimulationAllFinishedloudlets(brokerh);
+        postSimulationHeuristicSpecificFinishedloudlets(brokerh);
+        System.out.println("*******************************************");
         if (heuristicIndex < 2){
             heuristicIndex ++;
-            selectSchedulingHeuristics(heuristicIndex,brokerh);}
-        else if (heuristicIndex >= 2)
-            heuristicIndex = 0;
+            heuristicSwitch ++;
             selectSchedulingHeuristics(heuristicIndex,brokerh);
+        }
+        else if (heuristicIndex >= 2){
+            heuristicIndex = 0;
+            heuristicSwitch ++;
+            selectSchedulingHeuristics(heuristicIndex,brokerh);
+        }
+        System.out.println("Resuming Simulation....");
         simulation.resume();
     }
 
-    public void podaPatti(EventInfo pauseInfo){
-        System.out.println(pauseInfo.getTime());
+
+    public void postSimulationAllFinishedloudlets(HeuristicBroker brokerh){
+
+        List<Cloudlet> allFinishedCloudlets = new ArrayList<Cloudlet>();
+        allFinishedCloudlets = brokerh.getCloudletFinishedList();
+        System.out.println("Total No. of Cloudlets processed: "+allFinishedCloudlets.size());
+        System.out.println("Total Cloudlets processed: "+allFinishedCloudlets);
+        //new CloudletsTableBuilder(allFinishedCloudlets).build();
+
     }
 
-    public void pranthan(EventInfo e){
-        if (simulation.clock() == 10){
-            simulation.pause();
-            System.out.println("Simulation paused at 10s");
-        }
-    }
+    public void postSimulationHeuristicSpecificFinishedloudlets(HeuristicBroker brokerh){
 
-    private List<Cloudlet> getRemainingCloudlets(List<Cloudlet> cloudletList){
-
-        List <Cloudlet> cloudletListRemaining = new ArrayList<Cloudlet>();
-
-        for (Cloudlet c : cloudletList) {
-            if (c.getVm() == Vm.NULL){
-                cloudletListRemaining.add(c);
+        List<Cloudlet> allFinishedCloudlets = brokerh.getCloudletFinishedList();
+        heuristicSpecificFinishedCloudletsList.add(allFinishedCloudlets);
+        int items = heuristicSpecificFinishedCloudletsList.size();
+        List<Cloudlet> heuristicSpecificFinishedCloudlets = new ArrayList<Cloudlet>();
+        //if (brokerh.getCloudletSubmittedList().size() > brokerh.getCloudletFinishedList().size()) {
+            if (items == 1) {
+                heuristicSpecificFinishedCloudlets = heuristicSpecificFinishedCloudletsList.get(0);
+            } else if (items > 1) {
+                List<Cloudlet> lastItem = heuristicSpecificFinishedCloudletsList.get(items - 1);
+                List<Cloudlet> secondLastItem = heuristicSpecificFinishedCloudletsList.get(items - 2);
+                List<Cloudlet> differences = new ArrayList<>(lastItem);
+                differences.removeAll(secondLastItem);
+                //heuristicSpecificFinishedCloudletsList.get(items - 1).removeAll(heuristicSpecificFinishedCloudletsList.get(items - 2));
+                //heuristicSpecificFinishedCloudlets = heuristicSpecificFinishedCloudletsList.get(items - 1);
+                heuristicSpecificFinishedCloudlets = differences;
             }
-        }
-
-        return  cloudletListRemaining;
+        //}
+        System.out.println("No. of Cloudlets Heuristic processed: "+heuristicSpecificFinishedCloudlets.size());
+        //System.out.println("Cloudlets Heuristics processed: "+heuristicSpecificFinishedCloudlets);
+        new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
 
     }
 

@@ -5,6 +5,7 @@ import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -24,23 +25,26 @@ public class RandomHeuristic {
 
     public void randomScheduling() {
 
-        final List<Cloudlet> finishedCloudlets = brokerh.getCloudletFinishedList();
-        new CloudletsTableBuilder(finishedCloudlets).build();
+        //final List<Cloudlet> finishedCloudlets = brokerh.getCloudletFinishedList();
+        //new CloudletsTableBuilder(finishedCloudlets).build();
 
-        //System.out.println(cloudletList.size());
         cloudletList.removeAll(brokerh.getCloudletFinishedList());
-        System.out.println(cloudletList.size());
+
+        System.out.println("No. of Cloudlets: "+cloudletList.size());
+        System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
 
         Random random = new Random();
 
-        //broker0.submitCloudletList(cloudletList);
-        //broker0.submitVmList(vmList);
-
-        System.out.println(cloudletList.get(0).getId());
-
+        // Rearranging the remainning cloudlets and deassigning their respective VM.
+        Collections.sort(cloudletList);
         for (Cloudlet c : cloudletList) {
-            c.setVm(Vm.NULL);
+            if (c.isBoundToVm() == true){
+            c.setVm(Vm.NULL);}
         }
+
+        // Remaining cloudlets
+        System.out.println(cloudletList);
+
 
         // Binding Cloudlets to random VMs
         for (int i = 0; i <cloudletList.size(); i++){
@@ -51,16 +55,12 @@ public class RandomHeuristic {
             //System.out.println(cloudletList.get(cl)+" is bound to "+vmList.get(vm));
         }
 
+
+
     }
 
-    private List<Cloudlet> getRemainingCloudlets(List<Cloudlet> cloudletList){
 
-        List <Cloudlet> cloudletListRemaining = new ArrayList<Cloudlet>(cloudletList);
-        List <Cloudlet> finishedCloudlets = brokerh.getCloudletFinishedList();
 
-        cloudletListRemaining.removeAll(finishedCloudlets);
 
-        return cloudletListRemaining;
-    }
 
 }

@@ -16,9 +16,9 @@ public class HeuristicBroker extends DatacenterBrokerSimple {
     }
 
 
-    public void performFirstComeFirstServeScheduling(List<Vm> vmList){
+    public void performFirstComeFirstServeScheduling(List<Vm> vmList, CloudSim simulation){
 
-        FirstComeFirstServeHeuristic fcfs = new FirstComeFirstServeHeuristic(this, vmList);
+        FirstComeFirstServeHeuristic fcfs = new FirstComeFirstServeHeuristic(this, vmList, simulation);
         fcfs.firstComeFirstServeScheduling();
 
     }
@@ -33,7 +33,7 @@ public class HeuristicBroker extends DatacenterBrokerSimple {
     public void performLongestCloudletFastestProcessingScheduling(List<Vm> vmList){
 
         LongestCloudletFastestProcessingHeuristic lcfp = new LongestCloudletFastestProcessingHeuristic(this, vmList);
-        lcfp.longestCloudletFastestProcessingScheduling();
+        lcfp.longestCloudletFastestProcessingScheduling1();
 
     }
 
