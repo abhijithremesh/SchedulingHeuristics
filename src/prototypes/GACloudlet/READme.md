@@ -1,3 +1,3 @@
 
-* Genetic algorithm 7 - GA implemented at cloudlet level (KTH workload)
-* Genetic algorithm 8 - GA implemented at cloudlet level (incremental)
+* GeneticAlgorithm7 - GA implemented at cloudlet level (KTH workload)
+* GeneticAlgorithm8 - GA implemented at cloudlet level (incremental)
