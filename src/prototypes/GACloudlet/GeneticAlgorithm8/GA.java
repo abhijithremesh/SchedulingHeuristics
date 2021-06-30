@@ -1,22 +1,30 @@
-package org.cloudsimplus.examples.SchedullingHeuristics;
+package org.cloudsimplus.examples.GeneticAlgorithm8;
 
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
+import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
+import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
+import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
+import org.cloudbus.cloudsim.vms.Vm;
+import org.cloudbus.cloudsim.vms.VmSimple;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class GAMetaHeuristic {
+public class GA {
 
-    public ArrayList<ArrayList> createInitialPopulation(int popCount, int num_heuristic){
+    /*  Initial Population  */
+
+    public ArrayList<ArrayList> createInitialPopulation(int num_cloudlet,int num_vm){
 
         ArrayList<Integer> chromosome = new ArrayList<Integer>();
         ArrayList<ArrayList> chromosomeList = new ArrayList<ArrayList>();
 
-        for( int i=0; i < popCount ; i++) {
-            chromosome = createChromosome(num_heuristic,num_heuristic);
+        for( int i=0; i < num_cloudlet*2 ; i++) {
+            chromosome = createChromosome(num_cloudlet,num_vm);
             chromosomeList.add(chromosome);
         }
 
@@ -73,15 +81,19 @@ public class GAMetaHeuristic {
         return chromosome;
     }
 
+    /* Fitness Function  */
+
     public double calculateFitness(DatacenterBroker broker){
 
-        List<Cloudlet> finishedCloudlets = broker.getCloudletFinishedList();
-        Cloudlet c = finishedCloudlets.get(finishedCloudlets.size()-1);
-        double tft = c.getFinishTime();
-        tft = Math.round(tft * 100.0) / 100.0;
-        return tft;
+            List<Cloudlet> finishedCloudlets = broker.getCloudletFinishedList();
+            Cloudlet c = finishedCloudlets.get(finishedCloudlets.size()-1);
+            double tft = c.getFinishTime();
+            tft = Math.round(tft * 100.0) / 100.0;
+            return tft;
 
     }
+
+
 
     public Double generationFitness (ArrayList<Double> fitnessList, String flag){
 
@@ -96,6 +108,8 @@ public class GAMetaHeuristic {
         return generationFitness;
 
     }
+
+    /*  EliteChromosome  */
 
     public ArrayList<ArrayList> fittestEliteChromosome(ArrayList<Double> fitnessList, ArrayList<ArrayList> chromosomeList, int eliteCount, String flag) {
 
@@ -340,7 +354,6 @@ public class GAMetaHeuristic {
 
     }
 
-
     public void generationEvolve (int chosen,String flag, ArrayList<ArrayList> chromosomeList, ArrayList<Double> fitnessList, ArrayList<ArrayList> offspringsList){
 
         for (int i = 0; i < chosen; i++){
@@ -354,6 +367,7 @@ public class GAMetaHeuristic {
             int upperLimit = (int)(chromosomeList.size()*(30.0f/100.0f));
             int lowerLimit = 2;
             if (upperLimit <= lowerLimit){
+                upperLimit++;
                 lowerLimit--;
             }
 
@@ -386,28 +400,28 @@ public class GAMetaHeuristic {
                     parentChromosome2 = randomChromosome(chromosomeList);
                     break;
                 case 3:
-                    //System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
+                    System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
                     rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
                     System.out.println(rank+"th Fittest & Most Fittest");
                     parentChromosome1 = nthFittestChromosome(fitnessList,chromosomeList,flag,rank);
                     parentChromosome2 = fittestChromosome(fitnessList,chromosomeList,flag);
                     break;
                 case 4:
-                    //System.out.println("upperLimit: "+upperLimit+"lowerLimit: "+lowerLimit);
+                    System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
                     rank = r.nextInt(upperLimit - lowerLimit + 1 ) + lowerLimit;
                     System.out.println("Tournament & "+rank+"th Fittest");
                     parentChromosome1 = fittestTournamentChromosome(fitnessList,chromosomeList,flag,4);
                     parentChromosome2 = nthFittestChromosome(fitnessList,chromosomeList,flag,rank);
                     break;
                 case 6:
-                    //System.out.println("upperLimit: "+upperLimit+"lowerLimit: "+lowerLimit);
+                    System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
                     rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
                     System.out.println("Random & "+rank+"th Fittest");
                     parentChromosome1 = randomChromosome(chromosomeList);
                     parentChromosome2 = nthFittestChromosome(fitnessList,chromosomeList,flag,rank);
                     break;
                 case 5:
-                    //System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
+                    System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
                     rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
                     int rank2 = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
                     System.out.println(rank+"th Fittest & "+rank2+"th Fittest");
@@ -425,8 +439,10 @@ public class GAMetaHeuristic {
             double mutationProb = Math.round(r.nextDouble() * 100.0)/100.0;
 
             System.out.println("cross over probability: "+crossoverProb);
+            //System.out.println("mutation probability: "+mutationProb);
 
-            if(crossoverProb > givenCrossoverRate) {
+            if (crossoverProb > givenCrossoverRate) {
+
 
                 ArrayList<Integer> childChromosome = new ArrayList<Integer>();
                 int crossoverType = r.nextInt(4);
@@ -456,8 +472,8 @@ public class GAMetaHeuristic {
 
                 if (mutationProb > givenMutationRate) {
 
-                    int mutationType = r.nextInt(1);
-
+                    //ArrayList<Integer> mutatedChildChromosome = new ArrayList<Integer>();
+                    int mutationType = r.nextInt(2);
 
                     switch (mutationType) {
                         case 0:
@@ -471,14 +487,14 @@ public class GAMetaHeuristic {
                             break;
                     }
 
-                    System.out.println("childChromosome: " + childChromosome);
+                    System.out.println("childChromosome: "+childChromosome);
 
                 }
 
                 offspringsList.add(childChromosome);
 
-
             }
+
 
         }
 
@@ -490,8 +506,7 @@ public class GAMetaHeuristic {
             //System.out.println("chromosomeList size: "+chromosomeList.size());
             //System.out.println("fitnessList size: "+fitnessList.size());
 
-        System.out.println("**************************");
-
+            System.out.println("**************************");
 
     }
 
@@ -625,8 +640,5 @@ public class GAMetaHeuristic {
         return fitnessValue;
 
     }
-
-
-
 
 }

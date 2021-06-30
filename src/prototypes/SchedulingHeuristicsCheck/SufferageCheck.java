@@ -1,7 +1,8 @@
-package org.cloudsimplus.examples.SchedullingHeuristics;
+package org.cloudsimplus.examples.SchedulingHeuristicsCheck;
 
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.vms.Vm;
+import org.cloudsimplus.examples.SchedullingHeuristics.HeuristicBroker;
 import org.cloudsimplus.examples.SufferageBroker;
 
 import java.util.ArrayList;
@@ -9,16 +10,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class SufferageHeuristic {
+public class SufferageCheck {
 
     List<Cloudlet> cloudletList;
     List<Vm> vmList;
-    HeuristicBroker brokerh;
+    CheckBroker brokercheck;
 
-    SufferageHeuristic(HeuristicBroker brokerh,  List<Vm> vmList) {
-        this.brokerh = brokerh;
+    SufferageCheck(List<Cloudlet> cloudletList,  List<Vm> vmList, CheckBroker brokercheck) {
+
+        this.brokercheck = brokercheck;
         this.vmList = vmList;
-        this.cloudletList = brokerh.getCloudletSubmittedList();
+        this.cloudletList = cloudletList;
 
     }
 
@@ -35,22 +37,10 @@ public class SufferageHeuristic {
 
     }
 
-    public void sufferageScheduling() {
+    public void SufferageChecking() {
 
-        cloudletList.removeAll(brokerh.getCloudletFinishedList());
-
-        System.out.println("No. of Cloudlets: "+cloudletList.size());
-        System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
-
-        // Rearranging the remaining cloudlets and deassigning their respective VM.
-        Collections.sort(cloudletList);
-        //for (Cloudlet c : cloudletList) {
-        //    if (c.isBoundToVm() == true){
-        //        c.setVm(Vm.NULL);}
-        //}
-
-        // Remaining cloudlets
-        //System.out.println("Cloudlets: "+cloudletList);
+       brokercheck.submitCloudletList(cloudletList);
+       brokercheck.submitVmList(vmList);
 
         // Getting the amount of cloudlets and VMs
         int noOfVms = vmList.size();
@@ -119,7 +109,7 @@ public class SufferageHeuristic {
             Vm minimumVm = vlist.get(minVm);
 
             // Binding the respective cloudlet to the respective VM
-            brokerh.bindCloudletToVm(maximumsufferageCloudlet, minimumVm);
+            brokercheck.bindCloudletToVm(maximumsufferageCloudlet, minimumVm);
 
             // Updating the completion time values for the selected VM and other remaining cloudlets
             for (int i = 0; i < clist.size(); i++) {

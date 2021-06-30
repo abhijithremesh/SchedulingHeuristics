@@ -1,42 +1,29 @@
-package org.cloudsimplus.examples.SchedullingHeuristics;
+package org.cloudsimplus.examples.SchedulingHeuristicsCheck;
 
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.vms.Vm;
+import org.cloudsimplus.examples.SchedullingHeuristics.HeuristicBroker;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
-public class MinimumCompletionTimeHeuristic {
+public class MinimumCompletionTimeCheck {
 
     List<Cloudlet> cloudletList;
     List<Vm> vmList;
-    HeuristicBroker brokerh;
+    CheckBroker brokercheck;
 
-    MinimumCompletionTimeHeuristic(HeuristicBroker brokerh, List<Vm> vmList) {
-        this.cloudletList = brokerh.getCloudletSubmittedList();
+    MinimumCompletionTimeCheck (List<Cloudlet> cloudletList, List<Vm> vmList, CheckBroker brokercheck) {
+        this.cloudletList = cloudletList;
         this.vmList = vmList;
-        this.brokerh = brokerh;
+        this.brokercheck = brokercheck;
 
     }
 
-    public void minimumCompletionTimeScheduling() {
+    public void MCTChecking() {
 
-        cloudletList.removeAll(brokerh.getCloudletFinishedList());
-
-        System.out.println("No. of Cloudlets: "+cloudletList.size());
-        System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
-
-        // Rearranging the remaining cloudlets and deassigning their respective VM.
-        Collections.sort(cloudletList);
-        for (Cloudlet c : cloudletList) {
-            if (c.isBoundToVm() == true){
-                c.setVm(Vm.NULL);}
-        }
-
-        // Remaining cloudlets
-        //System.out.println("Cloudlets: "+cloudletList);
+        brokercheck.submitCloudletList(cloudletList);
+        brokercheck.submitVmList(vmList);
 
         double completionTime[][] = new double[cloudletList.size()][vmList.size()];
 
@@ -64,7 +51,7 @@ public class MinimumCompletionTimeHeuristic {
                     vm = j;
                 }
             }
-            brokerh.bindCloudletToVm(cloudletList.get(cl), vmList.get(vm));
+            brokercheck.bindCloudletToVm(cloudletList.get(cl), vmList.get(vm));
             //System.out.println(cloudletList.get(cl)+" is bound to "+vmList.get(vm)+" at MET: "+minCompTime);
         }
 

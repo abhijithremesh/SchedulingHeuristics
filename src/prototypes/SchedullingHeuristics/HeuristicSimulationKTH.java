@@ -40,7 +40,7 @@ import java.util.*;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class HeuristicSimulation {
+public class HeuristicSimulationKTH {
 
     private static final int HOSTS = 2;
     private static final int HOST_PES = 2;
@@ -48,7 +48,7 @@ public class HeuristicSimulation {
     private static final int VMS = 4;
     private static final int VM_PES = 1;
 
-    private static final int CLOUDLETS = 200 ;
+    private static final int CLOUDLETS = 85 ;
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 1000;
 
@@ -64,26 +64,28 @@ public class HeuristicSimulation {
     ArrayList<List<Cloudlet>> heuristicSpecificFinishedCloudletsList = new ArrayList<List<Cloudlet>>();
     ArrayList<Integer> candidate = new ArrayList<>();
 
-    public static void main(String[] args)  {
-        new HeuristicSimulation();
+    public static void main(String[] args) throws IOException, ParseException {
+        new HeuristicSimulationKTH();
     }
 
-    private HeuristicSimulation() {
+    private HeuristicSimulationKTH() throws IOException, ParseException {
         /*Enables just some level of log messages.
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
 
         Log.setLevel(Level.OFF);
 
+        ArrayList<String[]> workloadEntries = getWorkloadEntries();
+
         GAMetaHeuristic mh_ga = new GAMetaHeuristic();
 
         ArrayList<Double> generationFitness = new ArrayList<Double>();
 
-        ArrayList<ArrayList> candidateList = mh_ga.createInitialPopulation(10, 7);
+        ArrayList<ArrayList> candidateList = mh_ga.createInitialPopulation(10, 8);
 
         System.out.println("initialPopulation: " + candidateList);
 
-        for (int generations = 0; generations < 25; generations++) {
+       for (int generations = 0; generations < 1; generations++) {
 
             ArrayList<Double> fitnessList = new ArrayList<Double>();
 
@@ -94,6 +96,7 @@ public class HeuristicSimulation {
 
             System.out.println("Generation: "+generations);
 
+
             for (int i = 0; i < candidateList.size(); i++) {
 
                 simulation = new CloudSim();
@@ -101,7 +104,8 @@ public class HeuristicSimulation {
                 datacenter0 = createDatacenter();
 
                 vmList = createVms();
-                cloudletList = createCloudlets();
+                //cloudletList = createCloudlets();
+                cloudletList = createKTHWorloadCloudlets(workloadEntries, workloadEntries.size());
 
                 brokerh = new HeuristicBroker(simulation);
 
@@ -131,7 +135,7 @@ public class HeuristicSimulation {
 
                 fitnessList.add(fitnessValue);
 
-                System.out.println("candidateFitnessList: " + fitnessList);
+                System.out.println("Candidate Fitness: " + fitnessList);
 
                 System.out.println("################################################# SIMULATION END ##############################################################################");
 
@@ -169,7 +173,7 @@ public class HeuristicSimulation {
 
 
 
-       }
+        }
 
     }
 
@@ -240,7 +244,7 @@ public class HeuristicSimulation {
         for (int i = 0; i < CLOUDLETS; i++) {
             //Random random = new Random();
             //int randomLength = random.nextInt(500);
-            customLength += 2;
+            customLength += 500;
             final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH + customLength, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);
             list.add(cloudlet);
@@ -315,7 +319,7 @@ public class HeuristicSimulation {
 
     // pauses simulation every 30 seconds...
     public void pauseSimulation(EventInfo eInfo) {
-        if (Math.floor(simulation.clock()) == 5 * (heuristicSwitch + 1)) {
+        if (Math.floor(simulation.clock()) == 300 * (heuristicSwitch + 1)) {
             simulation.pause();
             //System.out.println("# Simulation paused at %.2f second%n"+eInfo.getTime());
         }
@@ -373,21 +377,96 @@ public class HeuristicSimulation {
         int items = heuristicSpecificFinishedCloudletsList.size();
         List<Cloudlet> heuristicSpecificFinishedCloudlets = new ArrayList<Cloudlet>();
         //if (brokerh.getCloudletSubmittedList().size() > brokerh.getCloudletFinishedList().size()) {
-            if (items == 1) {
-                heuristicSpecificFinishedCloudlets = heuristicSpecificFinishedCloudletsList.get(0);
-            } else if (items > 1) {
-                List<Cloudlet> lastItem = heuristicSpecificFinishedCloudletsList.get(items - 1);
-                List<Cloudlet> secondLastItem = heuristicSpecificFinishedCloudletsList.get(items - 2);
-                List<Cloudlet> differences = new ArrayList<>(lastItem);
-                differences.removeAll(secondLastItem);
-                //heuristicSpecificFinishedCloudletsList.get(items - 1).removeAll(heuristicSpecificFinishedCloudletsList.get(items - 2));
-                //heuristicSpecificFinishedCloudlets = heuristicSpecificFinishedCloudletsList.get(items - 1);
-                heuristicSpecificFinishedCloudlets = differences;
-            }
+        if (items == 1) {
+            heuristicSpecificFinishedCloudlets = heuristicSpecificFinishedCloudletsList.get(0);
+        } else if (items > 1) {
+            List<Cloudlet> lastItem = heuristicSpecificFinishedCloudletsList.get(items - 1);
+            List<Cloudlet> secondLastItem = heuristicSpecificFinishedCloudletsList.get(items - 2);
+            List<Cloudlet> differences = new ArrayList<>(lastItem);
+            differences.removeAll(secondLastItem);
+            //heuristicSpecificFinishedCloudletsList.get(items - 1).removeAll(heuristicSpecificFinishedCloudletsList.get(items - 2));
+            //heuristicSpecificFinishedCloudlets = heuristicSpecificFinishedCloudletsList.get(items - 1);
+            heuristicSpecificFinishedCloudlets = differences;
+        }
         //}
         System.out.println("No. of Cloudlets Heuristic processed: "+heuristicSpecificFinishedCloudlets.size());
         //System.out.println("Cloudlets Heuristics processed: "+heuristicSpecificFinishedCloudlets);
-        new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
+        //new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
+
+    }
+
+    private long jobLength(String startTime, String endTime, String pe) throws ParseException {
+
+        SimpleDateFormat datetimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date start = datetimeFormatter.parse(startTime);
+        Date end = datetimeFormatter.parse(endTime);
+        long difference =  ((start.getTime()-end.getTime())/1000);
+        long len =  (difference/Integer.parseInt(pe));
+        return len;
+
+    }
+
+    private long submitTime (String submitTime) throws ParseException {
+
+        SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss");
+        Date time = timeFormatter.parse(submitTime);
+        return time.getTime()/1000;
+
+    }
+
+
+    private List<Cloudlet> createKTHWorloadCloudlets(ArrayList<String[]> workloadEntries, int n) throws ParseException {
+
+        final List<Cloudlet> list = new ArrayList<>(n);
+
+        //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
+        final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
+
+        for (int i = 0; i < n; i++) {
+            long cloudletLength = jobLength(workloadEntries.get(i)[6],workloadEntries.get(i)[4],workloadEntries.get(i)[8]);
+            long submitTime = submitTime(workloadEntries.get(i)[3]);
+            if (cloudletLength > 0){
+                final Cloudlet cloudlet = new CloudletSimple(cloudletLength, CLOUDLET_PES, utilizationModel);
+                cloudlet.setSizes(1024);
+                //cloudlet.setSubmissionDelay(submitTime);
+                list.add(cloudlet);
+            }
+        }
+
+        return list;
+    }
+
+    private ArrayList<String[]> getWorkloadEntries() throws IOException {
+
+        ArrayList<String[]> Data = new ArrayList<>(); //initializing a new ArrayList out of String[]'s
+        BufferedReader TSVReader = new BufferedReader(new FileReader("Z:/Cloudsim/cloudsim-plus/cloudsim-plus-examples/src/main/java/org/cloudsimplus/examples/KTHWorkload/KTH-SP2-1996-0"));
+        String line = null;
+        while ((line = TSVReader.readLine()) != null) {
+            String[] lineItems = line.split("\t"); //splitting the line and adding its items in String[]
+            Data.add(lineItems); //adding the splitted line array to the ArrayList
+        }
+
+        ArrayList<String[]> entry = new ArrayList<String[]>();
+        String [] st;
+        String sp = "";
+        for (String[] s: Data) {
+            sp = Arrays.toString(s);
+            sp = sp.substring(1, sp.length() - 1);
+            sp = sp.replaceAll("\\s+",",");
+            if (sp.length()>5){
+                sp = sp.substring(1, sp.length() - 1);
+                st = sp.split(",");
+                st[4] = st[4] + " " + st[5];  // combining date and time
+                st[6] = st[6] + " " + st[7];  // combining date and time
+                if (st[2].length() == 16){
+                    st[3] = st[2].substring(8,st[2].length()-2);
+                    st[3] = st[3].replaceAll("..(?!$)", "$0:");
+                    entry.add(st);
+                }
+            }
+        }
+
+        return entry;
 
     }
 

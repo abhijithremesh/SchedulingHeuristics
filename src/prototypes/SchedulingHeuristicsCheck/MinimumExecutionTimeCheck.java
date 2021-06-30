@@ -1,42 +1,31 @@
-package org.cloudsimplus.examples.SchedullingHeuristics;
+package org.cloudsimplus.examples.SchedulingHeuristicsCheck;
 
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.vms.Vm;
+import org.cloudsimplus.examples.SchedullingHeuristics.HeuristicBroker;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MinimumExecutionTimeHeuristic {
+public class MinimumExecutionTimeCheck {
 
     List<Cloudlet> cloudletList;
     List<Vm> vmList;
-    HeuristicBroker brokerh;
+    CheckBroker brokercheck;
 
-    MinimumExecutionTimeHeuristic(HeuristicBroker brokerh, List<Vm> vmList) {
+    MinimumExecutionTimeCheck(List<Cloudlet> cloudletList, List<Vm> vmList, CheckBroker brokercheck) {
 
-        this.brokerh = brokerh;
-        this.cloudletList = brokerh.getCloudletSubmittedList();
+        this.brokercheck = brokercheck;
+        this.cloudletList = cloudletList;
         this.vmList = vmList;
 
     }
 
-    public void minimumExecutionTimeScheduling( ) {
+    public void METChecking( ) {
 
-        cloudletList.removeAll(brokerh.getCloudletFinishedList());
-
-        System.out.println("No. of Cloudlets: "+cloudletList.size());
-        System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
-
-        // Rearranging the remaining cloudlets and deassigning their respective VM.
-        Collections.sort(cloudletList);
-        for (Cloudlet c : cloudletList) {
-            if (c.isBoundToVm() == true){
-                c.setVm(Vm.NULL);}
-        }
-
-        // Remaining cloudlets
-        //System.out.println("Cloudlets: "+cloudletList);
+        brokercheck.submitCloudletList(cloudletList);
+        brokercheck.submitVmList(vmList);
 
         double executionTime[][] = new double[cloudletList.size()][vmList.size()];
 
@@ -48,7 +37,7 @@ public class MinimumExecutionTimeHeuristic {
                 time=getExecutionTime(cloudletList.get(i),vmList.get(j));
                 time = Math.round(time*100.0)/100.0;
                 executionTime[i][j] = time;
-                //System.out.println("Completion Time Cloudlet"+i+"-VM"+j+" : "+executionTime[i][j]);
+                System.out.println("Completion Time Cloudlet"+i+"-VM"+j+" : "+executionTime[i][j]);
             }
         }
 
@@ -64,8 +53,8 @@ public class MinimumExecutionTimeHeuristic {
                     vm = j;
                 }
             }
-            brokerh.bindCloudletToVm(cloudletList.get(cl), vmList.get(vm));
-            //System.out.println(cloudletList.get(cl)+" is bound to "+vmList.get(vm)+" at MET: "+minExecTime);
+            brokercheck.bindCloudletToVm(cloudletList.get(cl), vmList.get(vm));
+            System.out.println(cloudletList.get(cl)+" is bound to "+vmList.get(vm)+" at MET: "+minExecTime);
         }
     }
 

@@ -46,7 +46,7 @@ public class FirstComeFirstServeHeuristic {
         }
 
         // Remaining cloudlets
-        System.out.println("Cloudlets: "+cloudletList);
+        //System.out.println("Cloudlets: "+cloudletList);
 
         for(int i=0;i<cloudletList.size();i++){
             Cloudlet cl = cloudletList.get(i);

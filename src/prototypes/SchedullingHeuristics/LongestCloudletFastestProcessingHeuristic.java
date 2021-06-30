@@ -40,7 +40,7 @@ public class LongestCloudletFastestProcessingHeuristic {
         }
 
         // Remaining cloudlets
-        System.out.println("Cloudlets: "+cloudletList);
+        //System.out.println("Cloudlets: "+cloudletList);
 
         // Sorting the list of cloudlets in descending order of their length.
         for (int a = 0; a < cloudletList.size(); a++) {
