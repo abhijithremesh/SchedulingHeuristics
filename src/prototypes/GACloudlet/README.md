@@ -1,12 +1,14 @@
-# Genetic Algorithm + Scheduling Heuristics
+# Generic Genetic Algorithm Implementations
 
-* Genetic Algorithm implemented on scheduling heuristic level. (Arbitrary cloudlets)
+# GeneticAlgorithm7
 
-![alt text](https://github.com/abhijithremesh/SchedulingHeuristics/blob/main/images/ga-heuristic-arbitrary.png)
+* Genetic Algorithm implemented on cloudlet, VM level.
 
-* Genetic Algorithm implemented on scheduling heuristic level. (KTH workload based cloudlets)
+![alt text](https://github.com/abhijithremesh/SchedulingHeuristics/blob/main/images/ga-cloudlet-arbitrary.png)
 
-![alt text](https://github.com/abhijithremesh/SchedulingHeuristics/blob/main/images/ga-heuristic-KTHWorkload.png)
+* Genetic Algorithm implemented on cloudlet, VM level (Cloudelts extracted from KTH Workload)
+
+![alt text](https://github.com/abhijithremesh/SchedulingHeuristics/blob/main/images/ga-cloudlet-KTHworkload.png)
 
 * Fitness Function = Makespan + Avg waiting time(all cloudlets) + Avg execution time(all cloudlets)
    *  Makespan = Total finish time = finish time of the last cloudlet.
@@ -19,8 +21,6 @@
    * Elite count
    * Weak count
    * Offspring count
-   * Simulation pause period / Heuristic switching frequency
-   * No. of heuristics included
 
 * System Spec
    * Hosts = 2
