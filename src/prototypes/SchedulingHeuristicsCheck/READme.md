@@ -1,6 +1,4 @@
-# Scheduling Heuristics'
-
-* To check the behaviour of each scheduling heuristic separately.
+# Scheduling Heuristics Behaviour
 
 * FCFS
 
