@@ -6,7 +6,7 @@
 
 ![alt text](https://github.com/abhijithremesh/SchedulingHeuristics/blob/main/images/ga-cloudlet-arbitrary.png)
 
-# GeneticAlgorithm7
+# GeneticAlgorithm8
 
 * Genetic Algorithm implemented on cloudlet, VM level (Cloudelts extracted from KTH Workload)
 
