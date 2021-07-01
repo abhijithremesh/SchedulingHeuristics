@@ -28,7 +28,7 @@
    * Host PEs MIPS = 1500
    * VMs = 4
    * VM PEs = 1
-   * VM PEs MIPS = [1000,1100,1200,1300]
+   * VM PEs MIPS = [1100,1200,1300,1400]
    * Cloudlets = n ( n cannot be too high, cannot compute) / KTH workloads (27594)
    * Cloudlet lengths = 1000 + incremental(constant)  / KTH workloads (tstop-tstart/pe) 
 
