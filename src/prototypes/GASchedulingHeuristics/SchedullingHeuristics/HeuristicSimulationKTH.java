@@ -161,7 +161,7 @@ public class HeuristicSimulationKTH {
 
             ArrayList<ArrayList> offspringsList = new ArrayList<ArrayList>();
 
-            mh_ga.generationEvolve(3, "min", candidateList, fitnessList, offspringsList);
+            mh_ga.generationEvolve(5, "min", candidateList, fitnessList, offspringsList);
 
             offspringsList.addAll(eliteChromosomes);
 
@@ -319,7 +319,7 @@ public class HeuristicSimulationKTH {
 
     // pauses simulation every 30 seconds...
     public void pauseSimulation(EventInfo eInfo) {
-        if (Math.floor(simulation.clock()) == 300 * (heuristicSwitch + 1)) {
+        if (Math.floor(simulation.clock()) == 3600 * (heuristicSwitch + 1)) {
             simulation.pause();
             //System.out.println("# Simulation paused at %.2f second%n"+eInfo.getTime());
         }
@@ -342,7 +342,7 @@ public class HeuristicSimulationKTH {
 
     public  void changeSchedulingHeuristics(EventInfo pauseInfo) {
         System.out.println("# Pausing Simulation at "+ pauseInfo.getTime()+" seconds");
-        postSimulationAllFinishedloudlets(brokerh);
+        //postSimulationAllFinishedloudlets(brokerh);
         postSimulationHeuristicSpecificFinishedloudlets(brokerh);
         System.out.println("************************************************************************************************************************");
         if (heuristicIndex < candidate.size()-1){

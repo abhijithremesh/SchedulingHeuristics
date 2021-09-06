@@ -28,7 +28,7 @@ public class MinMinHeuristic {
 
         cloudletList.removeAll(brokerh.getCloudletFinishedList());
 
-        System.out.println("No. of Cloudlets: "+cloudletList.size());
+        System.out.println("Remaining Cloudlets: "+cloudletList.size());
         System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
 
         // Rearranging the remaining cloudlets and deassigning their respective VM.

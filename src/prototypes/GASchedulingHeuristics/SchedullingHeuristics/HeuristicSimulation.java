@@ -83,7 +83,7 @@ public class HeuristicSimulation {
 
         System.out.println("initialPopulation: " + candidateList);
 
-        for (int generations = 0; generations < 25; generations++) {
+        for (int generations = 0; generations < 1 ; generations++) {
 
             ArrayList<Double> fitnessList = new ArrayList<Double>();
 
@@ -125,6 +125,7 @@ public class HeuristicSimulation {
 
                 simulation.start();
 
+                // for the last remaining cloudlets
                 postSimulationHeuristicSpecificFinishedloudlets(brokerh);
 
                 double fitnessValue = mh_ga.calculateFitnessFunctionFour(brokerh);
@@ -137,18 +138,22 @@ public class HeuristicSimulation {
 
             }
 
-
             System.out.println("Candidate List: " + candidateList);
             System.out.println("Fitness List: " + fitnessList);
             System.out.println("Candidate List Size: " + candidateList.size());
             System.out.println("Fitness List Size: " + fitnessList.size());
 
-            double bestFitness = mh_ga.generationFitness(fitnessList, "min");
-            generationFitness.add(bestFitness);
-            System.out.println(fitnessList.indexOf(bestFitness));
-            System.out.println(candidateList.get(fitnessList.indexOf(bestFitness)));
+
+            double bestFitnessValue = mh_ga.generationFitness(fitnessList, "min");
+            generationFitness.add(bestFitnessValue);
+            System.out.println("Best Fitness Value: "+bestFitnessValue);
+            System.out.println("Best Fitness Index: " +fitnessList.indexOf(bestFitnessValue));
+            System.out.println("Best Fitness Candidate: "+candidateList.get(fitnessList.indexOf(bestFitnessValue)));
 
             System.out.println("Generation Fitness: " + generationFitness);
+
+
+
 
             // If using Elite method for passing elite individuals to the next generation.
             ArrayList<ArrayList> eliteChromosomes = mh_ga.fittestEliteChromosome(fitnessList, candidateList,3,"min");
@@ -168,8 +173,10 @@ public class HeuristicSimulation {
             System.out.println("################################################# GENERATION END ##############################################################################");
 
 
-
        }
+
+
+
 
     }
 
@@ -240,7 +247,7 @@ public class HeuristicSimulation {
         for (int i = 0; i < CLOUDLETS; i++) {
             //Random random = new Random();
             //int randomLength = random.nextInt(500);
-            customLength += 2;
+            customLength += 5;
             final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH + customLength, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);
             list.add(cloudlet);
@@ -315,7 +322,7 @@ public class HeuristicSimulation {
 
     // pauses simulation every 30 seconds...
     public void pauseSimulation(EventInfo eInfo) {
-        if (Math.floor(simulation.clock()) == 5 * (heuristicSwitch + 1)) {
+        if (Math.floor(simulation.clock()) == 20 * (heuristicSwitch + 1)) {
             simulation.pause();
             //System.out.println("# Simulation paused at %.2f second%n"+eInfo.getTime());
         }
@@ -338,7 +345,7 @@ public class HeuristicSimulation {
 
     public  void changeSchedulingHeuristics(EventInfo pauseInfo) {
         System.out.println("# Pausing Simulation at "+ pauseInfo.getTime()+" seconds");
-        postSimulationAllFinishedloudlets(brokerh);
+        //postSimulationAllFinishedloudlets(brokerh);
         postSimulationHeuristicSpecificFinishedloudlets(brokerh);
         System.out.println("************************************************************************************************************************");
         if (heuristicIndex < candidate.size()-1){
@@ -387,7 +394,7 @@ public class HeuristicSimulation {
         //}
         System.out.println("No. of Cloudlets Heuristic processed: "+heuristicSpecificFinishedCloudlets.size());
         //System.out.println("Cloudlets Heuristics processed: "+heuristicSpecificFinishedCloudlets);
-        new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
+        //new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
 
     }
 

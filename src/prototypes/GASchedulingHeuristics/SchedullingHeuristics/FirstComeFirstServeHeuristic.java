@@ -35,7 +35,7 @@ public class FirstComeFirstServeHeuristic {
 
         cloudletList.removeAll(brokerh.getCloudletFinishedList());
 
-        System.out.println("No. of Cloudlets: "+cloudletList.size());
+        System.out.println("Remaining Cloudlets: "+cloudletList.size());
         System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
 
         // Rearranging the remainning cloudlets and deassigning their respective VM.
@@ -53,6 +53,8 @@ public class FirstComeFirstServeHeuristic {
             Vm vm = vmList.get((i % vmList.size()));
             brokerh.bindCloudletToVm(cl,vm);
         }
+
+        System.out.println("Performed FCFS.");
 
     }
 

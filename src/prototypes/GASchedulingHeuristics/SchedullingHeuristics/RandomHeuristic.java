@@ -30,7 +30,7 @@ public class RandomHeuristic {
 
         cloudletList.removeAll(brokerh.getCloudletFinishedList());
 
-        System.out.println("No. of Cloudlets: "+cloudletList.size());
+        System.out.println("Remaining Cloudlets: "+cloudletList.size());
         System.out.println("First Cloudlet: "+cloudletList.get(0).getId());
 
         Random random = new Random();
@@ -53,6 +53,8 @@ public class RandomHeuristic {
             brokerh.bindCloudletToVm(cl, vm);
             //System.out.println(cloudletList.get(cl)+" is bound to "+vmList.get(vm));
         }
+
+        System.out.println("Performed RandomScheduling.");
 
 
 

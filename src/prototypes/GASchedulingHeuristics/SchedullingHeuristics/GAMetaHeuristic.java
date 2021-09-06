@@ -16,7 +16,7 @@ public class GAMetaHeuristic {
         ArrayList<ArrayList> chromosomeList = new ArrayList<ArrayList>();
 
         for( int i=0; i < popCount ; i++) {
-            chromosome = createChromosome(num_heuristic,num_heuristic);
+            chromosome = createChromosome(24,num_heuristic);
             chromosomeList.add(chromosome);
         }
 
@@ -47,8 +47,7 @@ public class GAMetaHeuristic {
         return ans;
     }
 
-    private static ArrayList<Integer> createChromosome(int length,int range)
-    {
+    private static ArrayList<Integer> createChromosome(int length,int range) {
         ArrayList<Integer> chromosome = new ArrayList<Integer>();
         ArrayList<Integer> part = new ArrayList<Integer>();
         Random rand = new Random();
@@ -217,7 +216,7 @@ public class GAMetaHeuristic {
             fittestValue = fitnessListSorted.get(fitnessListSorted.size() - rank);
         }
         else if (flag == "min"){
-            fittestValue = fitnessListSorted.get(rank-1);
+            fittestValue = fitnessListSorted.get(rank);
         }
 
         int fittestIndex = fitnessList.indexOf(fittestValue);
@@ -351,11 +350,18 @@ public class GAMetaHeuristic {
 
             int parentSelectionCriteria = r.nextInt(9 - 1 + 1) + 1;
             int rank = 0;
-            int upperLimit = (int)(chromosomeList.size()*(30.0f/100.0f));
-            int lowerLimit = 2;
-            if (upperLimit <= lowerLimit){
+            int upperLimit = (int)(chromosomeList.size()*(50.0f/100.0f));
+            //int upperLimit = 7;
+            int lowerLimit = 0;
+
+            if (upperLimit <= lowerLimit + 1 ){
+                upperLimit++;
                 lowerLimit--;
+                //upperLimit = upperLimit + 2;
+                //lowerLimit = lowerLimit - 2;
             }
+
+
 
             //System.out.println(parentSelectionCriteria);
 
@@ -387,6 +393,7 @@ public class GAMetaHeuristic {
                     break;
                 case 3:
                     //System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
+                    //rank = r.nextInt(upperLimit) + 1;
                     rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
                     System.out.println(rank+"th Fittest & Most Fittest");
                     parentChromosome1 = nthFittestChromosome(fitnessList,chromosomeList,flag,rank);
@@ -394,6 +401,7 @@ public class GAMetaHeuristic {
                     break;
                 case 4:
                     //System.out.println("upperLimit: "+upperLimit+"lowerLimit: "+lowerLimit);
+                    //rank = r.nextInt(upperLimit) + 1;
                     rank = r.nextInt(upperLimit - lowerLimit + 1 ) + lowerLimit;
                     System.out.println("Tournament & "+rank+"th Fittest");
                     parentChromosome1 = fittestTournamentChromosome(fitnessList,chromosomeList,flag,4);
@@ -401,6 +409,7 @@ public class GAMetaHeuristic {
                     break;
                 case 6:
                     //System.out.println("upperLimit: "+upperLimit+"lowerLimit: "+lowerLimit);
+                    // rank = r.nextInt(upperLimit)+ 1;
                     rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
                     System.out.println("Random & "+rank+"th Fittest");
                     parentChromosome1 = randomChromosome(chromosomeList);
@@ -408,7 +417,9 @@ public class GAMetaHeuristic {
                     break;
                 case 5:
                     //System.out.println("upperLimit: "+upperLimit+" lowerLimit: "+lowerLimit);
+                    //rank = r.nextInt(upperLimit) + 1;
                     rank = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
+                    //int rank2 = r.nextInt(upperLimit) + 1;
                     int rank2 = r.nextInt(upperLimit - lowerLimit + 1) + lowerLimit;
                     System.out.println(rank+"th Fittest & "+rank2+"th Fittest");
                     parentChromosome1 = nthFittestChromosome(fitnessList,chromosomeList,flag,rank);
@@ -494,6 +505,11 @@ public class GAMetaHeuristic {
 
 
     }
+
+    public void evolveGeneration(){
+
+    }
+
 
     private double getTotalFinishTime(List<Cloudlet> finishedCloudletList ){
         Cloudlet c = finishedCloudletList.get(finishedCloudletList.size()-1);
