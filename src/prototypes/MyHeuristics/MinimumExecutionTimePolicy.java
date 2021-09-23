@@ -9,17 +9,18 @@ import java.util.List;
 public class MinimumExecutionTimePolicy {
 
     MyBroker myBroker;
+    List<Vm> vmList;
 
-    MinimumExecutionTimePolicy (MyBroker myBroker){
+    MinimumExecutionTimePolicy (MyBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
+        this.vmList = vmList;
 
     }
 
     public void schedule(){
 
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
-        List<Vm> vmList = myBroker.getVmWaitingList();
 
         double executionTime[][] = new double[cloudletList.size()][vmList.size()];
 

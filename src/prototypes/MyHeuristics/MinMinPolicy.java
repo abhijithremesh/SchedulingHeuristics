@@ -9,17 +9,18 @@ import java.util.Random;
 public class MinMinPolicy {
 
     MyBroker myBroker;
+    List<Vm> vmList;
 
-    MinMinPolicy (MyBroker myBroker){
+    MinMinPolicy (MyBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
+        this.vmList = vmList;
 
     }
 
     public void schedule() {
 
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
-        List<Vm> vmList = myBroker.getVmWaitingList();
 
         int noOfVms = vmList.size();
         int noOfCloudlets = cloudletList.size();

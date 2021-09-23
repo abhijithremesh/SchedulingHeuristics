@@ -10,10 +10,12 @@ import java.util.Random;
 public class RandomPolicy {
 
     MyBroker myBroker;
+    List<Vm> vmList;
 
-    RandomPolicy (MyBroker myBroker){
+    RandomPolicy (MyBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
+        this.vmList = vmList;
 
     }
 
@@ -22,7 +24,7 @@ public class RandomPolicy {
         Random random = new Random();
 
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
-        List<Vm> vmList = myBroker.getVmWaitingList();
+        //List<Vm> vmList = myBroker.getVmCreatedList();
 
             for (int i = 0; i <cloudletList.size(); i++){
 

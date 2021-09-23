@@ -11,10 +11,12 @@ import java.util.List;
 public class ShortestJobFirstPolicy {
 
     MyBroker myBroker;
+    List<Vm> vmList;
 
-    ShortestJobFirstPolicy (MyBroker myBroker){
+    ShortestJobFirstPolicy (MyBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
+        this.vmList = vmList;
 
     }
 
@@ -23,7 +25,7 @@ public class ShortestJobFirstPolicy {
         myBroker.getCloudletWaitingList().sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s1.getLength()-s2.getLength()));
 
         List<Cloudlet> cloudletList = myBroker.getCloudletWaitingList();
-        List<Vm> vmList = myBroker.getVmWaitingList();
+
 
         for(int i=0;i<cloudletList.size();i++){
 

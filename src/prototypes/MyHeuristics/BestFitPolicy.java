@@ -4,14 +4,17 @@ import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.vms.Vm;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class BestFitPolicy {
 
     MyBroker myBroker;
+    List<Vm> vmList;
 
-    BestFitPolicy (MyBroker myBroker){
+    BestFitPolicy (MyBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
+        this.vmList = vmList;
 
     }
 
@@ -20,7 +23,7 @@ public class BestFitPolicy {
         for (Cloudlet cloudlet: myBroker.getCloudletSubmittedList()
              ) {
 
-            Vm mappedVm = myBroker.getVmCreatedList()
+            Vm mappedVm = vmList
                 .stream()
                 .filter(vm -> vm.getExpectedFreePesNumber() >= cloudlet.getNumberOfPes())
                 .min(Comparator.comparingLong(Vm::getExpectedFreePesNumber))

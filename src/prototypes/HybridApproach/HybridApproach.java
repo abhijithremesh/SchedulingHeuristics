@@ -153,12 +153,12 @@ public class HybridApproach {
             System.out.println("solutionCandidatesListSize: " + solutionCandidatesList.size());
             System.out.println("solutionCandidatesFitnessListSize: " + solutionCandidatesFitnessList.size());
 
-            generationBestFittestValue = mh_ga_2.getGenerationBestFittestValue(solutionCandidatesFitnessList,"min");
-            generationBestFitnessValuesList.add(generationBestFittestValue);
-            generationBestSolutionCandidate = mh_ga_2.getGenerationBestFittestSolutionCandidate(solutionCandidatesList, solutionCandidatesFitnessList,"min");
-            System.out.println("generationBestFitnessValue: "+generationBestFittestValue);
-            System.out.println("generationBestFitnessValuesList: "+generationBestFitnessValuesList);
-            System.out.println("generationBestSolutionCandidate: "+generationBestSolutionCandidate);
+            //generationBestFittestValue = mh_ga_2.getGenerationBestFittestValue(solutionCandidatesFitnessList,"min");
+            //generationBestFitnessValuesList.add(generationBestFittestValue);
+            //generationBestSolutionCandidate = mh_ga_2.getGenerationBestFittestSolutionCandidate(solutionCandidatesList, solutionCandidatesFitnessList,"min");
+           //System.out.println("generationBestFitnessValue: "+generationBestFittestValue);
+            //System.out.println("generationBestFitnessValuesList: "+generationBestFitnessValuesList);
+            //System.out.println("generationBestSolutionCandidate: "+generationBestSolutionCandidate);
 
             System.out.println("=================================== GENERATION "+generations+" ENDS ==========================================");
 

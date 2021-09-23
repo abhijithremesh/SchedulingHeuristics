@@ -8,10 +8,12 @@ import java.util.List;
 public class LongestJobFirstPolicy {
 
     MyBroker myBroker;
+    List<Vm> vmList;
 
-    LongestJobFirstPolicy (MyBroker myBroker){
+    LongestJobFirstPolicy (MyBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
+        this.vmList = vmList;
 
     }
 
@@ -20,7 +22,6 @@ public class LongestJobFirstPolicy {
         myBroker.getCloudletWaitingList().sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s2.getLength()-s1.getLength()));
 
         List<Cloudlet> cloudletList = myBroker.getCloudletWaitingList();
-        List<Vm> vmList = myBroker.getVmWaitingList();
 
 
         for(int i=0; i < cloudletList.size(); i++){

@@ -216,15 +216,11 @@ public class ListenerSimulation {
     }
 
     private void limitCloudlets(int n){
-
         List<Cloudlet> list = new ArrayList<>();
-
         for (int i=0; i<n; i++){
             list.add(cloudletList.get(i));
         }
-
         cloudletList = list;
-
     }
 
     private void modifySubmissionTimes() {

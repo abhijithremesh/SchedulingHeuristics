@@ -12,24 +12,26 @@ public class RoundRobinPolicy {
 
     MyBroker myBroker;
     int lastSelectedVmIndex = -1;
+    List<Vm> vmList;
 
-    RoundRobinPolicy (MyBroker myBroker){
+    RoundRobinPolicy (MyBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
+        this.vmList = vmList;
 
     }
 
     public void schedule() {
 
-        for (Vm v: myBroker.getVmWaitingList()
+        for (Vm v: vmList
         ) {
             v.setCloudletScheduler(new CloudletSchedulerTimeShared());
         }
 
 
-        for (Cloudlet cloudlet : myBroker.getCloudletWaitingList()
+        for (Cloudlet cloudlet : myBroker.getCloudletSubmittedList()
              ) {
-            lastSelectedVmIndex = ++lastSelectedVmIndex % myBroker.getVmWaitingList().size();
+            lastSelectedVmIndex = ++lastSelectedVmIndex % vmList.size();
             Vm vm =  myBroker.getWaitingVm(lastSelectedVmIndex);
         }
 

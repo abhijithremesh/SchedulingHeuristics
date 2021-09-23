@@ -9,10 +9,12 @@ import java.util.List;
 public class MaxMinPolicy {
 
     MyBroker myBroker;
+    List<Vm> vmList;
 
-    MaxMinPolicy (MyBroker myBroker){
+    MaxMinPolicy (MyBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
+        this.vmList = vmList;
 
     }
 
@@ -33,7 +35,7 @@ public class MaxMinPolicy {
 
     public void schedule(){
 
-        List<Vm> vmList = myBroker.getVmWaitingList();
+
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
 
         // Getting the amount of cloudlets and VMs

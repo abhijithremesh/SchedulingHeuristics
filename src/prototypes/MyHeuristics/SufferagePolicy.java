@@ -12,10 +12,12 @@ import java.util.Random;
 public class SufferagePolicy {
 
     MyBroker myBroker;
+    List<Vm> vmList;
 
-    SufferagePolicy (MyBroker myBroker){
+    SufferagePolicy (MyBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
+        this.vmList = vmList;
 
     }
 
@@ -35,7 +37,7 @@ public class SufferagePolicy {
     public void schedule() {
 
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
-        List<Vm> vmList = myBroker.getVmWaitingList();
+
 
         // Getting the amount of cloudlets and VMs
         int noOfVms = vmList.size();

@@ -13,6 +13,7 @@ import org.cloudbus.cloudsim.hosts.HostSimple;
 import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
+import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared;
 import org.cloudbus.cloudsim.util.SwfWorkloadFileReader;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
@@ -28,9 +29,9 @@ public class HeuristicsTesterTwo {
 
     private static final double INTERVAL = 3600;
     private static final int HOSTS = 1;
-    private static final int HOST_PES = 30;
+    private static final int HOST_PES = 2;
 
-    private static final int VMS = 4;
+    private static final int VMS = 2;
     private static final int VM_PES = 1;
     private static final int  VM_MIPS = 1000;
     private static final long VM_SIZE = 2000;
@@ -66,7 +67,6 @@ public class HeuristicsTesterTwo {
         //broker0 = new DatacenterBrokerSimple(simulation);
         myBroker = new MyBroker(simulation);
 
-
         createCloudletsFromWorkloadFile();
         limitCloudlets(5);
         modifyCloudletts();
@@ -74,8 +74,6 @@ public class HeuristicsTesterTwo {
         cloudletList.removeIf(c -> c.getNumberOfPes() > 64 );              // removing cloudlets which requires more than 64 PEs
 
         createVms();
-
-        vmList.forEach(v-> System.out.println(v.getNumberOfPes()));
 
         datacenter0 = createDatacenter();
         datacenter0.setSchedulingInterval(10);
@@ -85,11 +83,13 @@ public class HeuristicsTesterTwo {
         myBroker.submitVmList(vmList);
         myBroker.submitCloudletList(cloudletList);
 
+        vmList.forEach(v-> System.out.println(v.getId() +": " +v.getNumberOfPes()));
+
         System.out.println("*********************************************************");
 
         //myBroker.RoundRobin();
         //myBroker.FirstComeFirstServe();
-        //myBroker.ShortestJobFirst();
+        //myBroker.ShortestJobFirst(vmList);
         //myBroker.LongestJobFirst();
 
         //myBroker.FirstComeFirstServeFirstFit();
@@ -108,18 +108,27 @@ public class HeuristicsTesterTwo {
         //myBroker.Sufferage();
 
 
+        myBroker.selectSchedulingPolicy(3,vmList);
+
+
         //simulation.addOnClockTickListener(this::pauseSimulation);
         //simulation.addOnSimulationPauseListener(this::switchSchedulingHeuristics);
 
         //System.out.println("********************** SIMULATION STARTS WITH CLOCK LISTENER ***************************************************");
 
-        /*
+
         simulation.start();
 
         final List<Cloudlet> finishedCloudlets = myBroker.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
 
-         */
+        System.out.println("No. of cloudlets processed: "+myBroker.getCloudletFinishedList().size());
+
+        System.out.println("No. of waiting cloudlets: "+myBroker.getCloudletWaitingList().size());
+
+        myBroker.getCloudletWaitingList().forEach(c-> System.out.println(c.getId()+": "+c.getNumberOfPes()));
+
+
 
 
     }
@@ -181,8 +190,8 @@ public class HeuristicsTesterTwo {
         int pes = 1;
         vmList = new ArrayList<>();
         for (int i = 0; i < VMS; i++) {
-            pes = pes + 2 * i;
-            Vm vm = new VmSimple(VM_MIPS, VM_PES + pes)
+            //pes = pes + 2 * i;
+            Vm vm = new VmSimple(VM_MIPS, VM_PES )
                 .setRam(VM_RAM).setBw(VM_BW).setSize(VM_SIZE)
                 .setCloudletScheduler(new CloudletSchedulerSpaceShared());
             vmList.add(vm);
@@ -273,7 +282,7 @@ public class HeuristicsTesterTwo {
 
         for (Cloudlet c: cloudletList
         ) {
-            //c.setSubmissionDelay(0);
+            c.setSubmissionDelay(0);
             //c.setLength(10000);
             c.setNumberOfPes(1);
         }

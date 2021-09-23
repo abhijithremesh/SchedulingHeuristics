@@ -95,28 +95,28 @@ public class GeneticAlgorithm {
 
     }
 
-    public Double getGenerationBestFittestValue (ArrayList<Double> fitnessList, String flag){
+    public Double getGenerationAvgFittestValue (ArrayList<Double> fitnessList, String flag){
 
-        double generationBestFittestValue = 0.0;
-        if (flag == "max"){
-            generationBestFittestValue = Collections.max(fitnessList);
+        double generationAvgFittestValue = 0.0;
+        for (Double v:fitnessList
+             ) {
+            generationAvgFittestValue = generationAvgFittestValue + v;
         }
-        else if (flag == "min"){
-            generationBestFittestValue = Collections.min(fitnessList);
-        }
-        return generationBestFittestValue;
+
+
+        return generationAvgFittestValue/fitnessList.size();
 
     }
 
-    public ArrayList<Integer> getGenerationBestFittestSolutionCandidate (ArrayList<ArrayList> chromosomeList,ArrayList<Double> fitnessList, String flag){
+    //public ArrayList<Integer> getGenerationBestFittestSolutionCandidate (ArrayList<ArrayList> chromosomeList,ArrayList<Double> fitnessList, String flag){
 
-        double generationBestFittestValue = getGenerationBestFittestValue(fitnessList,flag);
+    //    double generationBestFittestValue = getGenerationBestFittestValue(fitnessList,flag);
 
-        ArrayList<Integer> generationBestFittestChromosome = chromosomeList.get(fitnessList.indexOf(generationBestFittestValue));
+    //    ArrayList<Integer> generationBestFittestChromosome = chromosomeList.get(fitnessList.indexOf(generationBestFittestValue));
 
-        return generationBestFittestChromosome;
+    //    return generationBestFittestChromosome;
 
-    }
+    //}
 
 
 
