@@ -20,9 +20,24 @@ public class LongestJobFirstFirstFitPolicy {
 
     public void schedule() {
 
-        myBroker.getCloudletWaitingList().sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s2.getLength()-s1.getLength()));
+        System.out.println("Scheduling with LJF-FirstFit Policy");
 
-        for (Cloudlet cloudlet:myBroker.getCloudletWaitingList()
+        System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
+
+        myBroker.getCloudletSubmittedList().removeAll(myBroker.getCloudletFinishedList());
+
+        System.out.println("Cloudlets remaining: "+myBroker.getCloudletSubmittedList().size());
+
+        List<Cloudlet> cloudletList= myBroker.getCloudletSubmittedList();
+
+        for (Cloudlet c : cloudletList) {
+            if (c.isBoundToVm() == true){
+                c.setVm(Vm.NULL);}
+        }
+
+        cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s2.getLength()-s1.getLength()));
+
+        for (Cloudlet cloudlet:cloudletList
         ) {
             final int maxTries = vmList.size();
             for (int i = 0; i < maxTries; i++) {

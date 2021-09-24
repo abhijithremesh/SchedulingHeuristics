@@ -23,18 +23,30 @@ public class RandomPolicy {
 
         Random random = new Random();
 
-        List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
-        //List<Vm> vmList = myBroker.getVmCreatedList();
+        System.out.println("Scheduling with Random Policy");
 
-            for (int i = 0; i <cloudletList.size(); i++){
+        System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
 
-                Cloudlet cl = cloudletList.get(i);
-                int v = random.nextInt(vmList.size());
-                Vm vm = vmList.get(v);
-                myBroker.bindCloudletToVm(cl, vm);
+        myBroker.getCloudletSubmittedList().removeAll(myBroker.getCloudletFinishedList());
+
+        System.out.println("Cloudlets remaining: "+myBroker.getCloudletSubmittedList().size());
+
+        List<Cloudlet> cloudletList= myBroker.getCloudletSubmittedList();
+
+        for (Cloudlet c : cloudletList) {
+            if (c.isBoundToVm() == true){
+                c.setVm(Vm.NULL);}
+        }
+
+        for (int i = 0; i <cloudletList.size(); i++){
+
+            Cloudlet cl = cloudletList.get(i);
+            int v = random.nextInt(vmList.size());
+            Vm vm = vmList.get(v);
+            myBroker.bindCloudletToVm(cl, vm);
 
 
-            }
+        }
 
         }
     }

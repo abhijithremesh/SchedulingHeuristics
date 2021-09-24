@@ -20,7 +20,20 @@ public class MinimumExecutionTimePolicy {
 
     public void schedule(){
 
+        System.out.println("Scheduling with MET Policy");
+
+        System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
+
+        myBroker.getCloudletSubmittedList().removeAll(myBroker.getCloudletFinishedList());
+
+        System.out.println("Cloudlets remaining: "+myBroker.getCloudletSubmittedList().size());
+
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
+
+        for (Cloudlet c : cloudletList) {
+            if (c.isBoundToVm() == true){
+                c.setVm(Vm.NULL);}
+        }
 
         double executionTime[][] = new double[cloudletList.size()][vmList.size()];
 
@@ -32,7 +45,7 @@ public class MinimumExecutionTimePolicy {
                 time=getExecutionTime(cloudletList.get(i),vmList.get(j));
                 time = Math.round(time*100.0)/100.0;
                 executionTime[i][j] = time;
-                System.out.println("Completion Time Cloudlet"+i+"-VM"+j+" : "+executionTime[i][j]);
+                //System.out.println("Completion Time Cloudlet"+i+"-VM"+j+" : "+executionTime[i][j]);
             }
         }
 
@@ -49,7 +62,7 @@ public class MinimumExecutionTimePolicy {
                 }
             }
             myBroker.bindCloudletToVm(cloudletList.get(cl), vmList.get(vm));
-            System.out.println(cloudletList.get(cl)+" is bound to "+vmList.get(vm)+" at MET: "+minExecTime);
+            //System.out.println(cloudletList.get(cl)+" is bound to "+vmList.get(vm)+" at MET: "+minExecTime);
         }
 
 

@@ -82,7 +82,7 @@ public class MyInfrastructureZ {
 
     private static int VM_MIPS = 1000;
 
-    private static final int CLOUDLETS = 100;
+    private static final int CLOUDLETS = 50;
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 1000;
 
@@ -113,15 +113,17 @@ public class MyInfrastructureZ {
 
         // Generating Initial Population
         GeneticAlgorithm mh_ga_2 = new GeneticAlgorithm();
-        ArrayList<ArrayList> solutionCandidatesList = mh_ga_2.createInitialPopulation(3, 11);
+        ArrayList<ArrayList> solutionCandidatesList = mh_ga_2.createInitialPopulation(10, 11);
         System.out.println("initialPopulation: " + solutionCandidatesList);
 
         // Identifying and Storing the best solution candidates of each generation
         double generationAvgFittestValue;
+        double generationBestFittestValue;
         ArrayList<Double> generationAvgFitnessValuesList = new ArrayList<Double>();
+        ArrayList<Double> generationBestFitnessValuesList = new ArrayList<Double>();
         ArrayList<Integer> generationBestSolutionCandidate = new ArrayList<>();
 
-        for (int generations = 0; generations < 1; generations++) {
+        for (int generations = 0; generations < 25; generations++) {
 
             ArrayList<Double> solutionCandidatesFitnessList = new ArrayList<>();
 
@@ -158,8 +160,9 @@ public class MyInfrastructureZ {
                 System.out.printf("%nSolution Candidate: "+solutionCandidate+"%n%n");
 
                 schedulingHeuristic = solutionCandidate.get(heuristicIndex-1);
-                myBroker.selectSchedulingPolicy(schedulingHeuristic,vmList);
                 System.out.println("Heuristic Switched to "+schedulingHeuristic);
+                myBroker.selectSchedulingPolicy(schedulingHeuristic,vmList);
+
 
                 simulation.start();
 
@@ -176,7 +179,7 @@ public class MyInfrastructureZ {
                 -processorUtilization
                  */
 
-                double fitness = evaluatePerformanceMetrics("avgExecutionTime");
+                double fitness = evaluatePerformanceMetrics("avgResponseTime");
 
                 System.out.println("Simulation Time: " + simulation.clock());
                 System.out.println("Total cloudlets processed: " + myBroker.getCloudletFinishedList().size());
@@ -184,6 +187,9 @@ public class MyInfrastructureZ {
 
                 solutionCandidatesFitnessList.add(fitness);
                 System.out.println("Solution Candidate Fitness List: "+solutionCandidatesFitnessList);
+
+                System.out.println("Total cloudlets processed: "+myBroker.getCloudletFinishedList().size());
+                System.out.println("Any cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
 
                 System.out.printf("%n***************** SOLUTION CANDIDATE "+i+" ENDS ****************%n");
 
@@ -195,18 +201,25 @@ public class MyInfrastructureZ {
             System.out.println("solutionCandidatesListSize: " + solutionCandidatesList.size());
             System.out.println("solutionCandidatesFitnessListSize: " + solutionCandidatesFitnessList.size());
 
-            /*
-            generationAvgFittestValue = mh_ga_2.getGenerationAvgFittestValue(solutionCandidatesFitnessList,"min");
+
+
+            generationAvgFittestValue = mh_ga_2.getGenerationAvgFittestValue(solutionCandidatesFitnessList);
             generationAvgFitnessValuesList.add(generationAvgFittestValue);
+            generationBestFittestValue = mh_ga_2.getGenerationBestFittestValue(solutionCandidatesFitnessList,"min");
+            generationBestFitnessValuesList.add(generationBestFittestValue);
             //generationBestSolutionCandidate = mh_ga_2.getGenerationBestFittestSolutionCandidate(solutionCandidatesList, solutionCandidatesFitnessList,"min");
             System.out.println("generationAvgFitnessValue: "+generationAvgFittestValue);
             System.out.println("generationAvgFitnessValuesList: "+generationAvgFitnessValuesList);
+            System.out.println("generationBestFittestValue: "+generationBestFittestValue);
+            System.out.println("generationBestFitnessValuesList: "+generationBestFitnessValuesList);
             //System.out.println("generationBestSolutionCandidate: "+generationBestSolutionCandidate);
+
+
 
             System.out.println("=================================== GENERATION "+generations+" ENDS ==========================================");
 
             String flag = "min";
-            int eliteCount = 1;
+            int eliteCount = 3;
             int tournamentCount = 4;
             double crossoverRate = 0.5;
             double mutationRate = 0.4;
@@ -217,7 +230,10 @@ public class MyInfrastructureZ {
 
 
 
- */
+
+
+
+
 
         }
 
@@ -225,10 +241,10 @@ public class MyInfrastructureZ {
 
     public void switchSchedulingHeuristics(EventInfo pauseInfo) {
 
-        if (heuristicIndex < 5){
+        if (heuristicIndex < 24){
             heuristicIndex ++;
         }
-        else if (heuristicIndex >=5 ){
+        else if (heuristicIndex >= 24 ){
             heuristicIndex = 1;
         }
 
@@ -315,6 +331,7 @@ public class MyInfrastructureZ {
         for (Cloudlet c : cloudletList
         ) {
             c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
+            //c.setSubmissionDelay(0);
         }
     }
 
@@ -349,38 +366,38 @@ public class MyInfrastructureZ {
         }
 
         if (metric == "makespan") {
-            System.out.println("makespan: " + makespan);
             metricValue = makespan;
+            System.out.println("makespan: " + ((double)Math.round(metricValue *  100.0)/100));
         } else if (metric == "totalResponseTime") {
-            System.out.println("totalResponseTime: " + totalResponseTime);
             metricValue = totalResponseTime;
+            System.out.println("totalResponseTime: " + ((double)Math.round(metricValue *  100.0)/100));
         } else if (metric == "avgResponseTime") {
-            System.out.println("avgResponseTime: " + totalResponseTime / cloudletList.size());
             metricValue = totalResponseTime / cloudletList.size();
+            System.out.println("avgResponseTime: " + ((double)Math.round(metricValue *  100.0)/100) );
         } else if (metric == "totalWaitingTime") {
-            System.out.println("totalWaitingTime: " + totalWaitingTime);
             metricValue = totalWaitingTime;
+            System.out.println("totalWaitingTime: " + ((double)Math.round(metricValue *  100.0)/100));
         } else if (metric == "avgWaitingTime") {
-            System.out.println("avgWaitingTime: " + totalWaitingTime / cloudletList.size());
             metricValue = totalWaitingTime / cloudletList.size();
+            System.out.println("avgWaitingTime: " + ((double)Math.round(metricValue *  100.0)/100) );
         } else if (metric == "totalExecutionTime"){
-            System.out.println("Total Execution Time: "+totalExecutionTime);
             metricValue = totalExecutionTime;
+            System.out.println("Total Execution Time: "+((double)Math.round(metricValue *  100.0)/100) );
         } else if (metric == "avgExecutionTime"){
-            System.out.println("avgExecutionTime: "+totalExecutionTime/cloudletList.size());
             metricValue = totalExecutionTime/cloudletList.size();
+            System.out.println("avgExecutionTime: "+ ((double)Math.round(metricValue *  100.0)/100)  );
         } else if (metric == "totalVmRunTime"){
-            System.out.println("totalVmRunTime: "+totalVmRunTime);
             metricValue = totalVmRunTime;
+            System.out.println("totalVmRunTime: "+totalVmRunTime);
         } else if (metric == "SlowdownRatio") {
-            System.out.println("SlowdownRatio: " + (totalResponseTime / cloudletList.size()) / (totalExecutionTime / cloudletList.size()));
             metricValue = (totalResponseTime / cloudletList.size()) / (totalExecutionTime / cloudletList.size());
+            System.out.println("SlowdownRatio: " +((double)Math.round(metricValue *  100.0)/100)  );
         } else if(metric == "processorUtilization"){
-            System.out.println("processorUtilization: "+totalVmRunTime/simulation.getLastCloudletProcessingUpdate());
             metricValue = totalVmRunTime/simulation.getLastCloudletProcessingUpdate();
+            System.out.println("processorUtilization: "+((double)Math.round(metricValue *  100.0)/100));
         }
 
-        return metricValue;
+        return ((double)Math.round(metricValue *  100.0)/100);
 
     }
 
@@ -403,6 +420,8 @@ public class MyInfrastructureZ {
             heuristicSpecificFinishedCloudlets = differences;
         }
         //}
+
+        //new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
         System.out.printf("Heuristic Cloudlets processed: "+heuristicSpecificFinishedCloudlets.size()+"%n");
         //System.out.println("Cloudlets Heuristics processed: "+heuristicSpecificFinishedCloudlets);
         //new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();

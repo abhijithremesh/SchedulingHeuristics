@@ -23,13 +23,28 @@ public class RoundRobinPolicy {
 
     public void schedule() {
 
+        System.out.println("Scheduling with Round-Robin Policy");
+
+        System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
+
+        myBroker.getCloudletSubmittedList().removeAll(myBroker.getCloudletFinishedList());
+
+        System.out.println("Cloudlets remaining: "+myBroker.getCloudletSubmittedList().size());
+
+        List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
+
+        for (Cloudlet c : cloudletList) {
+            if (c.isBoundToVm() == true){
+                c.setVm(Vm.NULL);}
+        }
+
         for (Vm v: vmList
         ) {
             v.setCloudletScheduler(new CloudletSchedulerTimeShared());
         }
 
 
-        for (Cloudlet cloudlet : myBroker.getCloudletSubmittedList()
+        for (Cloudlet cloudlet : cloudletList
              ) {
             lastSelectedVmIndex = ++lastSelectedVmIndex % vmList.size();
             Vm vm =  myBroker.getWaitingVm(lastSelectedVmIndex);

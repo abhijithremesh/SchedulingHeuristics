@@ -36,8 +36,20 @@ public class SufferagePolicy {
 
     public void schedule() {
 
+        System.out.println("Scheduling with Sufferage Policy");
+
+        System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
+
+        myBroker.getCloudletSubmittedList().removeAll(myBroker.getCloudletFinishedList());
+
+        System.out.println("Cloudlets remaining: "+myBroker.getCloudletSubmittedList().size());
+
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
 
+        for (Cloudlet c : cloudletList) {
+            if (c.isBoundToVm() == true){
+                c.setVm(Vm.NULL);}
+        }
 
         // Getting the amount of cloudlets and VMs
         int noOfVms = vmList.size();

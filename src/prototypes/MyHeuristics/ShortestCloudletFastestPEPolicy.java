@@ -19,11 +19,24 @@ public class ShortestCloudletFastestPEPolicy {
 
     public void schedule() {
 
-        myBroker.getCloudletWaitingList().sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s1.getLength()-s2.getLength()));
+        System.out.println("Scheduling with SCFP Policy");
+
+        System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
+
+        myBroker.getCloudletSubmittedList().removeAll(myBroker.getCloudletFinishedList());
+
+        System.out.println("Cloudlets remaining: "+myBroker.getCloudletSubmittedList().size());
+
+        List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
+
+        cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s1.getLength()-s2.getLength()));
 
         vmList.sort((Vm v1, Vm v2)-> Math.toIntExact(v2.getNumberOfPes()-v1.getNumberOfPes()));
 
-        List<Cloudlet> cloudletList =  myBroker.getCloudletWaitingList();
+        for (Cloudlet c : cloudletList) {
+            if (c.isBoundToVm() == true){
+                c.setVm(Vm.NULL);}
+        }
 
         for(int i=0;i<cloudletList.size();i++){
 

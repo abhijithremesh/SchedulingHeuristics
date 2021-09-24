@@ -20,7 +20,21 @@ public class FirstComeFirstServePolicy {
 
     public void schedule(){
 
-        List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
+        System.out.println("Scheduling with FCFS Policy");
+
+        System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
+
+        myBroker.getCloudletSubmittedList().removeAll(myBroker.getCloudletFinishedList());
+
+        System.out.println("Cloudlets remaining: "+myBroker.getCloudletSubmittedList().size());
+
+        List<Cloudlet> cloudletList= myBroker.getCloudletSubmittedList();
+
+        for (Cloudlet c : cloudletList) {
+            if (c.isBoundToVm() == true){
+                c.setVm(Vm.NULL);}
+        }
+
 
         for(int i=0;i<cloudletList.size();i++){
 
