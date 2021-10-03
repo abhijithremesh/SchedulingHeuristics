@@ -68,7 +68,7 @@ public class MyInfrastructureZ {
 
     private static final double INTERVAL = 3600;
 
-    private static final int HOSTS = 1;
+    private static final int HOSTS = 4;
     private static final int HOST_PES = 256;
     private static final int HOST_RAM = 20000;
     private static final int HOST_SIZE = 1000000;
@@ -82,7 +82,7 @@ public class MyInfrastructureZ {
 
     private static int VM_MIPS = 1000;
 
-    private static final int CLOUDLETS = 50;
+    private static final int CLOUDLETS = 100;
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 1000;
 
@@ -113,7 +113,7 @@ public class MyInfrastructureZ {
 
         // Generating Initial Population
         GeneticAlgorithm mh_ga_2 = new GeneticAlgorithm();
-        ArrayList<ArrayList> solutionCandidatesList = mh_ga_2.createInitialPopulation(10, 11);
+        ArrayList<ArrayList> solutionCandidatesList = mh_ga_2.createInitialPopulation(1, 11);
         System.out.println("initialPopulation: " + solutionCandidatesList);
 
         // Identifying and Storing the best solution candidates of each generation
@@ -123,7 +123,7 @@ public class MyInfrastructureZ {
         ArrayList<Double> generationBestFitnessValuesList = new ArrayList<Double>();
         ArrayList<Integer> generationBestSolutionCandidate = new ArrayList<>();
 
-        for (int generations = 0; generations < 25; generations++) {
+        for (int generations = 0; generations < 1; generations++) {
 
             ArrayList<Double> solutionCandidatesFitnessList = new ArrayList<>();
 
@@ -193,6 +193,7 @@ public class MyInfrastructureZ {
 
                 System.out.printf("%n***************** SOLUTION CANDIDATE "+i+" ENDS ****************%n");
 
+
             }
 
 
@@ -202,7 +203,7 @@ public class MyInfrastructureZ {
             System.out.println("solutionCandidatesFitnessListSize: " + solutionCandidatesFitnessList.size());
 
 
-
+/*
             generationAvgFittestValue = mh_ga_2.getGenerationAvgFittestValue(solutionCandidatesFitnessList);
             generationAvgFitnessValuesList.add(generationAvgFittestValue);
             generationBestFittestValue = mh_ga_2.getGenerationBestFittestValue(solutionCandidatesFitnessList,"min");
@@ -231,6 +232,8 @@ public class MyInfrastructureZ {
 
 
 
+
+ */
 
 
 
@@ -297,7 +300,6 @@ public class MyInfrastructureZ {
             vm.setCloudletScheduler(new CloudletSchedulerTimeShared());
             list.add(vm);
         }
-
         return list;
     }
 
@@ -422,6 +424,7 @@ public class MyInfrastructureZ {
         //}
 
         //new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
+        new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
         System.out.printf("Heuristic Cloudlets processed: "+heuristicSpecificFinishedCloudlets.size()+"%n");
         //System.out.println("Cloudlets Heuristics processed: "+heuristicSpecificFinishedCloudlets);
         //new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();

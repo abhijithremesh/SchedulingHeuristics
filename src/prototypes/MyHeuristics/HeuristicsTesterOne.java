@@ -68,7 +68,7 @@ public class HeuristicsTesterOne {
         myBroker = new MyBroker(simulation);
 
         createCloudletsFromWorkloadFile();
-        limitCloudlets(5);
+        limitCloudlets(30);
         modifyCloudletts();
         modifySubmissionTimes();
         cloudletList.removeIf(c -> c.getNumberOfPes() > 64 );              // removing cloudlets which requires more than 64 PEs
@@ -97,7 +97,7 @@ public class HeuristicsTesterOne {
 
 
         //myBroker.ShortestJobFirst();
-        //myBroker.LongestJobFirst();
+        myBroker.LongestJobFirst(vmList);
 
 
 

@@ -1,7 +1,6 @@
-package org.cloudsimplus.examples.MyHeuristics;
+package org.cloudsimplus.examples.MyInfrastructures;
 
 
-import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
@@ -22,7 +21,7 @@ import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
-import org.cloudsimplus.util.Log;
+import org.cloudsimplus.listeners.EventInfo;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,26 +39,27 @@ import java.util.Random;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class MyInfrastructureB {
+public class InfrastructureX {
 
-    private static final int HOSTS_DUALCORE = 2;
-    private static final int HOSTS_QUADCORE = 2;
-    private static final int HOST_PES = 2;
-    private static final int HOST_RAM = 20000;
-    private static final int HOST_SIZE = 1000000;
+    private static final double INTERVAL = 5;
+
+    private static final int HOSTS = 100;
+    private static final int HOST_PES = 1;
+    private static final int HOST_RAM = 2000;
     private static final int HOST_BW = 10000;
+    private static final int HOST_SIZE = 1000000;
 
-    private static final int VMS = 10;
+    private static final int VMS = 100;
     private static final int VM_PES = 1;
     private static int VM_RAM = 512;
     private static int VM_BW = 1000;
     private static final int VM_SIZE = 10000;
 
-    private static int VM_MIPS = 1000;
+    private static int VM_MIPS = 100;
 
-    private static final int CLOUDLETS = 600;  // limit:3000
+    private static final int CLOUDLETS = 100;
     private static final int CLOUDLET_PES = 1;
-    private static final int CLOUDLET_LENGTH = 2000;
+    private static final int CLOUDLET_LENGTH = 1000;
 
     private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = -1;
     private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
@@ -70,75 +70,83 @@ public class MyInfrastructureB {
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
 
+    int heuristicIndex = 1;
+
+    List<Integer> VM_MIPSList = new ArrayList<Integer>() {{
+        add(500);
+        add(1000);
+        add(2000);
+        add(2500);
+    } };
+
     public static void main(String[] args) {
-        new MyInfrastructureB();
+        new InfrastructureX();
     }
 
-    private MyInfrastructureB() {
-        /*Enables just some level of log messages.
-          Make sure to import org.cloudsimplus.util.Log;*/
-        //Log.setLevel(ch.qos.logback.classic.Level.WARN);
+    private InfrastructureX() {
 
-        Log.setLevel(Level.OFF);
+        //Log.setLevel(ch.qos.logback.classic.Level.WARN);
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        //Creates a broker that is a software acting on behalf a cloud customer to manage his/her VMs and Cloudlets
         broker0 = new DatacenterBrokerSimple(simulation);
 
         vmList = createVms();
-        cloudletList = createCloudlets();
-        //cloudletList = createCloudletsFromWorkloadFile();
+        //cloudletList = createCloudlets();
+        cloudletList = createCloudletsFromWorkloadFile(100);
+        modifySubmissionTimes();
+        //modifyLength();  // sets length = length * npe
+        //modifyReqPes();  // sets the reqPE as 1
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
+        simulation.addOnEventProcessingListener(this::pauseSimulation);
+        simulation.addOnSimulationPauseListener(this::switchSchedulingHeuristics);
+
+
         simulation.start();
 
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
-        new CloudletsTableBuilder(finishedCloudlets).build();
+        //new CloudletsTableBuilder(finishedCloudlets).build();
 
-        vmList.forEach(v-> System.out.println(v.getId()+": "+v.getRam()+" "+v.getBw()+" "+v.getMips()));
 
-        System.out.println(finishedCloudlets.size());
-
+        System.out.println(simulation.getLastCloudletProcessingUpdate());
+        System.out.println(broker0.getVmCreatedList().size());
 
 
 
 
     }
 
-    /**
-     * Creates a Datacenter and its Hosts.
-     */
-    private Datacenter createDatacenter() {
-        final List<Host> hostList = new ArrayList<>(HOSTS_DUALCORE+HOSTS_QUADCORE);
-        for(int i = 0; i < HOSTS_DUALCORE; i++) {
-            Host host = createHostDualCore();
-            hostList.add(host);
+    public void switchSchedulingHeuristics(EventInfo pauseInfo) {
+        simulation.resume();
+        heuristicIndex++;
+        System.out.println("Heuristics switched....");
+        System.out.println("simulation resumed...");
+    }
+
+    private void pauseSimulation( EventInfo evt) {
+        if((int)evt.getTime() == INTERVAL * heuristicIndex){
+            simulation.pause();
+            System.out.println("simulation paused...");
         }
-        for(int i = 0; i < HOSTS_QUADCORE; i++) {
-            Host host = createHostQuadCore();
+    }
+
+    private Datacenter createDatacenter() {
+        final List<Host> hostList = new ArrayList<>(HOSTS);
+        for(int i = 0; i < HOSTS; i++) {
+            Host host = createHost();
             hostList.add(host);
         }
         return new DatacenterSimple(simulation, hostList);
     }
 
-    private Host createHostDualCore() {
-        final List<Pe> peList = new ArrayList<>(2);
-        for (int i = 0; i < 2; i++) {
-            peList.add(new PeSimple(10000));
-        }
-        Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_SIZE, peList);
-        h.setVmScheduler(new VmSchedulerTimeShared());
-        return h;
-    }
-
-    private Host createHostQuadCore() {
-        final List<Pe> peList = new ArrayList<>(4);
-        for (int i = 0; i < 4; i++) {
-            peList.add(new PeSimple(10000));
+    private Host createHost() {
+        final List<Pe> peList = new ArrayList<>(HOST_PES);
+        for (int i = 0; i < HOST_PES; i++) {
+            peList.add(new PeSimple(5000));
         }
         Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_SIZE, peList);
         h.setVmScheduler(new VmSchedulerTimeShared());
@@ -148,10 +156,9 @@ public class MyInfrastructureB {
     private List<Vm> createVms() {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
+            VM_MIPS = VM_MIPSList.get(i%4);
             //Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
-            Random r = new Random();
-            int n = r.nextInt(11-1) + 1;
-            final Vm vm = new VmSimple( n * VM_MIPS, VM_PES);
+            final Vm vm = new VmSimple(VM_MIPS, VM_PES);
             vm.setRam(VM_RAM).setBw(VM_BW).setSize(VM_SIZE);
             vm.setCloudletScheduler(new CloudletSchedulerTimeShared());
             list.add(vm);
@@ -159,15 +166,16 @@ public class MyInfrastructureB {
         return list;
     }
 
-    /**
-     * Creates a list of Cloudlets.
-     */
-
-    private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, VM_MIPS);
+    private List<Cloudlet> createCloudletsFromWorkloadFile(int count) {
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());
+        List<Cloudlet> list = new ArrayList<>();
+        for (int i=0; i < count; i++){
+            list.add(cloudletList.get(i));
+        }
+        cloudletList = list;
         return cloudletList;
     }
 
@@ -177,51 +185,35 @@ public class MyInfrastructureB {
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
         for (int i = 0; i < CLOUDLETS; i++) {
             final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH, CLOUDLET_PES, utilizationModel);
-            cloudlet.setSizes(1024);
+            cloudlet.setSizes(1500);
             cloudlet.setSubmissionDelay(0);
             list.add(cloudlet);
         }
         return list;
     }
 
-    private void statusOfCloudletsVMs(){
-        System.out.println("VMs");
-        System.out.println("Created: "+broker0.getVmCreatedList().size());
-        System.out.println("Executing: "+broker0.getVmExecList().size());
-        System.out.println("Waiting: "+broker0.getVmWaitingList().size());
-        System.out.println(vmList.get(0).getId());
-
-        System.out.printf("%n************************************%n");
-
-        System.out.println("Cloudlets");
-        System.out.println("Created: "+broker0.getCloudletCreatedList().size());
-        System.out.println("Submitted: "+broker0.getCloudletSubmittedList().size());
-        System.out.println("Waiting: "+broker0.getCloudletWaitingList().size());
-        System.out.println("Finished: "+broker0.getCloudletFinishedList().size());
-        System.out.println(cloudletList.get(0).getId());
-
-
-    }
-
-    private void limitCloudlets(int n){
-
-        List<Cloudlet> list = new ArrayList<>();
-
-        for (int i=0; i<n; i++){
-            list.add(cloudletList.get(i));
-        }
-
-        cloudletList = list;
-        System.out.println("Limited to "+cloudletList.size());
-
-    }
-
     private void modifySubmissionTimes() {
-
         double minSubdelay = cloudletList.get(0).getSubmissionDelay();
         for (Cloudlet c : cloudletList
         ) {
             c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
+        }
+    }
+
+    private void modifyLength(){
+        for (Cloudlet c: cloudletList
+        ) {
+            long length = c.getLength();
+            long pes = c.getNumberOfPes();
+            c.setLength(length* pes);
+
+        }
+    }
+
+    private void modifyReqPes(){
+        for (Cloudlet c : cloudletList
+        ) {
+            c.setNumberOfPes(1);
         }
     }
 

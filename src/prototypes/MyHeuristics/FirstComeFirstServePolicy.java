@@ -40,6 +40,7 @@ public class FirstComeFirstServePolicy {
 
             Cloudlet cl = cloudletList.get(i);
             Vm vm = vmList.get((i % vmList.size()));
+            //cl.setLength(cl.getLength()* (long) vm.getMips());
             myBroker.bindCloudletToVm(cl,vm);
 
         }

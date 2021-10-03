@@ -9,6 +9,7 @@ import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.events.SimEvent;
 import org.cloudbus.cloudsim.datacenters.Datacenter;
 import org.cloudbus.cloudsim.datacenters.DatacenterSimple;
 import org.cloudbus.cloudsim.hosts.Host;
@@ -24,7 +25,6 @@ import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
-import org.cloudsimplus.examples.HybridApproach.GeneticAlgorithm;
 import org.cloudsimplus.examples.MyHeuristics.MyBroker;
 import org.cloudsimplus.listeners.EventInfo;
 import org.cloudsimplus.util.Log;
@@ -45,9 +45,9 @@ import java.util.Random;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class InfrastructureBOne {
+public class InfrastructureBOne_Test {
 
-    private static final double INTERVAL = 3600;
+    private static final double INTERVAL = 50;
 
     private static final int HOSTS_DUALCORE = 2;
     private static final int HOSTS_QUADCORE = 2;
@@ -64,23 +64,21 @@ public class InfrastructureBOne {
 
     private static int VM_MIPS = 1000;
 
-    private static final int CLOUDLETS = 20;  // limit:1200
+    private static final int CLOUDLETS = 100;  // limit:1200
     private static final int CLOUDLET_PES = 1;
-    private static final int CLOUDLET_LENGTH = 2000;
+    private static final int CLOUDLET_LENGTH = 1000;
 
     private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = -1;
     private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
     //private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
     //private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
 
-    private CloudSim simulation;
-    //private DatacenterBroker broker0;
+    private final CloudSim simulation;
     private List<Vm> vmList;
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
-    int heuristicIndex = 1;
-    int schedulingHeuristic;
     MyBroker myBroker;
+    int heuristicIndex = 1;
 
     List<Integer> VM_MIPSList = new ArrayList<Integer>() {{
         add(1000);
@@ -95,73 +93,61 @@ public class InfrastructureBOne {
         add(10000);
     } };
 
-    ArrayList<Integer> solutionCandidate = new ArrayList<>();
-    ArrayList<List<Cloudlet>> heuristicSpecificFinishedCloudletsList = new ArrayList<List<Cloudlet>>();
-
     public static void main(String[] args) {
-        new InfrastructureBOne();
+        new InfrastructureBOne_Test();
     }
 
-    private InfrastructureBOne() {
+    private InfrastructureBOne_Test() {
 
         Log.setLevel(Level.OFF);
 
-        // Generating Initial Population
-        GeneticAlgorithm mh_ga_2 = new GeneticAlgorithm();
-        ArrayList<ArrayList> solutionCandidatesList = mh_ga_2.createInitialPopulation(10, 11);
-        System.out.println("initialPopulation: " + solutionCandidatesList);
+        simulation = new CloudSim();
+        datacenter0 = createDatacenter();
+        //datacenter0.setSchedulingInterval(0.66);
 
-        // Identifying and Storing the best solution candidates of each generation
-        double generationAvgFittestValue;
-        double generationBestFittestValue;
-        ArrayList<Double> generationAvgFitnessValuesList = new ArrayList<Double>();
-        ArrayList<Double> generationBestFitnessValuesList = new ArrayList<Double>();
-        ArrayList<Integer> generationBestSolutionCandidate = new ArrayList<>();
+        //Creates a broker that is a software acting on behalf a cloud customer to manage his/her VMs and Cloudlets
+        myBroker = new MyBroker(simulation);
 
-        for (int generations = 0; generations < 2; generations++) {
+        vmList = createVms();
+        //cloudletList = createCloudlets();
+        cloudletList = createCloudletsFromWorkloadFile(100);
+        nullifySubmissionTimes();
+        //modifySubmissionTimes();
+        //modifyLength();  // sets length = length * npe
+        //modifyReqPes();  // sets the reqPE as 1
 
-            ArrayList<Double> solutionCandidatesFitnessList = new ArrayList<>();
+        myBroker.submitVmList(vmList);
+        myBroker.submitCloudletList(cloudletList);
 
-            System.out.printf("%n=================================== GENERATION "+generations+" STARTS ==========================================%n");
+        //myBroker.Random(vmList);
+        //myBroker.FirstComeFirstServe(vmList);
+        //myBroker.LongestJobFirst(vmList);
+        //myBroker.ShortestJobFirst(vmList);
+        //myBroker.ShortestCloudletFastestPE(vmList);
+        //myBroker.LongestCloudletFastestPE(vmList);
+        //myBroker.MinimumCompletionTime(vmList);
+        //myBroker.MinimumExecutionTime(vmList);
+        //myBroker.MaxMin(vmList);
+        //myBroker.MinMin(vmList);
+        //myBroker.Sufferage(vmList);
+        //myBroker.ShortestJobFirstFirstFit(vmList);
+        //myBroker.LongestJobFirstFirstFit(vmList);
 
-            System.out.printf("%nsolutionCandidatesList: "+solutionCandidatesList+"%n%n");
+        simulation.addOnClockTickListener(this::pauseSimulation);
+        simulation.addOnSimulationPauseListener(this::switchSchedulingHeuristics);
 
-            for (int i = 0; i < solutionCandidatesList.size(); i++) {
+        simulation.start();
 
-                heuristicIndex = 1;
+        List<Cloudlet> finishedCloudlets = myBroker.getCloudletFinishedList();
+        //new CloudletsTableBuilder(finishedCloudlets).build();
 
-                System.out.printf("%n***************** SOLUTION CANDIDATE "+i+" STARTS ****************%n");
+        System.out.println("finished cloudlets: "+finishedCloudlets.size());
 
-                simulation = new CloudSim();
-                datacenter0 = createDatacenter();
-                datacenter0.setSchedulingInterval(0.5);
+        System.out.println("vms created: "+myBroker.getVmCreatedList().size());
 
-                //broker0 = new DatacenterBrokerSimple(simulation);
-                myBroker = new MyBroker(simulation);
+        myBroker.getVmCreatedList().forEach(v-> System.out.println(v.getId()+": "+v.getRam()+" "+v.getBw()+" "+v.getMips()));
 
-                vmList = createVms();
-                //cloudletList = createCloudlets();
-                cloudletList = createCloudletsFromWorkloadFile(100);
-                modifySubmissionTimes();
-                //modifyLength();  // sets length = length * npe
-                //modifyReqPes();  // sets the reqPE as 1
-
-                myBroker.submitVmList(vmList);
-                myBroker.submitCloudletList(cloudletList);
-
-                simulation.addOnClockTickListener(this::pauseSimulation);
-                simulation.addOnSimulationPauseListener(this::switchSchedulingHeuristics);
-
-                solutionCandidate = solutionCandidatesList.get(i);
-                System.out.printf("%nSolution Candidate: "+solutionCandidate+"%n%n");
-
-                schedulingHeuristic = solutionCandidate.get(heuristicIndex-1);
-                System.out.println("Heuristic Switched to "+schedulingHeuristic);
-                myBroker.selectSchedulingPolicy(schedulingHeuristic,vmList);
-
-                simulation.start();
-
-                /*
+        /*
                 -makespan
                 -totalResponseTime
                 -avgResponseTime
@@ -172,72 +158,30 @@ public class InfrastructureBOne {
                 -SlowdownRatio
                 -totalVmRunTime
                 -processorUtilization
-                 */
+         */
 
-                System.out.println(myBroker.getVmCreatedList().size());
 
-                double fitness = evaluatePerformanceMetrics("fitnessFunction");
+        double makespan = evaluatePerformanceMetrics("makespan");
+        double totalResponseTime = evaluatePerformanceMetrics("totalResponseTime");
+        double avgResponseTime = evaluatePerformanceMetrics("avgResponseTime");
+        //double totalWaitingTime = evaluatePerformanceMetrics("totalWaitingTime");
+        double avgWaitingTime = evaluatePerformanceMetrics("avgWaitingTime");
+        //double totalExecutionTime = evaluatePerformanceMetrics("totalExecutionTime");
+        double avgExecutionTime = evaluatePerformanceMetrics("avgExecutionTime");
+        double SlowdownRatio = evaluatePerformanceMetrics("SlowdownRatio");
+        //double totalVmRunTime = evaluatePerformanceMetrics("totalVmRunTime");
+        //double processorUtilization = evaluatePerformanceMetrics("processorUtilization");
 
-                System.out.println("Simulation Time: " + simulation.clock());
-                System.out.println("Total cloudlets processed: " + myBroker.getCloudletFinishedList().size());
-                //System.out.println("Total cloudlets processed: " + broker0.getCloudletFinishedList().size());
+        new CloudletsTableBuilder(finishedCloudlets).build();
 
-                solutionCandidatesFitnessList.add(fitness);
-                System.out.println("Solution Candidate Fitness List: "+solutionCandidatesFitnessList);
 
-                System.out.println("Total cloudlets processed: "+myBroker.getCloudletFinishedList().size());
-                System.out.println("Any cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
-
-                System.out.printf("%n***************** SOLUTION CANDIDATE "+i+" ENDS ****************%n");
-
-            }
-
-            System.out.println("solutionCandidatesList:" + solutionCandidatesList);
-            System.out.println("solutionCandidatesFitnessList: " + solutionCandidatesFitnessList);
-            System.out.println("solutionCandidatesListSize: " + solutionCandidatesList.size());
-            System.out.println("solutionCandidatesFitnessListSize: " + solutionCandidatesFitnessList.size());
-
-            generationAvgFittestValue = mh_ga_2.getGenerationAvgFittestValue(solutionCandidatesFitnessList);
-            generationAvgFitnessValuesList.add(generationAvgFittestValue);
-            generationBestFittestValue = mh_ga_2.getGenerationBestFittestValue(solutionCandidatesFitnessList,"min");
-            generationBestFitnessValuesList.add(generationBestFittestValue);
-            //generationBestSolutionCandidate = mh_ga_2.getGenerationBestFittestSolutionCandidate(solutionCandidatesList, solutionCandidatesFitnessList,"min");
-            System.out.println("generationAvgFitnessValue: "+generationAvgFittestValue);
-            System.out.println("generationAvgFitnessValuesList: "+generationAvgFitnessValuesList);
-            System.out.println("generationBestFittestValue: "+generationBestFittestValue);
-            System.out.println("generationBestFitnessValuesList: "+generationBestFitnessValuesList);
-            //System.out.println("generationBestSolutionCandidate: "+generationBestSolutionCandidate);
-
-            System.out.println("=================================== GENERATION "+generations+" ENDS ==========================================");
-
-            String flag = "min";
-            int eliteCount = 3;
-            int tournamentCount = 4;
-            double crossoverRate = 0.5;
-            double mutationRate = 0.4;
-
-            solutionCandidatesList = mh_ga_2.generationEvolve(solutionCandidatesList,solutionCandidatesFitnessList,flag,eliteCount,tournamentCount, crossoverRate, mutationRate);
-
-            System.out.println("=================================== GENERATION "+generations+" EVOLVED ==========================================");
-
-        }
 
     }
 
     public void switchSchedulingHeuristics(EventInfo pauseInfo) {
-
-        if (heuristicIndex < 24){
-            heuristicIndex ++;
-        }
-        else if (heuristicIndex >= 24 ){
-            heuristicIndex = 1;
-        }
-
-        schedulingHeuristic = solutionCandidate.get(heuristicIndex-1);
-        System.out.println("Heuristic Switched to "+schedulingHeuristic);
-        myBroker.selectSchedulingPolicy(schedulingHeuristic, vmList);
-
         simulation.resume();
+        heuristicIndex++;
+        System.out.println("Heuristics switched....");
         System.out.println("simulation resumed...");
     }
 
@@ -245,10 +189,9 @@ public class InfrastructureBOne {
         if((int)evt.getTime() == INTERVAL * heuristicIndex){
             simulation.pause();
             System.out.printf("%n# Simulation paused at %.2f second%n%n", Math.floor(simulation.clock()));
-            postSimulationHeuristicSpecificFinishedCloudlets(myBroker);
-            System.out.printf("Total Cloudlets processed: "+myBroker.getCloudletFinishedList().size()+"%n");
-            cloudletList.removeAll(myBroker.getCloudletFinishedList());
-            System.out.printf("Remaining Cloudlets: "+cloudletList.size()+"%n%n");
+            //System.out.printf("Total Cloudlets processed: "+broker0.getCloudletFinishedList().size()+"%n");
+            //cloudletList.removeAll(broker0.getCloudletFinishedList());
+            //System.out.printf("Remaining Cloudlets: "+cloudletList.size()+"%n%n");
         }
     }
 
@@ -289,9 +232,8 @@ public class InfrastructureBOne {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
             //Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
-            Random r = new Random();
-            int n = r.nextInt(11-1) + 1;
-            final Vm vm = new VmSimple( n * VM_MIPS, VM_PES);
+            VM_MIPS = VM_MIPSList.get(i%10);
+            final Vm vm = new VmSimple( VM_MIPS, VM_PES);
             vm.setRam(VM_RAM).setBw(VM_BW).setSize(VM_SIZE);
             list.add(vm);
         }
@@ -312,7 +254,7 @@ public class InfrastructureBOne {
     }
 
     private List<Cloudlet> createCloudletsFromWorkloadFile(int count) {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, VM_MIPS);
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());
@@ -347,6 +289,15 @@ public class InfrastructureBOne {
         for (Cloudlet c : cloudletList
         ) {
             c.setNumberOfPes(1);
+        }
+    }
+
+    private void nullifySubmissionTimes() {
+
+        double minSubdelay = cloudletList.get(0).getSubmissionDelay();
+        for (Cloudlet c : cloudletList
+        ) {
+            c.setSubmissionDelay(0);
         }
     }
 
@@ -403,43 +354,11 @@ public class InfrastructureBOne {
         } else if(metric == "processorUtilization"){
             metricValue = totalVmRunTime/simulation.getLastCloudletProcessingUpdate();
             System.out.println("processorUtilization: "+((double)Math.round(metricValue *  100.0)/100));
-        } else if(metric == "fitnessFunction"){
-            metricValue = makespan + (totalResponseTime / cloudletList.size());
-            System.out.println("processorUtilization: "+((double)Math.round(metricValue *  100.0)/100));
         }
 
         return ((double)Math.round(metricValue *  100.0)/100);
 
     }
-
-    public void postSimulationHeuristicSpecificFinishedCloudlets(MyBroker myBroker){
-
-        List<Cloudlet> allFinishedCloudlets = myBroker.getCloudletFinishedList();
-        heuristicSpecificFinishedCloudletsList.add(allFinishedCloudlets);
-        int items = heuristicSpecificFinishedCloudletsList.size();
-        List<Cloudlet> heuristicSpecificFinishedCloudlets = new ArrayList<Cloudlet>();
-        //if (brokerh.getCloudletSubmittedList().size() > brokerh.getCloudletFinishedList().size()) {
-        if (items == 1) {
-            heuristicSpecificFinishedCloudlets = heuristicSpecificFinishedCloudletsList.get(0);
-        } else if (items > 1) {
-            List<Cloudlet> lastItem = heuristicSpecificFinishedCloudletsList.get(items - 1);
-            List<Cloudlet> secondLastItem = heuristicSpecificFinishedCloudletsList.get(items - 2);
-            List<Cloudlet> differences = new ArrayList<>(lastItem);
-            differences.removeAll(secondLastItem);
-            //heuristicSpecificFinishedCloudletsList.get(items - 1).removeAll(heuristicSpecificFinishedCloudletsList.get(items - 2));
-            //heuristicSpecificFinishedCloudlets = heuristicSpecificFinishedCloudletsList.get(items - 1);
-            heuristicSpecificFinishedCloudlets = differences;
-        }
-        //}
-
-        //new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
-        //new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
-        System.out.printf("Heuristic Cloudlets processed: "+heuristicSpecificFinishedCloudlets.size()+"%n");
-        //System.out.println("Cloudlets Heuristics processed: "+heuristicSpecificFinishedCloudlets);
-        //new CloudletsTableBuilder(heuristicSpecificFinishedCloudlets).build();
-
-    }
-
 
 
 }

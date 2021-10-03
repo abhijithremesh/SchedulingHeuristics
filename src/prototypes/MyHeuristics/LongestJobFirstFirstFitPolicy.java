@@ -20,22 +20,27 @@ public class LongestJobFirstFirstFitPolicy {
 
     public void schedule() {
 
+        List<Cloudlet> cloudletList;
+
         System.out.println("Scheduling with LJF-FirstFit Policy");
 
-        System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
+        if (myBroker.getCloudletWaitingList().isEmpty()) {
+            cloudletList  = myBroker.getCloudletCreatedList();
+            cloudletList.removeAll(myBroker.getCloudletFinishedList());
+        } else {
+            cloudletList = myBroker.getCloudletWaitingList();
+            System.out.println("Cloudlets waiting: "+cloudletList.size());
+        }
 
-        myBroker.getCloudletSubmittedList().removeAll(myBroker.getCloudletFinishedList());
+        System.out.println("Cloudlets remaining: "+cloudletList.size());
 
-        System.out.println("Cloudlets remaining: "+myBroker.getCloudletSubmittedList().size());
-
-        List<Cloudlet> cloudletList= myBroker.getCloudletSubmittedList();
+        cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s2.getLength()-s1.getLength()));
 
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){
                 c.setVm(Vm.NULL);}
         }
 
-        cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s2.getLength()-s1.getLength()));
 
         for (Cloudlet cloudlet:cloudletList
         ) {
@@ -49,6 +54,19 @@ public class LongestJobFirstFirstFitPolicy {
             }
             myBroker.bindCloudletToVm(cloudlet,Vm.NULL);
         }
+
+/*
+        for (Cloudlet cloudlet: cloudletList
+        ) {
+            if (cloudlet.isBoundToVm()){
+                Vm v = cloudlet.getVm();
+                cloudlet.setLength(cloudlet.getLength()*(long)v.getMips());
+            }
+        }
+
+ */
+
+
 
     }
 

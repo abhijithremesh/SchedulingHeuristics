@@ -103,6 +103,8 @@ public class SufferagePolicy {
             Cloudlet maximumsufferageCloudlet = cloudletList.get(maxsufferageCloudlet);
             Vm minimumVm = vmList.get(minVm);
 
+            //maximumsufferageCloudlet.setLength(maximumsufferageCloudlet.getLength()* (long) minimumVm.getMips());
+
             // Binding the respective cloudlet to the respective VM
             myBroker.bindCloudletToVm(maximumsufferageCloudlet, minimumVm);
 

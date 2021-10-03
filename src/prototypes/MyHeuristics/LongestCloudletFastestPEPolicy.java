@@ -23,11 +23,11 @@ public class LongestCloudletFastestPEPolicy {
 
         System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
 
-        myBroker.getCloudletSubmittedList().removeAll(myBroker.getCloudletFinishedList());
+        myBroker.getCloudletCreatedList().removeAll(myBroker.getCloudletFinishedList());
 
-        System.out.println("Cloudlets remaining: "+myBroker.getCloudletSubmittedList().size());
+        System.out.println("Cloudlets remaining: "+myBroker.getCloudletCreatedList().size());
 
-        List<Cloudlet> cloudletList= myBroker.getCloudletSubmittedList();
+        List<Cloudlet> cloudletList= myBroker.getCloudletCreatedList();
 
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){
@@ -36,13 +36,14 @@ public class LongestCloudletFastestPEPolicy {
 
         cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s2.getLength()-s1.getLength()));
 
-        vmList.sort((Vm v1, Vm v2)-> Math.toIntExact(v2.getNumberOfPes()-v1.getNumberOfPes()));
+        vmList.sort((Vm v1, Vm v2)-> Math.toIntExact((long)(v2.getMips()-v1.getMips())));
 
 
             for(int i=0;i<cloudletList.size();i++){
 
                 Cloudlet cl = cloudletList.get(i);
                 Vm vm = vmList.get((i % vmList.size()));
+                //cl.setLength(cl.getLength()* (long) vm.getMips());
                 myBroker.bindCloudletToVm(cl,vm);
 
             }

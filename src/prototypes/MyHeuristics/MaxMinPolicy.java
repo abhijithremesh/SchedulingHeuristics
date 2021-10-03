@@ -84,6 +84,8 @@ public class MaxMinPolicy {
             //System.out.println("Maximum Cloudlet: " + maximumCloudlet);
             //System.out.println("Minimum VM: " + minimumVm);
 
+            //maximumCloudlet.setLength(maximumCloudlet.getLength()* (long) minimumVm.getMips());
+
             // Binding the respetcive cloudlet to the respective VM
             myBroker.bindCloudletToVm(maximumCloudlet, minimumVm);
 

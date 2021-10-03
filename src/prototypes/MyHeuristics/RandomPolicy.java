@@ -43,10 +43,13 @@ public class RandomPolicy {
             Cloudlet cl = cloudletList.get(i);
             int v = random.nextInt(vmList.size());
             Vm vm = vmList.get(v);
+            //cl.setLength(cl.getLength()* (long) vm.getMips());
             myBroker.bindCloudletToVm(cl, vm);
 
 
         }
+
+        System.out.println("finished scheduling..");
 
         }
     }

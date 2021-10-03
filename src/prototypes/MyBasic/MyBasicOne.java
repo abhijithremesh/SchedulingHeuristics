@@ -23,6 +23,7 @@
  */
 package org.cloudsimplus.examples.MyBasic;
 
+import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
@@ -42,6 +43,8 @@ import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
+import org.cloudsimplus.listeners.EventInfo;
+import org.cloudsimplus.util.Log;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,13 +62,16 @@ import java.util.List;
  * @since CloudSim Plus 1.0
  */
 public class MyBasicOne {
+
+    private static final double INTERVAL = 100;
+
     private static final int HOSTS = 1;
     private static final int HOST_PES = 4;
 
     private static final int VMS = 1;
     private static final int VM_PES = 4;
 
-    private static final int CLOUDLETS = 10;
+    private static final int CLOUDLETS = 100;
     private static final int CLOUDLET_PES = 4;
     private static final int CLOUDLET_LENGTH = 1000;
 
@@ -74,42 +80,57 @@ public class MyBasicOne {
     private List<Vm> vmList;
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
+    int heuristicIndex = 1;
 
     public static void main(String[] args) {
         new MyBasicOne();
     }
 
     private MyBasicOne() {
-        /*Enables just some level of log messages.
-          Make sure to import org.cloudsimplus.util.Log;*/
-        //Log.setLevel(ch.qos.logback.classic.Level.WARN);
+
+        Log.setLevel(Level.WARN);
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
-
+        datacenter0.setSchedulingInterval(10);
 
         //Creates a broker that is a software acting on behalf a cloud customer to manage his/her VMs and Cloudlets
         broker0 = new DatacenterBrokerSimple(simulation);
 
+        simulation.addOnClockTickListener(this::pauseSimulation);
+        simulation.addOnSimulationPauseListener(this::resumeSimulation);
+
         vmList = createVms();
         cloudletList = createCloudlets();
-
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
-
         simulation.start();
 
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
-        new CloudletsTableBuilder(finishedCloudlets).build();
+        //new CloudletsTableBuilder(finishedCloudlets).build();
+
+        System.out.println(simulation.getLastCloudletProcessingUpdate());
 
 
     }
 
-    /**
-     * Creates a Datacenter and its Hosts.
-     */
+    public void resumeSimulation(EventInfo pauseInfo) {
+        simulation.resume();
+        heuristicIndex++;
+        System.out.println("Heuristics switched....");
+        System.out.println("simulation resumed...");
+    }
+
+    private void pauseSimulation( EventInfo evt) {
+        if((int)evt.getTime() == INTERVAL * heuristicIndex ){
+            simulation.pause();
+            System.out.printf("%n# Simulation paused at %.2f second%n%n", Math.floor(simulation.clock()));
+        }
+    }
+
+
     private Datacenter createDatacenter() {
         final List<Host> hostList = new ArrayList<>(HOSTS);
         for(int i = 0; i < HOSTS; i++) {

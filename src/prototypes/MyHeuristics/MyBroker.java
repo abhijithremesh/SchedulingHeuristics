@@ -9,7 +9,7 @@ import org.cloudsimplus.examples.SchedulingHeuristicsCheck.FirstComeFirstServeCh
 
 import java.util.List;
 
-public class MyBroker extends DatacenterBrokerFirstFit {
+public class MyBroker extends DatacenterBrokerSimple {
 
     public MyBroker(final CloudSim simulation) {
         super(simulation);
@@ -129,19 +129,19 @@ public class MyBroker extends DatacenterBrokerFirstFit {
 
     public void selectSchedulingPolicy(int schedulingHeuristic, List<Vm> vmList){
         switch(schedulingHeuristic){
-            case 0:
+            case 3:
                 System.out.println("Random");
                 this.Random(vmList);
                 break;
-            case 1:
+            case 0:
                 System.out.println("FCFS");
                 this.FirstComeFirstServe(vmList);
                 break;
-            case 2:
+            case 1:
                 System.out.println("SJF");
                 this.ShortestJobFirst(vmList);
                 break;
-            case 3:
+            case 2:
                 System.out.println("LJF");
                 this.LongestJobFirst(vmList);
                 break;

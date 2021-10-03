@@ -60,7 +60,7 @@ public class HeuristicsTesterTwo {
 
     private HeuristicsTesterTwo()  {
 
-        Log.setLevel(Level.OFF);
+        Log.setLevel(Level.WARN);
 
         simulation = new CloudSim();
 
@@ -90,14 +90,14 @@ public class HeuristicsTesterTwo {
         //myBroker.RoundRobin();
         //myBroker.FirstComeFirstServe();
         //myBroker.ShortestJobFirst(vmList);
-        //myBroker.LongestJobFirst();
+        //myBroker.LongestJobFirst(vmList);
 
         //myBroker.FirstComeFirstServeFirstFit();
         //myBroker.BestFit();
         //myBroker.ShortestJobFirstFirstFit();
         //myBroker.LongestJobFirstFirstFit();
 
-        //myBroker.Random();
+        myBroker.Random(vmList);
         //myBroker.LongestCloudletFastestPE();
         //myBroker.ShortestCloudletFastestPE();
 
@@ -108,7 +108,7 @@ public class HeuristicsTesterTwo {
         //myBroker.Sufferage();
 
 
-        myBroker.selectSchedulingPolicy(3,vmList);
+        //myBroker.selectSchedulingPolicy(3,vmList);
 
 
         //simulation.addOnClockTickListener(this::pauseSimulation);

@@ -1,7 +1,28 @@
-package org.cloudsimplus.examples.MyHeuristics;
+/*
+ * CloudSim Plus: A modern, highly-extensible and easier-to-use Framework for
+ * Modeling and Simulation of Cloud Computing Infrastructures and Services.
+ * http://cloudsimplus.org
+ *
+ *     Copyright (C) 2015-2018 Universidade da Beira Interior (UBI, Portugal) and
+ *     the Instituto Federal de Educação Ciência e Tecnologia do Tocantins (IFTO, Brazil).
+ *
+ *     This file is part of CloudSim Plus.
+ *
+ *     CloudSim Plus is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     CloudSim Plus is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with CloudSim Plus. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.cloudsimplus.examples.MyBasic;
 
-
-import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
@@ -17,17 +38,14 @@ import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerTimeShared;
-import org.cloudbus.cloudsim.util.SwfWorkloadFileReader;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
-import org.cloudsimplus.util.Log;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 
 /**
  * A minimal but organized, structured and re-usable CloudSim Plus example
@@ -40,29 +58,16 @@ import java.util.Random;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class MyInfrastructureB {
-
-    private static final int HOSTS_DUALCORE = 2;
-    private static final int HOSTS_QUADCORE = 2;
+public class MyBasicThree {
+    private static final int HOSTS = 2;
     private static final int HOST_PES = 2;
-    private static final int HOST_RAM = 20000;
-    private static final int HOST_SIZE = 1000000;
-    private static final int HOST_BW = 10000;
 
-    private static final int VMS = 10;
+    private static final int VMS = 40;
     private static final int VM_PES = 1;
-    private static int VM_RAM = 512;
-    private static int VM_BW = 1000;
-    private static final int VM_SIZE = 10000;
 
-    private static int VM_MIPS = 1000;
-
-    private static final int CLOUDLETS = 600;  // limit:3000
-    private static final int CLOUDLET_PES = 1;
-    private static final int CLOUDLET_LENGTH = 2000;
-
-    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = -1;
-    private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
+    private static final int CLOUDLETS = 50;
+    private static final int CLOUDLET_PES = 4;
+    private static final int CLOUDLET_LENGTH = 1000;
 
     private final CloudSim simulation;
     private DatacenterBroker broker0;
@@ -71,25 +76,24 @@ public class MyInfrastructureB {
     private Datacenter datacenter0;
 
     public static void main(String[] args) {
-        new MyInfrastructureB();
+        new MyBasicThree();
     }
 
-    private MyInfrastructureB() {
+    private MyBasicThree() {
         /*Enables just some level of log messages.
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
 
-        Log.setLevel(Level.OFF);
-
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
+
 
         //Creates a broker that is a software acting on behalf a cloud customer to manage his/her VMs and Cloudlets
         broker0 = new DatacenterBrokerSimple(simulation);
 
         vmList = createVms();
         cloudletList = createCloudlets();
-        //cloudletList = createCloudletsFromWorkloadFile();
+
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
@@ -99,12 +103,9 @@ public class MyInfrastructureB {
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
 
-        vmList.forEach(v-> System.out.println(v.getId()+": "+v.getRam()+" "+v.getBw()+" "+v.getMips()));
 
-        System.out.println(finishedCloudlets.size());
-
-
-
+        System.out.println(broker0.getVmCreatedList());
+        System.out.println(simulation.getLastCloudletProcessingUpdate());
 
 
     }
@@ -113,74 +114,71 @@ public class MyInfrastructureB {
      * Creates a Datacenter and its Hosts.
      */
     private Datacenter createDatacenter() {
-        final List<Host> hostList = new ArrayList<>(HOSTS_DUALCORE+HOSTS_QUADCORE);
-        for(int i = 0; i < HOSTS_DUALCORE; i++) {
-            Host host = createHostDualCore();
+        final List<Host> hostList = new ArrayList<>(HOSTS);
+        for(int i = 0; i < HOSTS; i++) {
+            Host host = createHost();
             hostList.add(host);
         }
-        for(int i = 0; i < HOSTS_QUADCORE; i++) {
-            Host host = createHostQuadCore();
-            hostList.add(host);
-        }
+
+        //Uses a VmAllocationPolicySimple by default to allocate VMs
         return new DatacenterSimple(simulation, hostList);
     }
 
-    private Host createHostDualCore() {
-        final List<Pe> peList = new ArrayList<>(2);
-        for (int i = 0; i < 2; i++) {
-            peList.add(new PeSimple(10000));
+    private Host createHost() {
+        final List<Pe> peList = new ArrayList<>(HOST_PES);
+        //List of Host's CPUs (Processing Elements, PEs)
+        for (int i = 0; i < HOST_PES; i++) {
+            //Uses a PeProvisionerSimple by default to provision PEs for VMs
+            peList.add(new PeSimple(1000));
         }
-        Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_SIZE, peList);
+
+        final long ram = 1600000; //in Megabytes
+        final long bw = 1000000; //in Megabits/s
+        final long storage = 100000000; //in Megabytes
+
+        /*
+        Uses ResourceProvisionerSimple by default for RAM and BW provisioning
+        and VmSchedulerSpaceShared for VM scheduling.
+        */
+        Host h = new HostSimple(ram, bw, storage, peList);
         h.setVmScheduler(new VmSchedulerTimeShared());
         return h;
     }
 
-    private Host createHostQuadCore() {
-        final List<Pe> peList = new ArrayList<>(4);
-        for (int i = 0; i < 4; i++) {
-            peList.add(new PeSimple(10000));
-        }
-        Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_SIZE, peList);
-        h.setVmScheduler(new VmSchedulerTimeShared());
-        return h;
-    }
-
+    /**
+     * Creates a list of VMs.
+     */
     private List<Vm> createVms() {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
             //Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
-            Random r = new Random();
-            int n = r.nextInt(11-1) + 1;
-            final Vm vm = new VmSimple( n * VM_MIPS, VM_PES);
-            vm.setRam(VM_RAM).setBw(VM_BW).setSize(VM_SIZE);
+            final Vm vm = new VmSimple(100, VM_PES);
+            vm.setRam(500).setBw(1000).setSize(10000);
             vm.setCloudletScheduler(new CloudletSchedulerTimeShared());
             list.add(vm);
         }
+
         return list;
     }
 
     /**
      * Creates a list of Cloudlets.
      */
-
-    private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, VM_MIPS);
-        reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
-        this.cloudletList = reader.generateWorkload();
-        System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());
-        return cloudletList;
-    }
-
     private List<Cloudlet> createCloudlets() {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
+
         //UtilizationModel defining the Cloudlets use only 50% of any resource all the time
+
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
+
         for (int i = 0; i < CLOUDLETS; i++) {
-            final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH, CLOUDLET_PES, utilizationModel);
+            long l = i*100;
+            final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH + l, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);
-            cloudlet.setSubmissionDelay(0);
+            cloudlet.setSubmissionDelay(10);
             list.add(cloudlet);
         }
+
         return list;
     }
 
@@ -203,28 +201,4 @@ public class MyInfrastructureB {
 
     }
 
-    private void limitCloudlets(int n){
-
-        List<Cloudlet> list = new ArrayList<>();
-
-        for (int i=0; i<n; i++){
-            list.add(cloudletList.get(i));
-        }
-
-        cloudletList = list;
-        System.out.println("Limited to "+cloudletList.size());
-
-    }
-
-    private void modifySubmissionTimes() {
-
-        double minSubdelay = cloudletList.get(0).getSubmissionDelay();
-        for (Cloudlet c : cloudletList
-        ) {
-            c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
-        }
-    }
-
-
 }
-

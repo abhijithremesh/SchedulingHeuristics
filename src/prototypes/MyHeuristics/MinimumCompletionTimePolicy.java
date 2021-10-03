@@ -61,6 +61,7 @@ public class MinimumCompletionTimePolicy {
                 }
             }
 
+            //cloudletList.get(cl).setLength(cloudletList.get(cl).getLength()* (long) vmList.get(vm).getMips());
             myBroker.bindCloudletToVm(cloudletList.get(cl), vmList.get(vm));
             //System.out.println(cloudletList.get(cl)+" is bound to "+vmList.get(vm)+" at MET: "+minCompTime);
         }
