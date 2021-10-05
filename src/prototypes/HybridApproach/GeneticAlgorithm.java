@@ -95,30 +95,58 @@ public class GeneticAlgorithm {
 
     }
 
-    public Double getGenerationAvgFittestValue (ArrayList<Double> fitnessList, String flag){
+    public Double getGenerationAvgFittestValue (ArrayList<Double> fitnessList){
 
         double generationAvgFittestValue = 0.0;
+        double generationSumFittestValue = 0.0;
+
         for (Double v:fitnessList
              ) {
-            generationAvgFittestValue = generationAvgFittestValue + v;
+            generationSumFittestValue = generationSumFittestValue + v;
         }
+        generationAvgFittestValue = generationSumFittestValue/fitnessList.size();
+        return ((double)Math.round(generationAvgFittestValue *  100.0)/100);
+    }
 
+    public Double getGenerationBestFittestValue (ArrayList<Double> fitnessList, String flag){
+        double generationBestFittestValue = 0.0;
+        if (flag == "min"){
+            generationBestFittestValue = Collections.min(fitnessList);
+        } else if (flag == "max") {
+            generationBestFittestValue = Collections.max(fitnessList);
+        }
+        return generationBestFittestValue;
+    }
 
-        return generationAvgFittestValue/fitnessList.size();
+    public ArrayList<Integer> getGenerationBestFittestSolutionCandidate (ArrayList<ArrayList> chromosomeList,ArrayList<Double> fitnessList, String flag){
+
+        double generationBestFittestValue = getGenerationBestFittestValue(fitnessList,flag);
+
+        ArrayList<Integer> generationBestFittestChromosome = chromosomeList.get(fitnessList.indexOf(generationBestFittestValue));
+
+        return generationBestFittestChromosome;
 
     }
 
-    //public ArrayList<Integer> getGenerationBestFittestSolutionCandidate (ArrayList<ArrayList> chromosomeList,ArrayList<Double> fitnessList, String flag){
+    public Double getBestFittestValue (ArrayList<Double> fitnessList, String flag){
+        double BestFittestValue = 0.0;
+        if (flag == "min"){
+            BestFittestValue = Collections.min(fitnessList);
+        } else if (flag == "max") {
+            BestFittestValue = Collections.max(fitnessList);
+        }
+        return BestFittestValue;
+    }
 
-    //    double generationBestFittestValue = getGenerationBestFittestValue(fitnessList,flag);
+    public ArrayList<Integer> getBestFittestSolutionCandidate (ArrayList<ArrayList> chromosomeList,ArrayList<Double> fitnessList, String flag){
 
-    //    ArrayList<Integer> generationBestFittestChromosome = chromosomeList.get(fitnessList.indexOf(generationBestFittestValue));
+        double BestFittestValue = getBestFittestValue(fitnessList,flag);
 
-    //    return generationBestFittestChromosome;
+        ArrayList<Integer> BestFittestChromosome = chromosomeList.get(fitnessList.indexOf(BestFittestValue));
 
-    //}
+        return BestFittestChromosome;
 
-
+    }
 
 
     public ArrayList<ArrayList> fittestEliteChromosome(ArrayList<Double> fitnessList, ArrayList<ArrayList> chromosomeList, int eliteCount, String flag) {
@@ -564,6 +592,8 @@ public class GeneticAlgorithm {
         return fitnessValue;
 
     }
+
+
 
 
 

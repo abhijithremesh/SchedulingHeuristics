@@ -43,7 +43,7 @@ import java.util.Random;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class InfrastructureAOne {
+public class InfrastructureAOneTwo {
 
     private static final double INTERVAL = 3600;
 
@@ -94,10 +94,10 @@ public class InfrastructureAOne {
     ArrayList<List<Cloudlet>> heuristicSpecificFinishedCloudletsList = new ArrayList<List<Cloudlet>>();
 
     public static void main(String[] args) {
-        new InfrastructureAOne();
+        new InfrastructureAOneTwo();
     }
 
-    private InfrastructureAOne() {
+    private InfrastructureAOneTwo() {
 
         Log.setLevel(Level.OFF);
 
@@ -138,8 +138,8 @@ public class InfrastructureAOne {
                 //cloudletList = createCloudlets();
                 cloudletList = createCloudletsFromWorkloadFile(100);
                 modifySubmissionTimes();
-                modifyLength();  // sets length = length * npe
-                modifyReqPes();  // sets the reqPE as 1
+                //modifyLength();  // sets length = length * npe
+                //modifyReqPes();  // sets the reqPE as 1
                 //nullifySubmissionTimes();
 
                 myBroker.submitVmList(vmList);

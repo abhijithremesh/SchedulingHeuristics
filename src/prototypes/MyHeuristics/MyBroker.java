@@ -129,10 +129,6 @@ public class MyBroker extends DatacenterBrokerSimple {
 
     public void selectSchedulingPolicy(int schedulingHeuristic, List<Vm> vmList){
         switch(schedulingHeuristic){
-            case 3:
-                System.out.println("Random");
-                this.Random(vmList);
-                break;
             case 0:
                 System.out.println("FCFS");
                 this.FirstComeFirstServe(vmList);
@@ -145,45 +141,45 @@ public class MyBroker extends DatacenterBrokerSimple {
                 System.out.println("LJF");
                 this.LongestJobFirst(vmList);
                 break;
-            case 4:
+            case 3:
                 System.out.println("LCFP");
                 this.LongestCloudletFastestPE(vmList);
                 break;
-            case 5:
+            case 4:
                 System.out.println("SCFP");
                 this.ShortestCloudletFastestPE(vmList);
                 break;
-            case 6:
+            case 5:
                 System.out.println("MAX-MIN");
                 this.MaxMin(vmList);
                 break;
-            case 7:
+            case 6:
                 System.out.println("MIN-MIN");
                 this.MinMin(vmList);
                 break;
-            case 8:
+            case 7:
                 System.out.println("Sufferage");
                 this.Sufferage(vmList);
                 break;
-            case 9:
+            case 8:
                 System.out.println("MET");
                 this.MinimumExecutionTime(vmList);
                 break;
-            case 10:
+            case 9:
                 System.out.println("MCT");
                 this.MinimumCompletionTime(vmList);
                 break;
-            case 11:
-                System.out.println("FCFS-FirstFit");
-                this.FirstComeFirstServeFirstFit(vmList);
-                break;
-            case 12:
+            case 10:
                 System.out.println("SJF-FirstFit");
                 this.ShortestJobFirstFirstFit(vmList);
                 break;
-            case 13:
+            case 11:
                 System.out.println("LJF-FirstFit");
                 this.LongestJobFirstFirstFit(vmList);
+                break;
+            case 12:
+                System.out.println("FCFS-FirstFit");
+                this.FirstComeFirstServeFirstFit(vmList);
                 break;
 
         }

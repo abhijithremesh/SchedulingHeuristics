@@ -109,8 +109,8 @@ public class InfrastructureAOne_Test {
         cloudletList = createCloudletsFromWorkloadFile(50);
         //nullifySubmissionTimes();
         modifySubmissionTimes();
-        //modifyLength();  // sets length = length * npe
-        //modifyReqPes();  // sets the reqPE as 1
+        modifyLength();  // sets length = length * npe
+        modifyReqPes();  // sets the reqPE as 1
 
         broker0.submitCloudletList(cloudletList);
         broker0.submitVmList(vmList);

@@ -85,14 +85,13 @@ public class BasicSyncStartWorkloadReader {
 
         simulation.startSync();
 
-        boolean alreadyExecuted = false;
+        //boolean alreadyExecuted = false;
 
         while(simulation.isRunning()){
 
             simulation.runFor(INTERVAL);
 
             simulation.pause(INTERVAL + simulation.clock());
-
 
         }
 

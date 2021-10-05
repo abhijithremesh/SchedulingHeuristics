@@ -35,6 +35,8 @@ public class RandomPolicy {
 
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){
+               //Vm v = c.getVm();
+                //c.setLength((long)(c.getLength()/v.getMips()));
                 c.setVm(Vm.NULL);}
         }
 

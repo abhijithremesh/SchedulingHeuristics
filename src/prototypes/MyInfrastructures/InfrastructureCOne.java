@@ -144,6 +144,14 @@ public class InfrastructureCOne {
                 myBroker.submitVmList(vmList);
                 myBroker.submitCloudletList(cloudletList);
 
+                solutionCandidate = solutionCandidatesList.get(i);
+                System.out.printf("%nSolution Candidate: "+solutionCandidate+"%n%n");
+
+                schedulingHeuristic = solutionCandidate.get(heuristicIndex-1);
+                System.out.println("Heuristic Switched to "+schedulingHeuristic);
+                myBroker.selectSchedulingPolicy(schedulingHeuristic,vmList);
+
+
                 simulation.addOnClockTickListener(this::pauseSimulation);
                 simulation.addOnSimulationPauseListener(this::switchSchedulingHeuristics);
 

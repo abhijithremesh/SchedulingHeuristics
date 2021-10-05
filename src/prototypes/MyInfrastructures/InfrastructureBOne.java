@@ -29,10 +29,7 @@ import org.cloudsimplus.examples.MyHeuristics.MyBroker;
 import org.cloudsimplus.listeners.EventInfo;
 import org.cloudsimplus.util.Log;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * A minimal but organized, structured and re-usable CloudSim Plus example
@@ -118,7 +115,7 @@ public class InfrastructureBOne {
         ArrayList<Double> generationBestFitnessValuesList = new ArrayList<Double>();
         ArrayList<Integer> generationBestSolutionCandidate = new ArrayList<>();
 
-        for (int generations = 0; generations < 2; generations++) {
+        for (int generations = 0; generations < 15; generations++) {
 
             ArrayList<Double> solutionCandidatesFitnessList = new ArrayList<>();
 
@@ -143,8 +140,8 @@ public class InfrastructureBOne {
                 //cloudletList = createCloudlets();
                 cloudletList = createCloudletsFromWorkloadFile(100);
                 modifySubmissionTimes();
-                //modifyLength();  // sets length = length * npe
-                //modifyReqPes();  // sets the reqPE as 1
+                modifyLength();  // sets length = length * npe
+                modifyReqPes();  // sets the reqPE as 1
 
                 myBroker.submitVmList(vmList);
                 myBroker.submitCloudletList(cloudletList);
@@ -188,6 +185,8 @@ public class InfrastructureBOne {
                 System.out.println("Total cloudlets processed: "+myBroker.getCloudletFinishedList().size());
                 System.out.println("Any cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
 
+
+
                 System.out.printf("%n***************** SOLUTION CANDIDATE "+i+" ENDS ****************%n");
 
             }
@@ -221,6 +220,8 @@ public class InfrastructureBOne {
             System.out.println("=================================== GENERATION "+generations+" EVOLVED ==========================================");
 
         }
+
+
 
     }
 
@@ -373,6 +374,17 @@ public class InfrastructureBOne {
             totalVmRunTime = totalVmRunTime + v.getTotalExecutionTime();
         }
 
+        /*
+        double degreeOfImb = 0.0;
+        List<Double> vmExecTimeList = new ArrayList<Double>();
+        for (Vm v:myBroker.getVmCreatedList() ) {
+            vmExecTimeList.add(v.getTotalExecutionTime());
+        }
+        degreeOfImb = (Collections.max(vmExecTimeList)+Collections.min(vmExecTimeList))/vmExecTimeList.stream().mapToDouble(d -> d).average().orElse(0.0);
+
+
+         */
+
         if (metric == "makespan") {
             metricValue = makespan;
             System.out.println("makespan: " + ((double)Math.round(metricValue *  100.0)/100));
@@ -403,7 +415,11 @@ public class InfrastructureBOne {
         } else if(metric == "processorUtilization"){
             metricValue = totalVmRunTime/simulation.getLastCloudletProcessingUpdate();
             System.out.println("processorUtilization: "+((double)Math.round(metricValue *  100.0)/100));
-        } else if(metric == "fitnessFunction"){
+        } else if(metric == "Throughput"){
+            metricValue = myBroker.getCloudletFinishedList().size()/totalExecutionTime;
+            System.out.println("Throughput: "+((double)Math.round(metricValue *  100.0)/100));
+        }
+        else if(metric == "fitnessFunction"){
             metricValue = makespan + (totalResponseTime / cloudletList.size());
             System.out.println("processorUtilization: "+((double)Math.round(metricValue *  100.0)/100));
         }
