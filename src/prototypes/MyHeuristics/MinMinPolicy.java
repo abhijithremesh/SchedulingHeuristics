@@ -30,6 +30,8 @@ public class MinMinPolicy {
 
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
 
+
+
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){
                 //Vm v = c.getVm();

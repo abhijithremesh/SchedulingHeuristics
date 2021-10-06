@@ -5,7 +5,7 @@ import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.vms.Vm;
-import org.cloudsimplus.examples.MaxMin;
+
 import org.cloudsimplus.examples.SchedulingHeuristicsCheck.FirstComeFirstServeCheck;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class CheckBroker extends DatacenterBrokerSimple {
     public void SCFPScheduleCheck(List<Cloudlet> cloudletList, List<Vm> vmList){
 
         ShortestCloudletFastestProcessingElementCheck scfp = new ShortestCloudletFastestProcessingElementCheck(cloudletList,vmList,this);
-        scfp.SCFPChecking1();
+        scfp.SCFPChecking2();
 
     }
 

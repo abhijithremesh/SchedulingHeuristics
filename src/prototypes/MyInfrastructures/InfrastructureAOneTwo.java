@@ -129,14 +129,14 @@ public class InfrastructureAOneTwo {
 
                 simulation = new CloudSim();
                 datacenter0 = createDatacenter();
-                datacenter0.setSchedulingInterval(100);
+                datacenter0.setSchedulingInterval(0.2);
 
                 //broker0 = new DatacenterBrokerSimple(simulation);
                 myBroker = new MyBroker(simulation);
 
                 vmList = createVms();
                 //cloudletList = createCloudlets();
-                cloudletList = createCloudletsFromWorkloadFile(100);
+                cloudletList = createCloudletsFromWorkloadFile(10);
                 modifySubmissionTimes();
                 //modifyLength();  // sets length = length * npe
                 //modifyReqPes();  // sets the reqPE as 1

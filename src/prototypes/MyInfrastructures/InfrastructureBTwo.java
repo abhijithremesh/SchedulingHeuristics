@@ -66,8 +66,8 @@ public class InfrastructureBTwo {
     private static final int CLOUDLET_LENGTH = 2000;
 
     private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = -1;
-    private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
-    //private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
+    //private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
+    private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
     //private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
 
     private CloudSim simulation;
@@ -142,7 +142,7 @@ public class InfrastructureBTwo {
 
                 vmList = createVms();
                 //cloudletList = createCloudlets();
-                cloudletList = createCloudletsFromWorkloadFile(98);
+                cloudletList = createCloudletsFromWorkloadFile(10);
                 modifySubmissionTimes();
                 //modifyLength();  // sets length = length * npe
                 //modifyReqPes();  // sets the reqPE as 1
@@ -177,7 +177,7 @@ public class InfrastructureBTwo {
 
                 System.out.println(myBroker.getVmCreatedList().size());
 
-                double fitness = evaluatePerformanceMetrics("makespan");
+                double fitness = evaluatePerformanceMetrics("avgExecutionTime");
 
                 System.out.println("Simulation Time: " + simulation.clock());
                 System.out.println("Total cloudlets processed: " + myBroker.getCloudletFinishedList().size());
@@ -188,8 +188,6 @@ public class InfrastructureBTwo {
 
                 System.out.println("Total cloudlets processed: "+myBroker.getCloudletFinishedList().size());
                 System.out.println("Any cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
-
-
 
                 System.out.printf("%n***************** SOLUTION CANDIDATE "+i+" ENDS ****************%n");
 
@@ -404,25 +402,25 @@ public class InfrastructureBTwo {
             metricValue = totalResponseTime;
             System.out.println("totalResponseTime: " + ((double)Math.round(metricValue *  100.0)/100));
         } else if (metric == "avgResponseTime") {
-            metricValue = totalResponseTime / cloudletList.size();
+            metricValue = totalResponseTime / myBroker.getCloudletFinishedList().size();
             System.out.println("avgResponseTime: " + ((double)Math.round(metricValue *  100.0)/100) );
         } else if (metric == "totalWaitingTime") {
             metricValue = totalWaitingTime;
             System.out.println("totalWaitingTime: " + ((double)Math.round(metricValue *  100.0)/100));
         } else if (metric == "avgWaitingTime") {
-            metricValue = totalWaitingTime / cloudletList.size();
+            metricValue = totalWaitingTime / myBroker.getCloudletFinishedList().size();
             System.out.println("avgWaitingTime: " + ((double)Math.round(metricValue *  100.0)/100) );
         } else if (metric == "totalExecutionTime"){
             metricValue = totalExecutionTime;
             System.out.println("Total Execution Time: "+((double)Math.round(metricValue *  100.0)/100) );
         } else if (metric == "avgExecutionTime"){
-            metricValue = totalExecutionTime/cloudletList.size();
+            metricValue = totalExecutionTime/myBroker.getCloudletFinishedList().size();
             System.out.println("avgExecutionTime: "+ ((double)Math.round(metricValue *  100.0)/100)  );
         } else if (metric == "totalVmRunTime"){
             metricValue = totalVmRunTime;
             System.out.println("totalVmRunTime: "+totalVmRunTime);
         } else if (metric == "SlowdownRatio") {
-            metricValue = (totalResponseTime / cloudletList.size()) / (totalExecutionTime / cloudletList.size());
+            metricValue = (totalResponseTime / myBroker.getCloudletFinishedList().size()) / (totalExecutionTime / myBroker.getCloudletFinishedList().size());
             System.out.println("SlowdownRatio: " +((double)Math.round(metricValue *  100.0)/100)  );
         } else if(metric == "processorUtilization"){
             metricValue = totalVmRunTime/simulation.getLastCloudletProcessingUpdate();
@@ -432,10 +430,10 @@ public class InfrastructureBTwo {
             System.out.println("Throughput: "+((double)Math.round(metricValue *  100.0)/100));
         }
         else if(metric == "fitnessFunctionThree"){
-            metricValue = makespan + (totalResponseTime / cloudletList.size()) + (totalExecutionTime / cloudletList.size()) ;
+            metricValue = makespan + (totalResponseTime / myBroker.getCloudletFinishedList().size()) + (totalExecutionTime / cloudletList.size()) ;
             System.out.println("fitnessFunction: "+((double)Math.round(metricValue *  100.0)/100));
         }else if(metric == "fitnessFunctionTwo"){
-            metricValue = makespan + (totalResponseTime / cloudletList.size()) ;
+            metricValue = makespan + (totalResponseTime / myBroker.getCloudletFinishedList().size()) ;
             System.out.println("fitnessFunction: "+((double)Math.round(metricValue *  100.0)/100));
         }
 

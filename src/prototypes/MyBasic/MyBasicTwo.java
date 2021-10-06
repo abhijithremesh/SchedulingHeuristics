@@ -23,6 +23,7 @@
  */
 package org.cloudsimplus.examples.MyBasic;
 
+import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
@@ -42,6 +43,7 @@ import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
+import org.cloudsimplus.util.Log;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,10 +64,10 @@ public class MyBasicTwo {
     private static final int HOSTS = 1;
     private static final int HOST_PES = 4;
 
-    private static final int VMS = 1;
-    private static final int VM_PES = 4;
+    private static final int VMS = 4;
+    private static final int VM_PES = 1;
 
-    private static final int CLOUDLETS = 10;
+    private static final int CLOUDLETS = 5;
     private static final int CLOUDLET_PES = 4;
     private static final int CLOUDLET_LENGTH = 1000;
 
@@ -74,6 +76,7 @@ public class MyBasicTwo {
     private List<Vm> vmList;
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
+    DummyBroker dummy;
 
     public static void main(String[] args) {
         new MyBasicTwo();
@@ -84,24 +87,34 @@ public class MyBasicTwo {
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
 
+        Log.setLevel(Level.OFF);
+
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
 
         //Creates a broker that is a software acting on behalf a cloud customer to manage his/her VMs and Cloudlets
-        broker0 = new DatacenterBrokerSimple(simulation);
+        //broker0 = new DatacenterBrokerSimple(simulation);
+        dummy = new DummyBroker(simulation);
 
         vmList = createVms();
         cloudletList = createCloudlets();
 
 
-        broker0.submitVmList(vmList);
-        broker0.submitCloudletList(cloudletList);
+        dummy.submitVmList(vmList);
+        dummy.submitCloudletList(cloudletList);
+
+        cloudletList.forEach(c->c.setVm(vmList.get(2)));
+
+        dummy.scheduleTasksToVms(vmList);
 
 
         simulation.start();
 
-        final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
+        System.out.println(dummy.getVmCreatedList());
+
+
+        final List<Cloudlet> finishedCloudlets = dummy.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
 
 

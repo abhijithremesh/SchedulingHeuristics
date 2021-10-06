@@ -45,7 +45,7 @@ public class HeuristicCheck {
 
     private static final int CLOUDLETS = 10 ;
     private static final int CLOUDLET_PES = 1;
-    private static final int CLOUDLET_LENGTH = 3000;
+    private static final int CLOUDLET_LENGTH = 1000;
 
     private CloudSim simulation;
     //private DatacenterBroker broker0;
@@ -172,7 +172,7 @@ public class HeuristicCheck {
         for (int i = 0; i < CLOUDLETS; i++) {
             //Random random = new Random();
             //int randomLength = random.nextInt(500);
-            customLength += 2;
+            customLength += 5;
             final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH + customLength, CLOUDLET_PES, utilizationModel);
             cloudlet.setSizes(1024);
             list.add(cloudlet);

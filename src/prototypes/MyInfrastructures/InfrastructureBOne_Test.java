@@ -107,17 +107,17 @@ public class InfrastructureBOne_Test {
 
         vmList = createVms();
         //cloudletList = createCloudlets();
-        cloudletList = createCloudletsFromWorkloadFile(100);
+        cloudletList = createCloudletsFromWorkloadFile(5000);
         //nullifySubmissionTimes();
         modifySubmissionTimes();
-        //modifyLength();  // sets length = length * npe
-        //modifyReqPes();  // sets the reqPE as 1
+        modifyLength();  // sets length = length * npe
+        modifyReqPes();  // sets the reqPE as 1
 
         myBroker.submitVmList(vmList);
         myBroker.submitCloudletList(cloudletList);
 
         //myBroker.Random(vmList);
-        //myBroker.FirstComeFirstServe(vmList);
+        myBroker.FirstComeFirstServe(vmList);
         //myBroker.LongestJobFirst(vmList);
         //myBroker.ShortestJobFirst(vmList);
         //myBroker.ShortestCloudletFastestPE(vmList);
@@ -126,7 +126,7 @@ public class InfrastructureBOne_Test {
         //myBroker.MinimumExecutionTime(vmList);
         //myBroker.MaxMin(vmList);
         //myBroker.MinMin(vmList);
-        myBroker.Sufferage(vmList);
+        //myBroker.Sufferage(vmList);
         //myBroker.ShortestJobFirstFirstFit(vmList);
         //myBroker.LongestJobFirstFirstFit(vmList);
 

@@ -23,6 +23,7 @@
  */
 package org.cloudsimplus.examples.MyBasic;
 
+import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
@@ -42,6 +43,7 @@ import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
+import org.cloudsimplus.util.Log;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,8 +61,8 @@ import java.util.List;
  * @since CloudSim Plus 1.0
  */
 public class MyBasicThree {
-    private static final int HOSTS = 2;
-    private static final int HOST_PES = 2;
+    private static final int HOSTS = 1;
+    private static final int HOST_PES = 40;
 
     private static final int VMS = 40;
     private static final int VM_PES = 1;
@@ -84,6 +86,9 @@ public class MyBasicThree {
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
 
+        Log.setLevel(Level.OFF);
+
+
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
@@ -98,14 +103,19 @@ public class MyBasicThree {
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
+        System.out.println(broker0.getVmCreatedList());
+
+
+
+
+        cloudletList.forEach(c-> System.out.println(c.getVm()));
+
         simulation.start();
 
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
 
 
-        System.out.println(broker0.getVmCreatedList());
-        System.out.println(simulation.getLastCloudletProcessingUpdate());
 
 
     }
@@ -154,7 +164,7 @@ public class MyBasicThree {
             //Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
             final Vm vm = new VmSimple(100, VM_PES);
             vm.setRam(500).setBw(1000).setSize(10000);
-            vm.setCloudletScheduler(new CloudletSchedulerTimeShared());
+            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
             list.add(vm);
         }
 

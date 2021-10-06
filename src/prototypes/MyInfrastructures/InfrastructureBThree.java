@@ -92,7 +92,7 @@ public class InfrastructureBThree {
         add(10000);
     } };
 
-    ArrayList<Integer> solutionCandidate = new ArrayList<>(Arrays.asList(6, 6, 4, 1, 2, 8, 0, 5, 3, 9, 2, 7, 0, 5, 9, 3, 7, 4, 8, 1, 2, 5, 4, 0));
+    ArrayList<Integer> solutionCandidate = new ArrayList<>(Arrays.asList(5, 8, 3, 1, 2, 4, 6, 0, 7, 2, 3, 4, 5, 7, 6, 9, 1, 8, 9, 0, 7, 7, 8, 3));
 
     ArrayList<List<Cloudlet>> heuristicSpecificFinishedCloudletsList = new ArrayList<List<Cloudlet>>();
 
@@ -115,7 +115,7 @@ public class InfrastructureBThree {
 
         vmList = createVms();
         //cloudletList = createCloudlets();
-        cloudletList = createCloudletsFromWorkloadFile(90);
+        cloudletList = createCloudletsFromWorkloadFile(80);
         modifySubmissionTimes();
         //modifyLength();  // sets length = length * npe
         //modifyReqPes();  // sets the reqPE as 1
