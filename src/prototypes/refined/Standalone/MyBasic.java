@@ -23,6 +23,7 @@
  */
 package org.cloudsimplus.examples.Standalone;
 
+import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
@@ -36,11 +37,13 @@ import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared;
+import org.cloudbus.cloudsim.util.SwfWorkloadFileReader;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.examples.HybridModel.MyBroker;
+import org.cloudsimplus.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,6 +70,8 @@ public class MyBasic {
 
     private static final int VMS = 4;
     private static final int VM_PES = 2;
+
+
     List<Integer> VM_MIPSList = new ArrayList<Integer>() {{
         add(1000);
         add(1050);
@@ -74,6 +79,16 @@ public class MyBasic {
         add(1150);
     } };
 
+
+
+  /*
+    List<Integer> VM_MIPSList = new ArrayList<Integer>() {{
+        add(1000);
+        add(1000);
+        add(1000);
+        add(1000);
+    } };
+   */
 
     private static final int CLOUDLETS = 12;
     private static final int CLOUDLET_PES = 2;
@@ -91,33 +106,33 @@ public class MyBasic {
     }
 
     private MyBasic() {
-        /*Enables just some level of log messages.
-          Make sure to import org.cloudsimplus.util.Log;*/
-        //Log.setLevel(ch.qos.logback.classic.Level.WARN);
+
+        Log.setLevel(Level.OFF);
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
 
-        //Creates a broker that is a software acting on behalf a cloud customer to manage his/her VMs and Cloudlets
-        //broker0 = new DatacenterBrokerSimple(simulation);
         broker0 = new MyBroker(simulation);
 
         vmList = createVmsSpaceShared();
         //vmList = createVmsTimeShared();
 
         cloudletList = createCloudlets();
+
+
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
 
         //broker0.Random(vmList);
         //broker0.RoundRobin(vmList);
-        //broker0.FirstComeFirstServe(vmList);
+        broker0.FirstComeFirstServe(vmList);
         //broker0.FirstComeFirstServeFirstFit(vmList);
         //broker0.ShortestJobFirst(vmList);
+        //broker0.ShortestCloudletFastestPE(vmList);
         //broker0.ShortestJobFirstFirstFit(vmList);
-        //broker0.LongestCloudletFastestPE(vmList);
         //broker0.LongestJobFirst(vmList);
+        //broker0.LongestCloudletFastestPE(vmList);
         //broker0.LongestJobFirstFirstFit(vmList);
         //broker0.LongestCloudletFastestPE(vmList);
         //broker0.MinimumCompletionTime(vmList);
@@ -125,7 +140,6 @@ public class MyBasic {
         //broker0.MaxMin(vmList);
         //broker0.MinMin(vmList);
         //broker0.Sufferage(vmList);
-
 
         simulation.start();
 
@@ -141,11 +155,12 @@ public class MyBasic {
 
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
+
+
+
     }
 
-    /**
-     * Creates a Datacenter and its Hosts.
-     */
+
     private Datacenter createDatacenter() {
         final List<Host> hostList = new ArrayList<>(HOSTS);
         for(int i = 0; i < HOSTS; i++) {
@@ -172,9 +187,6 @@ public class MyBasic {
         return new HostSimple(HOST_RAM, HOST_BW, HOST_STORAGE, peList);
     }
 
-    /**
-     * Creates a list of VMs.
-     */
     private List<Vm> createVmsSpaceShared() {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
@@ -200,9 +212,6 @@ public class MyBasic {
         return list;
     }
 
-    /**
-     * Creates a list of Cloudlets.
-     */
     private List<Cloudlet> createCloudlets() {
         final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
 
@@ -303,4 +312,8 @@ public class MyBasic {
         return metricValue;
 
     }
+
+
+
+
 }

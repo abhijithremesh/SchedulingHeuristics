@@ -3,7 +3,11 @@ package org.cloudsimplus.examples.HybridModel;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.vms.Vm;
 
+import java.util.Comparator;
 import java.util.List;
+
+import static java.util.Comparator.comparingDouble;
+import static java.util.Comparator.comparingLong;
 
 public class ShortestCloudletFastestPEPolicy {
 
@@ -19,19 +23,19 @@ public class ShortestCloudletFastestPEPolicy {
 
     public void schedule() {
 
+        List<Cloudlet> cloudletList;
+
         System.out.println("Scheduling with SCFP Policy");
 
-        System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
+        if (myBroker.getCloudletWaitingList().isEmpty()) {
+            cloudletList  = myBroker.getCloudletCreatedList();
+            cloudletList.removeAll(myBroker.getCloudletFinishedList());
+        } else {
+            cloudletList = myBroker.getCloudletWaitingList();
+            System.out.println("Cloudlets waiting: "+cloudletList.size());
+        }
 
-        myBroker.getCloudletCreatedList().removeAll(myBroker.getCloudletFinishedList());
-
-        System.out.println("Cloudlets remaining: "+myBroker.getCloudletCreatedList().size());
-
-        List<Cloudlet> cloudletList = myBroker.getCloudletCreatedList();
-
-        cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s1.getLength()-s2.getLength()));
-
-        vmList.sort((Vm v1, Vm v2)-> Math.toIntExact((long)(v2.getMips()-v1.getMips())));
+        System.out.println("Cloudlets remaining: "+cloudletList.size());
 
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){
@@ -39,6 +43,15 @@ public class ShortestCloudletFastestPEPolicy {
                 //c.setLength((long)(c.getLength()/v.getMips()));
                 c.setVm(Vm.NULL);}
         }
+
+        final Comparator<Cloudlet> sortByLength = comparingLong(cl -> cl.getLength());
+        final Comparator<Vm> sortByMIPS = comparingDouble(v -> v.getMips());
+        cloudletList.sort(sortByLength);
+        vmList.sort(sortByMIPS.reversed());
+
+        //cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s1.getLength()-s2.getLength()));
+        //vmList.sort((Vm v1, Vm v2)-> Math.toIntExact((long)(v2.getMips()-v1.getMips())));
+
 
         for(int i=0;i<cloudletList.size();i++){
 

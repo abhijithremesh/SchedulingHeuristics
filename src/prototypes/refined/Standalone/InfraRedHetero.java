@@ -42,11 +42,11 @@ public class InfraRedHetero {
 
     private static int VM_MIPS = 1000;
 
-    private static final int CLOUDLETS = 200;   // 100-1000
+    private static final int CLOUDLETS = 20;   // 100-1000
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 2000;
 
-    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 20000;
+    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 30;
     //private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz"; // 28476
     private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
     //private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
@@ -57,8 +57,6 @@ public class InfraRedHetero {
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
     private Datacenter datacenter1;
-    int heuristicIndex = 1;
-    int schedulingHeuristic;
     MyBroker broker0;
 
     List<Integer> VM_MIPS_list = new ArrayList<Integer>(){{
@@ -78,13 +76,11 @@ public class InfraRedHetero {
 
     private InfraRedHetero() {
 
-        Log.setLevel(Level.OFF);
+        Log.setLevel(Level.WARN);
 
         simulation = new CloudSim();
         datacenter0 = createDatacenterOne();
-        datacenter0.setSchedulingInterval(0.5);
         datacenter1 = createDatacenterTwo();
-        datacenter1.setSchedulingInterval(0.5);
 
         //broker0 = new DatacenterBrokerSimple(simulation);
         broker0 = new MyBroker(simulation);
@@ -92,18 +88,22 @@ public class InfraRedHetero {
         //vmList = createVmsSpaceShared();
         vmList = createVmsTimeShared();
 
-        cloudletList = createCloudlets();
-        //cloudletList = createCloudletsFromWorkloadFile();
-        modifySubmissionTimes();
+        //cloudletList = createCloudlets();
+        cloudletList = createCloudletsFromWorkloadFile();
+
+        considerSubmissionTimes(1);
+
+        //modifyCloudletsForSpaceShared();
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
         //broker0.Random(vmList);
         //broker0.RoundRobin(vmList);
-        //broker0.FirstComeFirstServe(vmList);
+        broker0.FirstComeFirstServe(vmList);
         //broker0.FirstComeFirstServeFirstFit(vmList);
         //broker0.ShortestJobFirst(vmList);
+        //broker0.ShortestCloudletFastestPE(vmList);
         //broker0.ShortestJobFirstFirstFit(vmList);
         //broker0.LongestCloudletFastestPE(vmList);
         //broker0.LongestJobFirst(vmList);
@@ -151,7 +151,7 @@ public class InfraRedHetero {
         System.out.println("finishedcloudlets: " + finishedCloudlets.size());
         System.out.println("vms_created: " + broker0.getVmCreatedList().size());
         System.out.println("simulation_time: "+simulation.getLastCloudletProcessingUpdate());
-        //new CloudletsTableBuilder(finishedCloudlets).build();
+        new CloudletsTableBuilder(finishedCloudlets).build();
 
 
 
@@ -210,7 +210,7 @@ public class InfraRedHetero {
     }
 
     private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, VM_MIPS);
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());
@@ -230,30 +230,23 @@ public class InfraRedHetero {
         return list;
     }
 
-    private void modifySubmissionTimes() {
-
-        double minSubdelay = cloudletList.get(0).getSubmissionDelay();
-        for (Cloudlet c : cloudletList
-        ) {
-            c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
-        }
+    private void modifyCloudletsForSpaceShared() {
+        cloudletList.forEach(c->c.setLength(c.getTotalLength()));
+        cloudletList.forEach(c->c.setNumberOfPes(1));
     }
 
-    private void modifyLength(){
-        for (Cloudlet c: cloudletList
-        ) {
-            long length = c.getLength();
-            long pes = c.getNumberOfPes();
-            c.setLength(length* pes);
+    private void considerSubmissionTimes(int n) {
 
+        if (n == 1) {
+            double minSubdelay = cloudletList.get(0).getSubmissionDelay();
+            for (Cloudlet c : cloudletList
+            ) {
+                c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
+            }
+        } else if (n == 0){
+            cloudletList.forEach(c->c.setSubmissionDelay(0));
         }
-    }
 
-    private void modifyReqPes(){
-        for (Cloudlet c : cloudletList
-        ) {
-            c.setNumberOfPes(1);
-        }
     }
 
     private double evaluatePerformanceMetrics(String metric) {

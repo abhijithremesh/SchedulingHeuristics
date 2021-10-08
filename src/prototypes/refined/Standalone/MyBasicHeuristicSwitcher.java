@@ -133,7 +133,6 @@ public class MyBasicHeuristicSwitcher {
 
             solutionCandidate = solutionCandidatesList.get(i);
             System.out.printf("%nSolution Candidate: "+solutionCandidate+"%n%n");
-
             schedulingHeuristic = solutionCandidate.get(heuristicIndex);
             System.out.println("Heuristic Switched to "+schedulingHeuristic);
             broker0.selectSchedulingPolicy(schedulingHeuristic,vmList);

@@ -40,7 +40,7 @@ import java.util.*;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class InfrastructureRedHetero {
+public class InfrastructureRedHeteroNew {
 
     private static final double INTERVAL = 3600;
 
@@ -77,6 +77,8 @@ public class InfrastructureRedHetero {
     int schedulingHeuristic;
     MyBroker broker0;
 
+    HashMap<Long, Long> cloudletLengthsMap = new HashMap<Long, Long>();
+
     List<Integer> VM_MIPS_list = new ArrayList<Integer>(){{
         add(500);
         add(1000);
@@ -92,10 +94,10 @@ public class InfrastructureRedHetero {
     ArrayList<List<Cloudlet>> heuristicSpecificFinishedCloudletsList = new ArrayList<List<Cloudlet>>();
 
     public static void main(String[] args) {
-        new InfrastructureRedHetero();
+        new InfrastructureRedHeteroNew();
     }
 
-    private InfrastructureRedHetero() {
+    private InfrastructureRedHeteroNew() {
 
         Log.setLevel(Level.OFF);
 
@@ -114,7 +116,7 @@ public class InfrastructureRedHetero {
         ArrayList<Integer> generationBestSolutionCandidate = new ArrayList<>();
         ArrayList<ArrayList> generationBestSolutionCandidateList = new ArrayList<>();
 
-        for (int generations = 0; generations < 20; generations++) {
+        for (int generations = 0; generations < 1; generations++) {
 
             ArrayList<Double> solutionCandidatesFitnessList = new ArrayList<>();
 
@@ -254,6 +256,7 @@ public class InfrastructureRedHetero {
             postSimulationHeuristicSpecificFinishedCloudlets(broker0);
             System.out.printf("Total Cloudlets processed: "+broker0.getCloudletFinishedList().size()+"%n");
             cloudletList.removeAll(broker0.getCloudletFinishedList());
+            restoreCloudletLengths();
             System.out.printf("Remaining Cloudlets: "+cloudletList.size()+"%n%n");
         }
     }
@@ -311,10 +314,11 @@ public class InfrastructureRedHetero {
     }
 
     private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 100);
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());
+        storeCloudletLengths();
         return cloudletList;
     }
 
@@ -349,7 +353,6 @@ public class InfrastructureRedHetero {
         }
 
     }
-
 
     private double evaluatePerformanceMetrics(String metric) {
 
@@ -463,4 +466,19 @@ public class InfrastructureRedHetero {
 
     }
 
+    public void storeCloudletLengths(){
+        for (Cloudlet c : cloudletList
+        ) {
+            cloudletLengthsMap.put(c.getId(),c.getLength());
+        }
+
+    }
+
+    public void restoreCloudletLengths(){
+        for (Cloudlet c : cloudletList
+        ) {
+            c.setLength(cloudletLengthsMap.get(c.getId()));
+        }
+
+    }
 }

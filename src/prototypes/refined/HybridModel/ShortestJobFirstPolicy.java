@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static java.util.Comparator.comparingLong;
+
 
 public class ShortestJobFirstPolicy {
 
@@ -36,7 +38,10 @@ public class ShortestJobFirstPolicy {
 
         System.out.println("Cloudlets remaining: "+cloudletList.size());
 
-        cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s1.getLength()-s2.getLength()));
+        final Comparator<Cloudlet> sortBylength = comparingLong(cl -> cl.getLength());
+        cloudletList.sort(sortBylength);
+
+        //cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s1.getLength()-s2.getLength()));
 
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){
@@ -49,7 +54,7 @@ public class ShortestJobFirstPolicy {
 
             Cloudlet cl = cloudletList.get(i);
             Vm vm = vmList.get((i % vmList.size()));
-            //cl.setLength(cl.getLength()* (long) vm.getMips());
+            //cl.setLength(cl.getTotalLength()* (long) vm.getMips());
             myBroker.bindCloudletToVm(cl,vm);
 
         }

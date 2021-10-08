@@ -3,7 +3,10 @@ package org.cloudsimplus.examples.HybridModel;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.vms.Vm;
 
+import java.util.Comparator;
 import java.util.List;
+
+import static java.util.Comparator.comparingLong;
 
 public class LongestJobFirstPolicy {
 
@@ -33,7 +36,10 @@ public class LongestJobFirstPolicy {
 
         System.out.println("Cloudlets remaining: "+cloudletList.size());
 
-        cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s2.getLength()-s1.getLength()));
+        final Comparator<Cloudlet> sortBylength = comparingLong(cl -> cl.getLength());
+        cloudletList.sort(sortBylength.reversed());
+
+        //cloudletList.sort((Cloudlet s1, Cloudlet s2)-> Math.toIntExact(s2.getLength()-s1.getLength()));
 
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){

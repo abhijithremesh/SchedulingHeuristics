@@ -87,7 +87,8 @@ public class MinMinPolicy {
             //System.out.println("Minimum Cloudlet: " + minimumCloudlet);
             //System.out.println("Minimum VM: " + minimumVm);
 
-
+            System.out.println(minimumCloudlet.getLength());
+            System.out.println(minimumVm.getMips());
             //minimumCloudlet.setLength(minimumCloudlet.getLength()* (long) minimumVm.getMips());
 
             // Binding the cloudlet to the respective VM

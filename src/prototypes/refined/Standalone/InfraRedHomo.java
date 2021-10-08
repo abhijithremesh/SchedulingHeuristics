@@ -46,7 +46,7 @@ public class InfraRedHomo {
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 500;
 
-    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 10;
+    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 30;
     private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
 
     private CloudSim simulation;
@@ -63,14 +63,12 @@ public class InfraRedHomo {
 
     private InfraRedHomo() {
 
-        Log.setLevel(Level.OFF);
+        Log.setLevel(Level.WARN);
 
         simulation = new CloudSim();
 
         datacenter0 = createDatacenterOne();
-        datacenter0.setSchedulingInterval(1.5);
         datacenter1 = createDatacenterTwo();
-        datacenter1.setSchedulingInterval(1.5);
 
         broker0 = new MyBroker(simulation);
 
@@ -79,7 +77,10 @@ public class InfraRedHomo {
 
         //cloudletList = createCloudlets();
         cloudletList = createCloudletsFromWorkloadFile();
-        modifySubmissionTimes();
+
+        considerSubmissionTimes(1);
+
+       //modifyCloudletsForSpaceShared();
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
@@ -132,7 +133,7 @@ public class InfraRedHomo {
         System.out.println("finishedcloudlets: " + finishedCloudlets.size());
         System.out.println("vms_created: " + broker0.getVmCreatedList().size());
         System.out.println("simulation_time: "+simulation.getLastCloudletProcessingUpdate());
-        //new CloudletsTableBuilder(finishedCloudlets).build();
+        new CloudletsTableBuilder(finishedCloudlets).build();
 
 
     }
@@ -201,19 +202,30 @@ public class InfraRedHomo {
     }
 
     private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1000);
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());
         return cloudletList;
     }
 
-    private void modifySubmissionTimes() {
-        double minSubdelay = cloudletList.get(0).getSubmissionDelay();
-        for (Cloudlet c : cloudletList
-        ) {
-            c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
+    private void modifyCloudletsForSpaceShared() {
+        cloudletList.forEach(c->c.setLength(c.getTotalLength()));
+        cloudletList.forEach(c->c.setNumberOfPes(1));
+    }
+
+    private void considerSubmissionTimes(int n) {
+
+        if (n == 1) {
+            double minSubdelay = cloudletList.get(0).getSubmissionDelay();
+            for (Cloudlet c : cloudletList
+            ) {
+                c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
+            }
+        } else if (n == 0){
+            cloudletList.forEach(c->c.setSubmissionDelay(0));
         }
+
     }
 
     private double evaluatePerformanceMetrics(String metric) {

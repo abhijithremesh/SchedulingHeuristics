@@ -132,7 +132,10 @@ public class InfrastructureGreenHetero {
 
                 //cloudletList = createCloudlets();
                 cloudletList = createCloudletsFromWorkloadFile();
-                modifySubmissionTimes();
+
+                considerSubmissionTimes(1);
+
+                //modifyCloudletsForSpaceShared();
 
                 broker0.submitVmList(vmList);
                 broker0.submitCloudletList(cloudletList);
@@ -338,13 +341,23 @@ public class InfrastructureGreenHetero {
         return list;
     }
 
-    private void modifySubmissionTimes() {
+    private void modifyCloudletsForSpaceShared() {
+        cloudletList.forEach(c->c.setLength(c.getTotalLength()));
+        cloudletList.forEach(c->c.setNumberOfPes(1));
+    }
 
-        double minSubdelay = cloudletList.get(0).getSubmissionDelay();
-        for (Cloudlet c : cloudletList
-        ) {
-            c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
+    private void considerSubmissionTimes(int n) {
+
+        if (n == 1) {
+            double minSubdelay = cloudletList.get(0).getSubmissionDelay();
+            for (Cloudlet c : cloudletList
+            ) {
+                c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
+            }
+        } else if (n == 0){
+            cloudletList.forEach(c->c.setSubmissionDelay(0));
         }
+
     }
 
     public void postSimulationHeuristicSpecificFinishedCloudlets(MyBroker broker0) {
