@@ -19,6 +19,7 @@ import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.examples.HybridModel.MyBroker;
+import org.cloudsimplus.examples.HybridStrategy.MyHeuristicBroker;
 import org.cloudsimplus.examples.Infrastructures.InfrastructureRedHomo;
 import org.cloudsimplus.util.Log;
 
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class InfraRedHomo {
+public class InfraRedHomoNew {
 
     private static final int HOSTS = 2;
     private static final int HOST_PES = 2;
@@ -55,13 +56,13 @@ public class InfraRedHomo {
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
     private Datacenter datacenter1;
-    MyBroker broker0;
+    MyHeuristicBroker broker0;
 
     public static void main(String[] args) {
-        new InfraRedHomo();
+        new InfraRedHomoNew();
     }
 
-    private InfraRedHomo() {
+    private InfraRedHomoNew() {
 
         Log.setLevel(Level.WARN);
 
@@ -70,7 +71,7 @@ public class InfraRedHomo {
         datacenter0 = createDatacenterOne();
         datacenter1 = createDatacenterTwo();
 
-        broker0 = new MyBroker(simulation);
+        broker0 = new MyHeuristicBroker(simulation);
 
         //vmList = createVmsSpaceShared();
         vmList = createVmsTimeShared();
@@ -80,7 +81,7 @@ public class InfraRedHomo {
 
         considerSubmissionTimes(1);
 
-       //modifyCloudletsForSpaceShared();
+        //modifyCloudletsForSpaceShared();
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
@@ -202,7 +203,7 @@ public class InfraRedHomo {
     }
 
     private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 100);
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());

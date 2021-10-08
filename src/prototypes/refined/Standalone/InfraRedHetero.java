@@ -210,7 +210,7 @@ public class InfraRedHetero {
     }
 
     private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 100);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());

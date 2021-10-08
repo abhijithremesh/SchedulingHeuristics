@@ -1,7 +1,6 @@
 package org.cloudsimplus.examples.Standalone;
 
 import ch.qos.logback.classic.Level;
-import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicyRoundRobin;
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
@@ -19,8 +18,7 @@ import org.cloudbus.cloudsim.util.SwfWorkloadFileReader;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
-import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
-import org.cloudsimplus.examples.HybridModel.GeneticAlgorithm;
+import org.cloudsimplus.examples.HybridModel.GeneticAlgorithmOne;
 import org.cloudsimplus.examples.HybridModel.MyBroker;
 import org.cloudsimplus.listeners.EventInfo;
 import org.cloudsimplus.util.Log;
@@ -93,7 +91,7 @@ public class InfraGreenHeteroSwitcher {
 
         Log.setLevel(Level.OFF);
 
-        GeneticAlgorithm ga = new GeneticAlgorithm();
+        GeneticAlgorithmOne ga = new GeneticAlgorithmOne();
         ArrayList<ArrayList> solutionCandidatesList = ga.createInitialPopulation(1, 10);
         System.out.println("initialPopulation: " + solutionCandidatesList);
 

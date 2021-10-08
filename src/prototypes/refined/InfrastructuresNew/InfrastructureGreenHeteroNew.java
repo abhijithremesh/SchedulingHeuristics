@@ -1,4 +1,4 @@
-package org.cloudsimplus.examples.Infrastructures;
+package org.cloudsimplus.examples.InfrastructuresNew;
 
 import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicySimple;
@@ -19,15 +19,18 @@ import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.examples.HybridModel.GeneticAlgorithmOne;
+import org.cloudsimplus.examples.HybridModel.GeneticAlgorithmTwo;
 import org.cloudsimplus.examples.HybridModel.MyBroker;
+import org.cloudsimplus.examples.HybridStrategy.MyHeuristicBroker;
 import org.cloudsimplus.listeners.EventInfo;
 import org.cloudsimplus.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
-public class InfrastructureGreenHetero {
+public class InfrastructureGreenHeteroNew {
 
     private static final double INTERVAL = 3600;
 
@@ -60,9 +63,11 @@ public class InfrastructureGreenHetero {
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
     private Datacenter datacenter1;
-    MyBroker broker0;
+    MyHeuristicBroker broker0;
     int heuristicIndex;
     int schedulingHeuristic;
+
+    HashMap<Long, Long> cloudletLengthsMap = new HashMap<Long, Long>();
 
     List<Integer> VM_MIPSList = new ArrayList<Integer>() {
         {
@@ -82,16 +87,16 @@ public class InfrastructureGreenHetero {
     ArrayList<List<Cloudlet>> heuristicSpecificFinishedCloudletsList = new ArrayList<List<Cloudlet>>();
 
     public static void main(String[] args) {
-        new InfrastructureGreenHetero();
+        new InfrastructureGreenHeteroNew();
     }
 
-    private InfrastructureGreenHetero() {
+    private InfrastructureGreenHeteroNew() {
 
         Log.setLevel(Level.OFF);
 
         // Generating Initial Population
-        GeneticAlgorithmOne ga = new GeneticAlgorithmOne();
-        ArrayList<ArrayList> solutionCandidatesList = ga.createInitialPopulation(10, 10);
+        GeneticAlgorithmTwo ga = new GeneticAlgorithmTwo();
+        ArrayList<ArrayList> solutionCandidatesList = ga.createInitialPopulation(1, 10);
         System.out.println("initialPopulation: " + solutionCandidatesList);
 
         // Identifying and Storing the best solution candidates of each generation
@@ -104,7 +109,7 @@ public class InfrastructureGreenHetero {
         ArrayList<Integer> generationBestSolutionCandidate = new ArrayList<>();
         ArrayList<ArrayList> generationBestSolutionCandidateList = new ArrayList<>();
 
-        for (int generations = 0; generations < 25; generations++) {
+        for (int generations = 0; generations < 1; generations++) {
 
             ArrayList<Double> solutionCandidatesFitnessList = new ArrayList<>();
 
@@ -124,7 +129,7 @@ public class InfrastructureGreenHetero {
                 datacenter1 = createDatacenterTwo();
                 datacenter1.setSchedulingInterval(10);
 
-                broker0 = new MyBroker(simulation);
+                broker0 = new MyHeuristicBroker(simulation);
 
                 //vmList = createVmsSpaceShared();
                 vmList = createVmsTimeShared();
@@ -132,7 +137,7 @@ public class InfrastructureGreenHetero {
                 //cloudletList = createCloudlets();
                 cloudletList = createCloudletsFromWorkloadFile();
 
-                considerSubmissionTimes(1);
+                considerSubmissionTimes(0);
 
                 //modifyCloudletsForSpaceShared();
 
@@ -187,7 +192,7 @@ public class InfrastructureGreenHetero {
             System.out.println("solutionCandidatesListSize: " + solutionCandidatesList.size());
             System.out.println("solutionCandidatesFitnessListSize: " + solutionCandidatesFitnessList.size());
 
-
+/*
             generationAvgFittestValue = ga.getGenerationAvgFittestValue(solutionCandidatesFitnessList);
             generationAvgFitnessValuesList.add(generationAvgFittestValue);
             generationBestFittestValue = ga.getGenerationBestFittestValue(solutionCandidatesFitnessList,"min");
@@ -218,6 +223,8 @@ public class InfrastructureGreenHetero {
             System.out.println("=================================== GENERATION "+generations+" EVOLVED ==========================================");
 
 
+ */
+
 
 
         }
@@ -241,6 +248,7 @@ public class InfrastructureGreenHetero {
             postSimulationHeuristicSpecificFinishedCloudlets(broker0);
             System.out.printf("Total Cloudlets processed: " + broker0.getCloudletFinishedList().size() + "%n");
             cloudletList.removeAll(broker0.getCloudletFinishedList());
+            restoreCloudletLengths();
             System.out.printf("Remaining Cloudlets: " + cloudletList.size() + "%n%n");
         }
     }
@@ -320,10 +328,11 @@ public class InfrastructureGreenHetero {
     }
 
     private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 100);
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());
+        storeCloudletLengths();
         return cloudletList;
     }
 
@@ -340,11 +349,6 @@ public class InfrastructureGreenHetero {
         return list;
     }
 
-    private void modifyCloudletsForSpaceShared() {
-        cloudletList.forEach(c->c.setLength(c.getTotalLength()));
-        cloudletList.forEach(c->c.setNumberOfPes(1));
-    }
-
     private void considerSubmissionTimes(int n) {
 
         if (n == 1) {
@@ -359,7 +363,12 @@ public class InfrastructureGreenHetero {
 
     }
 
-    public void postSimulationHeuristicSpecificFinishedCloudlets(MyBroker broker0) {
+    private void modifyCloudletsForSpaceShared() {
+        cloudletList.forEach(c->c.setLength(c.getTotalLength()));
+        cloudletList.forEach(c->c.setNumberOfPes(1));
+    }
+
+    public void postSimulationHeuristicSpecificFinishedCloudlets(MyHeuristicBroker broker0) {
 
         List<Cloudlet> allFinishedCloudlets = broker0.getCloudletFinishedList();
         heuristicSpecificFinishedCloudletsList.add(allFinishedCloudlets);
@@ -463,6 +472,22 @@ public class InfrastructureGreenHetero {
 
         //return ((double)Math.round(metricValue *  100.0)/100);
         return metricValue;
+
+    }
+
+    public void storeCloudletLengths(){
+        for (Cloudlet c : cloudletList
+        ) {
+            cloudletLengthsMap.put(c.getId(),c.getLength());
+        }
+
+    }
+
+    public void restoreCloudletLengths(){
+        for (Cloudlet c : cloudletList
+        ) {
+            c.setLength(cloudletLengthsMap.get(c.getId()));
+        }
 
     }
 

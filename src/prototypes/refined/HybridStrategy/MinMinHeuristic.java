@@ -1,4 +1,4 @@
-package org.cloudsimplus.examples.HybridModel;
+package org.cloudsimplus.examples.HybridStrategy;
 
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.vms.Vm;
@@ -6,12 +6,12 @@ import org.cloudbus.cloudsim.vms.Vm;
 import java.util.List;
 import java.util.Random;
 
-public class MinMinPolicy {
+public class MinMinHeuristic {
 
-    MyBroker myBroker;
+    MyHeuristicBroker myBroker;
     List<Vm> vmList;
 
-    MinMinPolicy (MyBroker myBroker, List<Vm> vmList){
+    MinMinHeuristic (MyHeuristicBroker myBroker, List<Vm> vmList){
 
         this.myBroker = myBroker;
         this.vmList = vmList;
@@ -89,7 +89,7 @@ public class MinMinPolicy {
 
             //System.out.println(minimumCloudlet.getLength());
             //System.out.println(minimumVm.getMips());
-            //minimumCloudlet.setLength(minimumCloudlet.getLength()* (long) minimumVm.getMips());
+            minimumCloudlet.setLength(minimumCloudlet.getLength()* (long) minimumVm.getMips());
 
             // Binding the cloudlet to the respective VM
             myBroker.bindCloudletToVm(minimumCloudlet, minimumVm);
