@@ -1,7 +1,6 @@
-package org.cloudsimplus.examples.InfraGreen;
+package org.cloudsimplus.examples.MySample;
 
 import ch.qos.logback.classic.Level;
-import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicyRoundRobin;
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
@@ -19,15 +18,15 @@ import org.cloudbus.cloudsim.util.SwfWorkloadFileReader;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
-import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.examples.HybridModel.MyBroker;
+import org.cloudsimplus.examples.HybridStrategy.MyHeuristicBroker;
 import org.cloudsimplus.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class InfraGreenFCFSSpace {
+public class InfraGreenSpaceShared {
 
     private static final int HOSTS_DUALCORE = 1;
     private static final int HOSTS_QUADCORE = 1;
@@ -43,11 +42,11 @@ public class InfraGreenFCFSSpace {
 
     private static int VM_MIPS;
 
-    private static final int CLOUDLETS = 500;  // limit:1200
+    private static final int CLOUDLETS = 2000;  // limit:1200
     private static final int CLOUDLET_PES = 1;
-    private static final int CLOUDLET_LENGTH = 5000;
+    private static final int CLOUDLET_LENGTH = 100;
 
-    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = Integer.MAX_VALUE;
+    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = Integer.MAX_VALUE; // Integer.MAX_VALUE
     //private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
     private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
     //private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
@@ -75,10 +74,10 @@ public class InfraGreenFCFSSpace {
 
 
     public static void main(String[] args) {
-        new InfraGreenFCFSSpace();
+        new InfraGreenSpaceShared();
     }
 
-    private InfraGreenFCFSSpace() {
+    private InfraGreenSpaceShared() {
 
         Log.setLevel(Level.WARN);
 
@@ -93,21 +92,24 @@ public class InfraGreenFCFSSpace {
 
         //cloudletList = createCloudlets();
         cloudletList = createCloudletsFromWorkloadFile();
-        modifySubmissionTimes();
-        modifyLength();
-        modifyReqPes();
 
+        considerSubmissionTimes(1);
+
+        modifyCloudletsForSpaceShared();
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
+        specifyVmDestructionDelayAtBroker();
+
+
         //broker0.Random(vmList);
-        broker0.FirstComeFirstServe(vmList);
+        //broker0.FirstComeFirstServe(vmList);
         //broker0.LongestJobFirst(vmList);
         //broker0.ShortestJobFirst(vmList);
         //broker0.ShortestCloudletFastestPE(vmList);
         //broker0.LongestCloudletFastestPE(vmList);
-        //broker0.MinimumCompletionTime(vmList);
+        broker0.MinimumCompletionTime(vmList);
         //broker0.MinimumExecutionTime(vmList);
         //broker0.MaxMin(vmList);
         //broker0.MinMin(vmList);
@@ -127,17 +129,17 @@ public class InfraGreenFCFSSpace {
         double totalVmCost = evaluatePerformanceMetrics("totalVmCost");
         double throughput = evaluatePerformanceMetrics("throughput");
 
-        System.out.println(datacenter0.getHostList());
-        System.out.println(datacenter1.getHostList());
+        //System.out.println(datacenter0.getHostList());
+        //System.out.println(datacenter1.getHostList());
 
         List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         System.out.println("finished cloudlets: "+finishedCloudlets.size());
         System.out.println("vms created: "+broker0.getVmCreatedList().size());
         System.out.println("simulation_time: "+simulation.getLastCloudletProcessingUpdate());
 
+        broker0.getCloudletSubmittedList().removeAll(broker0.getCloudletFinishedList());
+
         //new CloudletsTableBuilder(finishedCloudlets).build();
-
-
 
     }
 
@@ -171,10 +173,11 @@ public class InfraGreenFCFSSpace {
         return new DatacenterSimple(simulation, hostList, new VmAllocationPolicySimple());
     }
 
-    private Host createHostDualCore() {
+    private Host createHostDualCore()
+    {
         final List<Pe> peList = new ArrayList<>(2);
         for (int i = 0; i < 2; i++) {
-            peList.add(new PeSimple(500000)); //10000 500000
+            peList.add(new PeSimple(200000)); //10000 500000 100000
         }
         Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_SIZE, peList);
         h.setVmScheduler(new VmSchedulerTimeShared());
@@ -184,7 +187,7 @@ public class InfraGreenFCFSSpace {
     private Host createHostQuadCore() {
         final List<Pe> peList = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
-            peList.add(new PeSimple(250000)); // 10000 250000
+            peList.add(new PeSimple(200000)); // 10000 250000 200000
         }
         Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_SIZE, peList);
         h.setVmScheduler(new VmSchedulerTimeShared());
@@ -206,7 +209,7 @@ public class InfraGreenFCFSSpace {
     private List<Vm> createVmsSpaceShared() {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            VM_MIPS = VM_MIPSList.get(i%10);
+            VM_MIPS = VM_MIPSList.get(i % 10);
             final Vm vm = new VmSimple(VM_MIPS, VM_PES);
             vm.setRam(VM_RAM).setBw(VM_BW).setSize(VM_SIZE);
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
@@ -234,15 +237,6 @@ public class InfraGreenFCFSSpace {
             list.add(cloudlet);
         }
         return list;
-    }
-
-    private void modifySubmissionTimes() {
-
-        double minSubdelay = cloudletList.get(0).getSubmissionDelay();
-        for (Cloudlet c : cloudletList
-        ) {
-            c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
-        }
     }
 
     private double evaluatePerformanceMetrics(String metric) {
@@ -330,22 +324,33 @@ public class InfraGreenFCFSSpace {
 
     }
 
-    private void modifyLength(){
-        for (Cloudlet c: cloudletList
-        ) {
-            long length = c.getLength();
-            long pes = c.getNumberOfPes();
-            c.setLength(length* pes);
-
-        }
+    private void modifyCloudletsForSpaceShared() {
+        cloudletList.forEach(c->c.setLength(c.getTotalLength()));
+        cloudletList.forEach(c->c.setNumberOfPes(1));
     }
 
-    private void modifyReqPes(){
-        for (Cloudlet c : cloudletList
-        ) {
-            c.setNumberOfPes(1);
+    private void considerSubmissionTimes(int n) {
+
+        if (n == 1) {
+            double minSubdelay = cloudletList.get(0).getSubmissionDelay();
+            for (Cloudlet c : cloudletList
+            ) {
+                c.setSubmissionDelay(c.getSubmissionDelay() - minSubdelay);
+            }
+        } else if (n == 0){
+            cloudletList.forEach(c->c.setSubmissionDelay(0));
         }
+
     }
+
+    private void specifyVmDestructionDelayAtBroker(){
+        double delay = cloudletList.get(cloudletList.size()-1).getSubmissionDelay();
+        delay = delay > simulation.getMinTimeBetweenEvents() ? delay : simulation.getMinTimeBetweenEvents() + 1;
+        System.out.println("Myran delay :"+delay);
+        broker0.setVmDestructionDelay(delay);
+    }
+
+
 
 
 

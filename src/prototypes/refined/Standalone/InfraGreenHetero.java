@@ -49,8 +49,8 @@ public class InfraGreenHetero {
 
     private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 30;
     //private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
-    private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
-    //private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
+    //private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
+    private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
 
     private CloudSim simulation;
     //private DatacenterBroker broker0;
@@ -100,7 +100,7 @@ public class InfraGreenHetero {
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
-        //broker0.Random(vmList);
+        broker0.Random(vmList);
         //broker0.FirstComeFirstServe(vmList);
         //broker0.LongestJobFirst(vmList);
         //broker0.ShortestJobFirst(vmList);
@@ -110,7 +110,7 @@ public class InfraGreenHetero {
         //broker0.MinimumExecutionTime(vmList);
         //broker0.MaxMin(vmList);
         //broker0.MinMin(vmList);
-        broker0.Sufferage(vmList);
+        //broker0.Sufferage(vmList);
         //broker0.ShortestJobFirstFirstFit(vmList);
         //broker0.LongestJobFirstFirstFit(vmList);
 
@@ -181,7 +181,7 @@ public class InfraGreenHetero {
     private Host createHostDualCore() {
         final List<Pe> peList = new ArrayList<>(2);
         for (int i = 0; i < 2; i++) {
-            peList.add(new PeSimple(500000)); //10000 500000
+            peList.add(new PeSimple(200000)); //10000 500000 200000
         }
         Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_SIZE, peList);
         h.setVmScheduler(new VmSchedulerTimeShared());
@@ -191,7 +191,7 @@ public class InfraGreenHetero {
     private Host createHostQuadCore() {
         final List<Pe> peList = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
-            peList.add(new PeSimple(250000)); // 10000 250000
+            peList.add(new PeSimple(200000)); // 10000 250000 200000
         }
         Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_SIZE, peList);
         h.setVmScheduler(new VmSchedulerTimeShared());

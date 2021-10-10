@@ -25,7 +25,7 @@ public class LongestCloudletFastestPEPolicy {
 
         List<Cloudlet> cloudletList;
 
-        System.out.println("Scheduling with SCFP Policy");
+        System.out.println("Scheduling with LCFP Policy");
 
         if (myBroker.getCloudletWaitingList().isEmpty()) {
             cloudletList  = myBroker.getCloudletCreatedList();

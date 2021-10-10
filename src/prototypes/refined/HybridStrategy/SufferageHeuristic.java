@@ -108,7 +108,8 @@ public class SufferageHeuristic {
             Cloudlet maximumsufferageCloudlet = cloudletList.get(maxsufferageCloudlet);
             Vm minimumVm = vmList.get(minVm);
 
-            maximumsufferageCloudlet.setLength(maximumsufferageCloudlet.getLength()* (long) minimumVm.getMips());
+
+
 
             // Binding the respective cloudlet to the respective VM
             myBroker.bindCloudletToVm(maximumsufferageCloudlet, minimumVm);
@@ -131,6 +132,14 @@ public class SufferageHeuristic {
 
             //System.out.println("*********************************");
 
+        }
+
+        for (Cloudlet c : cloudletList
+             ) {
+            if(c.isBoundToVm()){
+                Vm v = c.getVm();
+                c.setLength(c.getLength()* (long) v.getMips());
+            }
         }
 
 
