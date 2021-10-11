@@ -89,7 +89,7 @@ public class MinMinHeuristic {
 
             //System.out.println(minimumCloudlet.getLength());
             //System.out.println(minimumVm.getMips());
-            minimumCloudlet.setLength(minimumCloudlet.getLength()* (long) minimumVm.getMips());
+            //minimumCloudlet.setLength(minimumCloudlet.getLength()* (long) minimumVm.getMips());
 
             // Binding the cloudlet to the respective VM
             myBroker.bindCloudletToVm(minimumCloudlet, minimumVm);
@@ -113,6 +113,14 @@ public class MinMinHeuristic {
             //System.out.println(Arrays.deepToString(completionTime));
 
 
+        }
+
+        for (Cloudlet c : cloudletList
+        ) {
+            if(c.isBoundToVm()){
+                Vm v = c.getVm();
+                c.setLength(c.getLength()* (long) v.getMips());
+            }
         }
 
 

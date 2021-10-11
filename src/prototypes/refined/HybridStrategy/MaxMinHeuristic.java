@@ -35,7 +35,7 @@ public class MaxMinHeuristic {
 
     public void schedule(){
 
-        System.out.println("Scheduling with MIN_MIN Policy");
+        System.out.println("Scheduling with MAX_MIN Policy");
 
         System.out.println("Cloudlets waiting: "+myBroker.getCloudletWaitingList().size());
 
@@ -45,12 +45,14 @@ public class MaxMinHeuristic {
 
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
 
+        /*
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){
                 //Vm v = c.getVm();
                 //c.setLength((long)(c.getLength()/v.getMips()));
                 c.setVm(Vm.NULL);}
         }
+         */
 
         // Getting the amount of cloudlets and VMs
         int noOfVms = vmList.size();
@@ -98,7 +100,7 @@ public class MaxMinHeuristic {
             //System.out.println("Maximum Cloudlet: " + maximumCloudlet);
             //System.out.println("Minimum VM: " + minimumVm);
 
-            maximumCloudlet.setLength(maximumCloudlet.getLength()* (long) minimumVm.getMips());
+            //maximumCloudlet.setLength(maximumCloudlet.getLength()* (long) minimumVm.getMips());
 
             // Binding the respetcive cloudlet to the respective VM
             myBroker.bindCloudletToVm(maximumCloudlet, minimumVm);
@@ -123,10 +125,13 @@ public class MaxMinHeuristic {
 
         }
 
-
-
-
-
+        for (Cloudlet c : cloudletList
+        ) {
+            if(c.isBoundToVm()){
+                Vm v = c.getVm();
+                c.setLength(c.getLength()* (long) v.getMips());
+            }
+        }
 
     }
 
