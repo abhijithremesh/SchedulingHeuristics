@@ -30,10 +30,13 @@ public class MinimumExecutionTimePolicy {
 
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
 
+        /*
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){
                 c.setVm(Vm.NULL);}
         }
+
+         */
 
         double executionTime[][] = new double[cloudletList.size()][vmList.size()];
 

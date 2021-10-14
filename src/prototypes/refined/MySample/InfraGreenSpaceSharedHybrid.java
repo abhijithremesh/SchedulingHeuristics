@@ -50,7 +50,7 @@ public class InfraGreenSpaceSharedHybrid {
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 2000;
 
-    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 300;
+    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 800;
     //private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz"; // 28476
     private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
     //private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
@@ -107,7 +107,7 @@ public class InfraGreenSpaceSharedHybrid {
         ArrayList<Integer> generationBestSolutionCandidate = new ArrayList<>();
         ArrayList<ArrayList> generationBestSolutionCandidateList = new ArrayList<>();
 
-        for (int generations = 0; generations < 20 ; generations++) {
+        for (int generations = 0; generations < 10 ; generations++) {
 
             ArrayList<Double> solutionCandidatesFitnessList = new ArrayList<>();
 

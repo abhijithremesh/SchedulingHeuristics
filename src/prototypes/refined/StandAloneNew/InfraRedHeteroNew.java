@@ -1,4 +1,4 @@
-package org.cloudsimplus.examples.Standalone;
+package org.cloudsimplus.examples.StandAloneNew;
 
 import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
@@ -12,6 +12,7 @@ import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared;
+import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.util.SwfWorkloadFileReader;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
@@ -22,6 +23,7 @@ import org.cloudsimplus.examples.HybridModel.MyBroker;
 import org.cloudsimplus.examples.HybridStrategy.MyHeuristicBroker;
 import org.cloudsimplus.examples.Infrastructures.InfrastructureRedHetero;
 import org.cloudsimplus.util.Log;
+import java.util.concurrent.ThreadLocalRandom;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,15 +33,15 @@ public class InfraRedHeteroNew {
 
     private static final int HOSTS = 2;
     private static final int HOST_PES = 2;
-    private static final int HOST_RAM = 20000;
-    private static final int HOST_BW = 100000;
-    private static final int HOST_SIZE = 1000000;
+    private static final int HOST_RAM = 20_000;
+    private static final int HOST_BW = 10_000;
+    private static final int HOST_SIZE = 1000_000;
 
     private static final int VMS = 25;
     private static final int VM_PES = 2;
-    private static int VM_RAM = 1000;  // 128 - 15360
-    private static int VM_BW = 1000; // 128 - 15360
-    private static final int VM_SIZE = 10000;
+    private static int VM_RAM = 128;  // 128 - 15360
+    private static int VM_BW = 128; // 128 - 15360
+    private static final int VM_SIZE = 10_000;
 
     private static int VM_MIPS = 1000;
 
@@ -47,7 +49,7 @@ public class InfraRedHeteroNew {
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 2000;
 
-    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 30;
+    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 100;
     //private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz"; // 28476
     private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
     //private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
@@ -58,7 +60,7 @@ public class InfraRedHeteroNew {
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
     private Datacenter datacenter1;
-    MyHeuristicBroker broker0;
+    MyBroker broker0;
 
     List<Integer> VM_MIPS_list = new ArrayList<Integer>(){{
         add(500);
@@ -77,24 +79,24 @@ public class InfraRedHeteroNew {
 
     private InfraRedHeteroNew() {
 
-        Log.setLevel(Level.WARN);
+        Log.setLevel(Level.INFO);
 
         simulation = new CloudSim();
         datacenter0 = createDatacenterOne();
         datacenter1 = createDatacenterTwo();
 
         //broker0 = new DatacenterBrokerSimple(simulation);
-        broker0 = new MyHeuristicBroker(simulation);
+        broker0 = new MyBroker(simulation);
 
-        //vmList = createVmsSpaceShared();
-        vmList = createVmsTimeShared();
+        vmList = createVmsSpaceShared();
+        //vmList = createVmsTimeShared();
 
         //cloudletList = createCloudlets();
         cloudletList = createCloudletsFromWorkloadFile();
 
-        considerSubmissionTimes(1);
+        considerSubmissionTimes(0);
 
-        //modifyCloudletsForSpaceShared();
+        modifyCloudletsForSpaceShared();
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
@@ -114,9 +116,11 @@ public class InfraRedHeteroNew {
         //broker0.MinimumExecutionTime(vmList);
         //broker0.MaxMin(vmList);
         //broker0.MinMin(vmList);
-        broker0.Sufferage(vmList);
+        //broker0.Sufferage(vmList);
+
 
         simulation.start();
+
 
         /*
                 -makespan
@@ -134,25 +138,28 @@ public class InfraRedHeteroNew {
                 -throughput
          */
 
-        System.out.println(datacenter0.getHostList());
-        System.out.println(datacenter1.getHostList());
+
+       vmList.forEach(v-> System.out.println(v.getId()+" "+v.getMips()+" "+v.getNumberOfPes()));
+       //cloudletList.forEach(c-> System.out.println(c.getLength()));
+
+        System.out.println("vms_created: " + broker0.getVmCreatedList().size());
+
 
         double makespan = evaluatePerformanceMetrics("makespan");
-        double avgResponseTime = evaluatePerformanceMetrics("avgResponseTime");
-        double avgWaitingTime = evaluatePerformanceMetrics("avgWaitingTime");
-        double avgExecutionTime = evaluatePerformanceMetrics("avgExecutionTime");
-        double SlowdownRatio = evaluatePerformanceMetrics("SlowdownRatio");
-        double totalVmRunTime = evaluatePerformanceMetrics("totalVmRunTime");
-        double degreeOfImbalance = evaluatePerformanceMetrics("degreeOfImbalance");
-        double totalVmCost = evaluatePerformanceMetrics("totalVmCost");
-        double throughput = evaluatePerformanceMetrics("throughput");
-
-
+        //double degreeOfImbalance = evaluatePerformanceMetrics("degreeOfImbalance");
+        //double totalVmCost = evaluatePerformanceMetrics("totalVmCost");
+        //double throughput = evaluatePerformanceMetrics("throughput");
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         System.out.println("finishedcloudlets: " + finishedCloudlets.size());
         System.out.println("vms_created: " + broker0.getVmCreatedList().size());
         System.out.println("simulation_time: "+simulation.getLastCloudletProcessingUpdate());
         new CloudletsTableBuilder(finishedCloudlets).build();
+
+
+
+
+
+
 
 
 
@@ -179,17 +186,25 @@ public class InfraRedHeteroNew {
     private Host createHost() {
         final List<Pe> peList = new ArrayList<>(HOST_PES);
         for (int i = 0; i < HOST_PES; i++) {
-            peList.add(new PeSimple(75000));
+            peList.add(new PeSimple(40000));
         }
         Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_SIZE, peList);
-        h.setVmScheduler(new VmSchedulerTimeShared());
+        h.setVmScheduler(new VmSchedulerSpaceShared());
         return h;
     }
 
     private List<Vm> createVmsSpaceShared() {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            VM_MIPS = VM_MIPS_list.get(i%7);
+            //VM_MIPS = 1000;
+            //VM_BW =  1000;
+            //VM_RAM = 1000;
+            //VM_MIPS = 256 + 1000 * i;
+            //VM_BW =  128 + 1000 * i;
+            //VM_RAM = 128 + 1000 * i;
+            //VM_MIPS = ThreadLocalRandom.current().nextInt(256, 30720 + 1);
+            //VM_BW = ThreadLocalRandom.current().nextInt(128, 15360 + 1);
+            //VM_RAM = ThreadLocalRandom.current().nextInt(128, 15360 + 1);
             final Vm vm = new VmSimple(VM_MIPS, VM_PES);
             vm.setRam(VM_RAM).setBw(VM_BW).setSize(VM_SIZE);
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
@@ -201,7 +216,9 @@ public class InfraRedHeteroNew {
     private List<Vm> createVmsTimeShared() {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            VM_MIPS = VM_MIPS_list.get(i%7);
+            VM_MIPS = 256 + 100 * i;
+            VM_BW =  128 + 100 * i;
+            VM_RAM = 128 + 100 * i;
             final Vm vm = new VmSimple(VM_MIPS , VM_PES);
             vm.setRam(VM_RAM).setBw(VM_BW).setSize(VM_SIZE);
             vm.setCloudletScheduler(new CloudletSchedulerTimeShared());
@@ -232,7 +249,7 @@ public class InfraRedHeteroNew {
     }
 
     private void modifyCloudletsForSpaceShared() {
-        cloudletList.forEach(c->c.setLength(c.getTotalLength()));
+        //cloudletList.forEach(c->c.setLength(c.getTotalLength()));
         cloudletList.forEach(c->c.setNumberOfPes(1));
     }
 

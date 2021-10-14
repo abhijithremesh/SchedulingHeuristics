@@ -29,10 +29,13 @@ public class MinimumCompletionTimePolicy {
 
         List<Cloudlet> cloudletList = myBroker.getCloudletSubmittedList();
 
+        /*
         for (Cloudlet c : cloudletList) {
             if (c.isBoundToVm() == true){
                 c.setVm(Vm.NULL);}
         }
+
+         */
 
         double completionTime[][] = new double[cloudletList.size()][vmList.size()];
 
@@ -44,7 +47,7 @@ public class MinimumCompletionTimePolicy {
                 time=getCompletionTime(cloudletList.get(i),vmList.get(j));
                 time = Math.round(time*100.0)/100.0;
                 completionTime[i][j] = time;
-                //System.out.println("Completion Time Cloudlet"+i+"-VM"+j+" : "+completionTime[i][j]);
+                //System.out.println("Execution Time Cloudlet"+i+"-VM"+j+" : "+completionTime[i][j]);
             }
         }
 

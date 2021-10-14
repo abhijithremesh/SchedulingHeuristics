@@ -18,6 +18,7 @@ import org.cloudbus.cloudsim.util.SwfWorkloadFileReader;
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
+import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.examples.HybridModel.MyBroker;
 import org.cloudsimplus.examples.HybridStrategy.MyHeuristicBroker;
 import org.cloudsimplus.util.Log;
@@ -25,6 +26,8 @@ import org.cloudsimplus.util.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InfraGreenSpaceShared {
 
@@ -46,10 +49,10 @@ public class InfraGreenSpaceShared {
     private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 100;
 
-    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = Integer.MAX_VALUE; // Integer.MAX_VALUE
+    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 100; // Integer.MAX_VALUE
     //private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
-    private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
-    //private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
+    //private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
+    private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
 
     private CloudSim simulation;
     //private DatacenterBroker broker0;
@@ -57,7 +60,7 @@ public class InfraGreenSpaceShared {
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
     private Datacenter datacenter1;
-    MyBroker broker0;
+    MyHeuristicBroker broker0;
 
     List<Integer> VM_MIPSList = new ArrayList<Integer>() {{
         add(1000);
@@ -65,11 +68,11 @@ public class InfraGreenSpaceShared {
         add(3000);
         add(4000);
         add(5000);
-        add(6000);
-        add(7000);
-        add(8000);
-        add(9000);
-        add(10000);
+        //add(6000);
+        //add(7000);
+        //add(8000);
+        //add(9000);
+        //add(10000);
     } };
 
 
@@ -85,10 +88,10 @@ public class InfraGreenSpaceShared {
         datacenter0 = createDatacenterOne();
         datacenter1 = createDatacenterTwo();
 
-        broker0 = new MyBroker(simulation);
+        broker0 = new MyHeuristicBroker(simulation);
 
-        vmList = createVmsSpaceShared();
-        //vmList = createVmsTimeShared();
+        //vmList = createVmsSpaceShared();
+        vmList = createVmsTimeShared();
 
         //cloudletList = createCloudlets();
         cloudletList = createCloudletsFromWorkloadFile();
@@ -104,12 +107,12 @@ public class InfraGreenSpaceShared {
 
 
         //broker0.Random(vmList);
-        //broker0.FirstComeFirstServe(vmList);
+        broker0.FirstComeFirstServe(vmList);
         //broker0.LongestJobFirst(vmList);
         //broker0.ShortestJobFirst(vmList);
         //broker0.ShortestCloudletFastestPE(vmList);
         //broker0.LongestCloudletFastestPE(vmList);
-        broker0.MinimumCompletionTime(vmList);
+        //broker0.MinimumCompletionTime(vmList);
         //broker0.MinimumExecutionTime(vmList);
         //broker0.MaxMin(vmList);
         //broker0.MinMin(vmList);
@@ -119,7 +122,9 @@ public class InfraGreenSpaceShared {
 
         simulation.start();
 
+
         double makespan = evaluatePerformanceMetrics("makespan");
+        double responseTime = evaluatePerformanceMetrics("responseTime");
         double avgResponseTime = evaluatePerformanceMetrics("avgResponseTime");
         double avgWaitingTime = evaluatePerformanceMetrics("avgWaitingTime");
         double avgExecutionTime = evaluatePerformanceMetrics("avgExecutionTime");
@@ -139,7 +144,7 @@ public class InfraGreenSpaceShared {
 
         broker0.getCloudletSubmittedList().removeAll(broker0.getCloudletFinishedList());
 
-        //new CloudletsTableBuilder(finishedCloudlets).build();
+        new CloudletsTableBuilder(finishedCloudlets).build();
 
     }
 
@@ -155,7 +160,8 @@ public class InfraGreenSpaceShared {
             //host.setId(2);
             hostList.add(host);
         }
-        return new DatacenterSimple(simulation, hostList, new VmAllocationPolicySimple());
+        Datacenter d = new DatacenterSimple(simulation, hostList, new VmAllocationPolicySimple());
+        return d;
     }
 
     private Datacenter createDatacenterTwo() {
@@ -170,11 +176,11 @@ public class InfraGreenSpaceShared {
             hostList.add(host);
             //host.setId(4);
         }
-        return new DatacenterSimple(simulation, hostList, new VmAllocationPolicySimple());
+        Datacenter d = new DatacenterSimple(simulation, hostList, new VmAllocationPolicySimple());
+        return d;
     }
 
-    private Host createHostDualCore()
-    {
+    private Host createHostDualCore() {
         final List<Pe> peList = new ArrayList<>(2);
         for (int i = 0; i < 2; i++) {
             peList.add(new PeSimple(200000)); //10000 500000 100000
@@ -197,7 +203,7 @@ public class InfraGreenSpaceShared {
     private List<Vm> createVmsTimeShared() {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            VM_MIPS = VM_MIPSList.get(i%10);
+            VM_MIPS = VM_MIPSList.get(i%5);
             final Vm vm = new VmSimple(VM_MIPS , VM_PES);
             vm.setRam(VM_RAM).setBw(VM_BW).setSize(VM_SIZE);
             vm.setCloudletScheduler(new CloudletSchedulerTimeShared());
@@ -219,7 +225,7 @@ public class InfraGreenSpaceShared {
     }
 
     private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 100);
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());
@@ -255,6 +261,9 @@ public class InfraGreenSpaceShared {
             totalExecutionTime = totalExecutionTime + c.getActualCpuTime();
 
         }
+
+        Cloudlet firstCloudlet = broker0.getCloudletFinishedList().get(0);
+        double responseTime = firstCloudlet.getFinishTime() - firstCloudlet.getArrivalTime(firstCloudlet.getVm().getHost().getDatacenter());
 
         double totalVmRunTime = 0.0;
         for (Vm v : vmList
@@ -317,6 +326,9 @@ public class InfraGreenSpaceShared {
         } else if (metric == "throughput") {
             metricValue = throughput;
             System.out.println("throughput: " + ((double) Math.round(metricValue * 100.0) / 100));
+        } else if (metric == "responseTime") {
+            metricValue = responseTime;
+            System.out.println("responseTime: " + ((double) Math.round(metricValue * 100.0) / 100));
         }
 
         //return ((double)Math.round(metricValue *  100.0)/100);
@@ -325,7 +337,7 @@ public class InfraGreenSpaceShared {
     }
 
     private void modifyCloudletsForSpaceShared() {
-        cloudletList.forEach(c->c.setLength(c.getTotalLength()));
+        //cloudletList.forEach(c->c.setLength(c.getTotalLength()));
         cloudletList.forEach(c->c.setNumberOfPes(1));
     }
 
@@ -349,6 +361,28 @@ public class InfraGreenSpaceShared {
         System.out.println("Myran delay :"+delay);
         broker0.setVmDestructionDelay(delay);
     }
+
+    private void totalHostMIPSCapacity(){
+        List<Host> totalHostList = Stream.concat(datacenter0.getHostList().stream(), datacenter1.getHostList().stream())
+            .collect(Collectors.toList());
+        double totalHostMIPSCapacity = 0.0;
+        for (Host h: totalHostList
+        ) {
+            totalHostMIPSCapacity += h.getTotalMipsCapacity();
+        }
+        System.out.println(totalHostMIPSCapacity);
+    }
+
+    private void totalVmMIPSCapacity(){
+        double totalVmMIPSCapacity = 0.0;
+        for (Vm v: broker0.getVmCreatedList()
+        ) {
+            totalVmMIPSCapacity += v.getTotalMipsCapacity();
+        }
+        System.out.println(totalVmMIPSCapacity);
+    }
+
+
 
 
 

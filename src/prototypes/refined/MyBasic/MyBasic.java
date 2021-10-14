@@ -87,8 +87,8 @@ public class MyBasic {
     } };
    */
 
-    private static final int CLOUDLETS = 12;
-    private static final int CLOUDLET_PES = 2;
+    private static final int CLOUDLETS = 7;
+    private static final int CLOUDLET_PES = 1;
     private static final int CLOUDLET_LENGTH = 10_000;
 
     private final CloudSim simulation;
@@ -123,7 +123,7 @@ public class MyBasic {
 
         //broker0.Random(vmList);
         //broker0.RoundRobin(vmList);
-        broker0.FirstComeFirstServe(vmList);
+        //broker0.FirstComeFirstServe(vmList);
         //broker0.FirstComeFirstServeFirstFit(vmList);
         //broker0.ShortestJobFirst(vmList);
         //broker0.ShortestCloudletFastestPE(vmList);
@@ -133,7 +133,7 @@ public class MyBasic {
         //broker0.LongestJobFirstFirstFit(vmList);
         //broker0.LongestCloudletFastestPE(vmList);
         //broker0.MinimumCompletionTime(vmList);
-        //broker0.MinimumExecutionTime(vmList);
+        broker0.MinimumExecutionTime(vmList);
         //broker0.MaxMin(vmList);
         //broker0.MinMin(vmList);
         //broker0.Sufferage(vmList);
