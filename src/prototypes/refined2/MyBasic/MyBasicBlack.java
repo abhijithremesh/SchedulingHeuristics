@@ -21,7 +21,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with CloudSim Plus. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cloudsimplus.examples.Neo;
+package org.cloudsimplus.examples.MyBasic;
 
 import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
@@ -69,34 +69,27 @@ import java.util.stream.Stream;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class InfraBlack {
+public class MyBasicBlack {
 
-    private static final int  HOSTS = 20;
+    private static final int  HOSTS = 1;
     private static final int  HOST_PES = 128;
     private static final int  HOST_RAM = 1024; //in Megabytes
     private static final long HOST_BW = 1000; //in Megabits/s
     private static final long HOST_STORAGE = 100_000; //in Megabytes
-    private static final int  HOST_MIPS = 5000;
+    private static final int  HOST_MIPS = 1000;
 
-    private static final int VMS = 20;
+    private static final int VMS = 1;
     private static final int VM_PES = 128;
     private static final int VM_RAM = 1024; //in Megabytes
     private static final long VM_BW = 1000; //in Megabits/s
     private static final long VM_STORAGE = 100_000; //in Megabytes
-    private static int VM_MIPS;
-
-    List<Integer> VM_MIPSList = new ArrayList<Integer>() {{
-        add(1000);
-        add(2000);
-        add(3000);
-        add(4000);
-    } };
+    private static int VM_MIPS = 1000;
 
     private static final int CLOUDLETS = 100;
     private static final int CLOUDLET_PES = 128;
     private static final int CLOUDLET_LENGTH = 10_000;
 
-    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 30; // Integer.MAX_VALUE
+    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 10; // Integer.MAX_VALUE
     //private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
     //private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
     private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
@@ -109,10 +102,10 @@ public class InfraBlack {
 
 
     public static void main(String[] args) {
-        new InfraBlack();
+        new MyBasicBlack();
     }
 
-    private InfraBlack() {
+    private MyBasicBlack() {
 
         Log.setLevel(Level.INFO);
 
@@ -219,7 +212,6 @@ public class InfraBlack {
     private List<Vm> createVmsSpaceShared() {
         final List<Vm> list = new ArrayList<>(VMS);
         for (int i = 0; i < VMS; i++) {
-            VM_MIPS = VM_MIPSList.get(i % 4);
             final Vm vm = new VmSimple(VM_MIPS, VM_PES);
             vm.setRam(VM_RAM).setBw(VM_BW).setSize(VM_STORAGE);
             vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
@@ -230,7 +222,7 @@ public class InfraBlack {
 
     private List<Cloudlet> createCloudletsFromWorkloadFile() {
         final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
-        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
+        SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, VM_MIPS);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
         //cloudletList.forEach(c->c.setNumberOfPes(128));

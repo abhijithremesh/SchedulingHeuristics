@@ -27,10 +27,8 @@ import ch.qos.logback.classic.Level;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
-import org.cloudbus.cloudsim.cloudlets.CloudletExecution;
 import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.core.events.SimEvent;
 import org.cloudbus.cloudsim.datacenters.Datacenter;
 import org.cloudbus.cloudsim.datacenters.DatacenterSimple;
 import org.cloudbus.cloudsim.hosts.Host;
@@ -38,7 +36,6 @@ import org.cloudbus.cloudsim.hosts.HostSimple;
 import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.resources.PeSimple;
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
-import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.schedulers.vm.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.util.SwfWorkloadFileReader;
@@ -48,8 +45,6 @@ import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 import org.cloudsimplus.examples.HybridModel.MyBroker;
 import org.cloudsimplus.examples.HybridStrategy.MyHeuristicBroker;
-import org.cloudsimplus.listeners.CloudletVmEventInfo;
-import org.cloudsimplus.listeners.EventInfo;
 import org.cloudsimplus.util.Log;
 
 import java.util.ArrayList;
@@ -69,8 +64,7 @@ import java.util.stream.Stream;
  * @author Manoel Campos da Silva Filho
  * @since CloudSim Plus 1.0
  */
-public class InfraBlack {
-
+public class InfraGrey {
     private static final int  HOSTS = 20;
     private static final int  HOST_PES = 128;
     private static final int  HOST_RAM = 1024; //in Megabytes
@@ -92,11 +86,11 @@ public class InfraBlack {
         add(4000);
     } };
 
-    private static final int CLOUDLETS = 100;
-    private static final int CLOUDLET_PES = 128;
+    private static final int CLOUDLETS = 4;
+    private static final int CLOUDLET_PES = 2;
     private static final int CLOUDLET_LENGTH = 10_000;
 
-    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 30; // Integer.MAX_VALUE
+    private int maximumNumberOfCloudletsToCreateFromTheWorkloadFile = 100; // Integer.MAX_VALUE
     //private static final String WORKLOAD_FILENAME = "workload/swf/KTH-SP2-1996-2.1-cln.swf.gz";
     //private static final String WORKLOAD_FILENAME = "workload/swf/HPC2N-2002-2.2-cln.swf.gz";     // 202871
     private static final String WORKLOAD_FILENAME = "workload/swf/NASA-iPSC-1993-3.1-cln.swf.gz";  // 18239
@@ -105,38 +99,35 @@ public class InfraBlack {
     private List<Vm> vmList;
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
-    DatacenterBroker broker0;
+    MyBroker broker0;
 
 
     public static void main(String[] args) {
-        new InfraBlack();
+        new InfraGrey();
     }
 
-    private InfraBlack() {
+    private InfraGrey() {
 
         Log.setLevel(Level.INFO);
 
         simulation = new CloudSim();
         datacenter0 = createDatacenter();
-        //datacenter0.setSchedulingInterval(0.0);
+        datacenter0.setSchedulingInterval(1);
 
-        broker0 = new DatacenterBrokerSimple(simulation);
-
+        broker0 = new MyBroker(simulation);
 
         vmList = createVmsSpaceShared();
 
         //cloudletList = createCloudlets();
         cloudletList = createCloudletsFromWorkloadFile();
 
-
         considerSubmissionTimes(0);
+
+
 
         broker0.submitVmList(vmList);
         broker0.submitCloudletList(cloudletList);
 
-        //simulation.addOnClockTickListener(this::getStatus);
-
-        //cloudletList.forEach();
         //broker0.Random(vmList);
         //broker0.FirstComeFirstServe(vmList);
         //broker0.LongestJobFirst(vmList);
@@ -151,19 +142,13 @@ public class InfraBlack {
         //broker0.ShortestJobFirstFirstFit(vmList);
         //broker0.LongestJobFirstFirstFit(vmList);
 
-        //Cloudlet c = cloudletList.get(28);
-        //c.addOnStartListener(this::cloudletStared);
-        //c.addOnUpdateProcessingListener(this::cloudletUpdated);
-        //c.addOnFinishListener(this::cloudletFinished);
-
         simulation.start();
-
-        cloudletList.forEach(c-> System.out.println(c.getId()+" "+c.getLength()+" "+c.getNumberOfPes()));
 
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
 
         totalHostMIPSCapacity();
         totalVmMIPSCapacity();
+
 
         System.out.println(datacenter0.getHostList());
 
@@ -175,22 +160,6 @@ public class InfraBlack {
         double throughput = evaluatePerformanceMetrics("throughput");
 
 
-
-        //((VmSimple) cloudlet.getVm()).addExpectedFreePesNumber(cloudlet.getNumberOfPes());
-
-        //printOverSubscriptionDelay();
-
-        /*
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-
-        System.out.println("Printing the stack trace...");
-        for(StackTraceElement st : stackTrace)
-        {
-            // print the stack trace
-            System.out.println(st);
-        }
-
-         */
 
 
 
@@ -212,7 +181,7 @@ public class InfraBlack {
             peList.add(new PeSimple(HOST_MIPS));
         }
         Host h = new HostSimple(HOST_RAM, HOST_BW, HOST_STORAGE, peList);
-        h.setVmScheduler(new VmSchedulerSpaceShared());
+        //h.setVmScheduler(new VmSchedulerSpaceShared());
         return h;
     }
 
@@ -229,13 +198,10 @@ public class InfraBlack {
     }
 
     private List<Cloudlet> createCloudletsFromWorkloadFile() {
-        final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
         SwfWorkloadFileReader reader = SwfWorkloadFileReader.getInstance(WORKLOAD_FILENAME, 1);
         reader.setMaxLinesToRead(maximumNumberOfCloudletsToCreateFromTheWorkloadFile);
         this.cloudletList = reader.generateWorkload();
-        //cloudletList.forEach(c->c.setNumberOfPes(128));
         System.out.printf("# Created %12d Cloudlets for %n", this.cloudletList.size());
-        //cloudletList.forEach(c->c.addOnFinishListener(this::cloudletFinished));
         return cloudletList;
     }
 
@@ -373,50 +339,6 @@ public class InfraBlack {
         return metricValue;
 
     }
-
-    private void cloudletStared(CloudletVmEventInfo eventInfo){
-        System.out.println("Started: "+eventInfo.getCloudlet().getId()+" "+eventInfo.getVm().getId()+" "+eventInfo.getCloudlet().getFinishedLengthSoFar()+" "+eventInfo.getTime());
-    }
-
-    private void cloudletFinished(CloudletVmEventInfo eventInfo){
-        Cloudlet cloudlet = eventInfo.getCloudlet();
-        //((VmSimple) cloudlet.getVm()).addExpectedFreePesNumber(cloudlet.getNumberOfPes());
-        System.out.println(cloudlet.getId()+" finished at "+simulation.clock());
-    }
-
-    private void cloudletUpdated(CloudletVmEventInfo eventInfo){
-        System.out.println("Updated: "+eventInfo.getCloudlet().getId()+" "+eventInfo.getVm().getId()+" "+eventInfo.getCloudlet().getFinishedLengthSoFar()+" "+eventInfo.getTime());
-    }
-
-/*
-    private void getStatus(EventInfo eventInfo){
-        while(simulation.clock() > 30 ){
-            System.out.println(broker0.get);
-        }
-    }
-
- */
-
-
-    private void printOverSubscriptionDelay() {
-        final String format = "%s exec time: %6.2f | RAM/BW over-subscription delay: %6.2f secs | Expected finish time (if no over-subscription): %6.2f secs%n";
-        for (Vm vm : vmList) {
-            vm.getCloudletScheduler()
-                .getCloudletFinishedList()
-                .stream()
-                .filter(CloudletExecution::hasOverSubscription)
-                .forEach(cle -> System.out.printf(format, cle, cle.getCloudlet().getActualCpuTime(), cle.getOverSubscriptionDelay(), cle.getExpectedFinishTime()));
-        }
-    }
-
-
-
-
-
-
-
-
-
 
 
 }
